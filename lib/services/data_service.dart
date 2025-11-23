@@ -1,0 +1,35 @@
+import '../models/carpet.dart';
+import '../models/group_carpet.dart';
+import 'excel_service.dart';
+import 'report_service.dart';
+
+class DataService {
+  final ExcelService _excelService = ExcelService();
+  final ReportService _reportService = ReportService();
+
+  Future<List<Carpet>> readInputExcel(String path) async {
+    return await _excelService.readInputExcel(path);
+  }
+
+  Future<void> writeOutputExcel({
+    required String path,
+    required List<GroupCarpet> groups,
+    required List<Carpet> remaining,
+    int? minWidth,
+    int? maxWidth,
+    int? toleranceLength,
+    List<Carpet>? originals,
+    List<List<GroupCarpet>>? suggestedGroups,
+  }) async {
+    await _reportService.generateReport(
+      groups: groups,
+      remaining: remaining,
+      minWidth: minWidth ?? 0,
+      maxWidth: maxWidth ?? 0,
+      tolerance: toleranceLength ?? 0,
+      outputPath: path,
+      originalGroups: originals,
+      suggestedGroups: suggestedGroups,
+    );
+  }
+}
