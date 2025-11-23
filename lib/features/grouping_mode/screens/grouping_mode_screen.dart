@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../core/enums.dart';
 import '../../../core/widgets/radio_option_tile.dart';
+import '../../execution/screens/execution_screen.dart';
 
 class GroupingModeScreen extends StatefulWidget {
-  const GroupingModeScreen({super.key});
+  final String filePath;
+  final int minWidth;
+  final int maxWidth;
+  final int tolerance;
+  final SortType sortType;
+
+  const GroupingModeScreen({
+    super.key,
+    required this.filePath,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.tolerance,
+    required this.sortType,
+  });
 
   @override
   State<GroupingModeScreen> createState() => _GroupingModeScreenState();
@@ -58,7 +72,18 @@ class _GroupingModeScreenState extends State<GroupingModeScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Navigate to next screen (Processing)
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ExecutionScreen(
+                          filePath: widget.filePath,
+                          minWidth: widget.minWidth,
+                          maxWidth: widget.maxWidth,
+                          tolerance: widget.tolerance,
+                          sortType: widget.sortType,
+                          groupingMode: _selectedMode,
+                        ),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0D47A1), // Corporate Blue

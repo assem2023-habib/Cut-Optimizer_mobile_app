@@ -5,6 +5,7 @@ class CustomTextField extends StatelessWidget {
   final String initialValue;
   final String suffixText;
   final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
 
   const CustomTextField({
     super.key,
@@ -12,6 +13,7 @@ class CustomTextField extends StatelessWidget {
     required this.initialValue,
     this.suffixText = '',
     this.controller,
+    this.onChanged,
   });
 
   @override
@@ -36,6 +38,7 @@ class CustomTextField extends StatelessWidget {
           child: TextFormField(
             controller: controller ?? TextEditingController(text: initialValue),
             keyboardType: TextInputType.number,
+            onChanged: onChanged,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,

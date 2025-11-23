@@ -43,7 +43,10 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
   void _navigateToNextScreen() {
     if (_selectedFilePath != null) {
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => const SetConstraintsScreen()),
+        MaterialPageRoute(
+          builder: (context) =>
+              SetConstraintsScreen(filePath: _selectedFilePath!),
+        ),
       );
     }
   }

@@ -52,6 +52,8 @@ class GroupCarpet {
     return items[0].lengthRef;
   }
 
+  get carpets => null;
+
   void sortItemsByWidth({bool reverse = false}) {
     items.sort((a, b) => reverse ? b.width.compareTo(a.width) : a.width.compareTo(b.width));
   }

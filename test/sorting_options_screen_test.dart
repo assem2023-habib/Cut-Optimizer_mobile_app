@@ -7,7 +7,16 @@ void main() {
   testWidgets('SortingOptionsScreen renders correctly', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: SortingOptionsScreen()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SortingOptionsScreen(
+          filePath: '/test/file.xlsx',
+          minWidth: 50,
+          maxWidth: 400,
+          tolerance: 5,
+        ),
+      ),
+    );
 
     expect(find.text('SORTING OPTIONS'), findsOneWidget);
     expect(find.byType(SortingOptionTile), findsNWidgets(3));

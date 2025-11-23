@@ -8,7 +8,17 @@ void main() {
   testWidgets('GroupingModeScreen renders correctly', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: GroupingModeScreen()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: GroupingModeScreen(
+          filePath: '/test/file.xlsx',
+          minWidth: 50,
+          maxWidth: 400,
+          tolerance: 5,
+          sortType: SortType.sortByWidth,
+        ),
+      ),
+    );
 
     expect(find.text('GROUPING MODE'), findsOneWidget);
     expect(find.byType(RadioOptionTile<GroupingMode>), findsNWidgets(2));

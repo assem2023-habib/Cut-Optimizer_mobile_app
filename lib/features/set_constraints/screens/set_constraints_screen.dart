@@ -2,8 +2,61 @@ import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
 import '../../sorting_options/screens/sorting_options_screen.dart';
 
-class SetConstraintsScreen extends StatelessWidget {
-  const SetConstraintsScreen({super.key});
+class SetConstraintsScreen extends StatefulWidget {
+  final String filePath;
+
+  const SetConstraintsScreen({super.key, required this.filePath});
+
+  @override
+  State<SetConstraintsScreen> createState() => _SetConstraintsScreenState();
+}
+
+class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
+  final TextEditingController _maxWidthController = TextEditingController(
+    text: "400",
+  );
+  final TextEditingController _minWidthController = TextEditingController(
+    text: "50",
+  );
+  final TextEditingController _toleranceController = TextEditingController(
+    text: "5",
+  );
+
+  @override
+  void dispose() {
+    _maxWidthController.dispose();
+    _minWidthController.dispose();
+    _toleranceController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToNextScreen() {
+    final maxWidth = int.tryParse(_maxWidthController.text) ?? 400;
+    final minWidth = int.tryParse(_minWidthController.text) ?? 50;
+    final tolerance = int.tryParse(_toleranceController.text) ?? 5;
+
+    // Validate constraints
+    if (minWidth >= maxWidth) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Minimum width must be less than maximum width"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SortingOptionsScreen(
+          filePath: widget.filePath,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          tolerance: tolerance,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,36 +92,32 @@ class SetConstraintsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 40),
-                        const CustomTextField(
+                        CustomTextField(
                           label: "Max Width",
-                          initialValue: "100",
+                          initialValue: "400",
                           suffixText: "cm",
+                          controller: _maxWidthController,
                         ),
                         const SizedBox(height: 24),
-                        const CustomTextField(
+                        CustomTextField(
                           label: "Min Width",
-                          initialValue: "10",
-                          suffixText: "cm",
-                        ),
-                        const SizedBox(height: 24),
-                        const CustomTextField(
-                          label: "Allowed Width",
                           initialValue: "50",
                           suffixText: "cm",
+                          controller: _minWidthController,
+                        ),
+                        const SizedBox(height: 24),
+                        CustomTextField(
+                          label: "Tolerance",
+                          initialValue: "5",
+                          suffixText: "cm",
+                          controller: _toleranceController,
                         ),
                         const Spacer(),
                         SizedBox(
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const SortingOptionsScreen(),
-                                ),
-                              );
-                            },
+                            onPressed: _navigateToNextScreen,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(
                                 0xFF0D47A1,

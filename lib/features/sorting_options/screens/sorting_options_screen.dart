@@ -4,7 +4,18 @@ import '../../../core/widgets/radio_option_tile.dart';
 import '../../grouping_mode/screens/grouping_mode_screen.dart';
 
 class SortingOptionsScreen extends StatefulWidget {
-  const SortingOptionsScreen({super.key});
+  final String filePath;
+  final int minWidth;
+  final int maxWidth;
+  final int tolerance;
+
+  const SortingOptionsScreen({
+    super.key,
+    required this.filePath,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.tolerance,
+  });
 
   @override
   State<SortingOptionsScreen> createState() => _SortingOptionsScreenState();
@@ -67,7 +78,13 @@ class _SortingOptionsScreenState extends State<SortingOptionsScreen> {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const GroupingModeScreen(),
+                        builder: (context) => GroupingModeScreen(
+                          filePath: widget.filePath,
+                          minWidth: widget.minWidth,
+                          maxWidth: widget.maxWidth,
+                          tolerance: widget.tolerance,
+                          sortType: _selectedSortType,
+                        ),
                       ),
                     );
                   },
