@@ -18,69 +18,84 @@ class SetConstraintsScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "SET CONSTRAINTS",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: Colors.blue.shade900,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "SET CONSTRAINTS",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            color: Colors.blue.shade900,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        const CustomTextField(
+                          label: "Max Width",
+                          initialValue: "100",
+                          suffixText: "cm",
+                        ),
+                        const SizedBox(height: 24),
+                        const CustomTextField(
+                          label: "Min Width",
+                          initialValue: "10",
+                          suffixText: "cm",
+                        ),
+                        const SizedBox(height: 24),
+                        const CustomTextField(
+                          label: "Allowed Width",
+                          initialValue: "50",
+                          suffixText: "cm",
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const SortingOptionsScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFF0D47A1,
+                              ), // Corporate Blue
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              "Next >",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
-              const CustomTextField(
-                label: "Max Width",
-                initialValue: "100",
-                suffixText: "cm",
-              ),
-              const SizedBox(height: 24),
-              const CustomTextField(
-                label: "Min Width",
-                initialValue: "10",
-                suffixText: "cm",
-              ),
-              const SizedBox(height: 24),
-              const CustomTextField(
-                label: "Allowed Width",
-                initialValue: "50",
-                suffixText: "cm",
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SortingOptionsScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D47A1), // Corporate Blue
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    "Next >",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
