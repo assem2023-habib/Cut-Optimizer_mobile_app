@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
 import '../../sorting_options/screens/sorting_options_screen.dart';
+import '../../../models/config.dart';
 
 class SetConstraintsScreen extends StatefulWidget {
   final String filePath;
+  final Config config;
 
-  const SetConstraintsScreen({super.key, required this.filePath});
+  const SetConstraintsScreen({
+    super.key,
+    required this.filePath,
+    required this.config,
+  });
 
   @override
   State<SetConstraintsScreen> createState() => _SetConstraintsScreenState();
@@ -53,6 +59,7 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
           minWidth: minWidth,
           maxWidth: maxWidth,
           tolerance: tolerance,
+          config: widget.config,
         ),
       ),
     );

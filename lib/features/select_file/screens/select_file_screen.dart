@@ -123,6 +123,7 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
             minWidth: 50, // Default values
             maxWidth: 400,
             tolerance: 5,
+            config: _config ?? Config.defaultConfig(),
           ),
         ),
       );

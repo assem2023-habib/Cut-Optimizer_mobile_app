@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../../../core/enums.dart';
 import '../../../core/widgets/radio_option_tile.dart';
 import '../../grouping_mode/screens/grouping_mode_screen.dart';
+import '../../../models/config.dart';
 
 class SortingOptionsScreen extends StatefulWidget {
   final String filePath;
   final int minWidth;
   final int maxWidth;
   final int tolerance;
+  final Config config;
 
   const SortingOptionsScreen({
     super.key,
@@ -15,6 +17,7 @@ class SortingOptionsScreen extends StatefulWidget {
     required this.minWidth,
     required this.maxWidth,
     required this.tolerance,
+    required this.config,
   });
 
   @override
@@ -83,6 +86,7 @@ class _SortingOptionsScreenState extends State<SortingOptionsScreen> {
                           minWidth: widget.minWidth,
                           maxWidth: widget.maxWidth,
                           tolerance: widget.tolerance,
+                          config: widget.config,
                         ),
                       ),
                     );

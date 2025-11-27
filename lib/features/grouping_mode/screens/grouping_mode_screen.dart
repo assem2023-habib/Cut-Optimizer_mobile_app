@@ -4,12 +4,15 @@ import '../widgets/measurement_constraints_panel.dart';
 import '../widgets/sort_configuration_panel.dart';
 import '../widgets/processing_options_panel.dart';
 import '../../execution/screens/execution_screen.dart';
+import '../../../models/config.dart';
+import '../../../services/background_service.dart';
 
 class GroupingModeScreen extends StatefulWidget {
   final String filePath;
   final int minWidth;
   final int maxWidth;
   final int tolerance;
+  final Config config;
 
   const GroupingModeScreen({
     super.key,
@@ -17,6 +20,7 @@ class GroupingModeScreen extends StatefulWidget {
     required this.minWidth,
     required this.maxWidth,
     required this.tolerance,
+    required this.config,
   });
 
   @override
@@ -115,6 +119,7 @@ class _GroupingModeScreenState extends State<GroupingModeScreen> {
           groupingMode: groupingMode,
           optimizeResults: _optimizeResults,
           generateReport: _generateReport,
+          config: widget.config,
         ),
       ),
     );
@@ -123,7 +128,8 @@ class _GroupingModeScreenState extends State<GroupingModeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F7FA),
+      backgroundColor: Colors.transparent, // Transparent to show background
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -132,70 +138,106 @@ class _GroupingModeScreenState extends State<GroupingModeScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(24),
-            child: Container(
-              constraints: BoxConstraints(maxWidth: 1200),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              padding: EdgeInsets.all(32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    children: [
-                      Icon(Icons.tune, color: Color(0xFF6B4EEB), size: 24),
-                      SizedBox(width: 12),
-                      Text(
-                        'Processing Conf',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
+      body: Container(
+        decoration: BackgroundService.getBackgroundDecoration(
+          widget.config.backgroundImage,
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(24),
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 1200),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(
+                    0.9,
+                  ), // Semi-transparent white
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color.fromRGBO(0, 0, 0, 0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: EdgeInsets.all(32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        Icon(Icons.tune, color: Color(0xFF6B4EEB), size: 24),
+                        SizedBox(width: 12),
+                        Text(
+                          'Processing Conf',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF333333),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 32),
+                      ],
+                    ),
+                    SizedBox(height: 32),
 
-                  // Three Panels
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      if (constraints.maxWidth > 800) {
-                        // Desktop: Horizontal layout
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: MeasurementConstraintsPanel(
+                    // Three Panels
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth > 800) {
+                          // Desktop: Horizontal layout
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: MeasurementConstraintsPanel(
+                                  minWidthController: _minWidthController,
+                                  maxWidthController: _maxWidthController,
+                                  toleranceController: _toleranceController,
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: SortConfigurationPanel(
+                                  selectedSortType: _selectedSortType,
+                                  onChanged: (value) =>
+                                      setState(() => _selectedSortType = value),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: ProcessingOptionsPanel(
+                                  advancedGrouping: _advancedGrouping,
+                                  optimizeResults: _optimizeResults,
+                                  generateReport: _generateReport,
+                                  onAdvancedGroupingChanged: (value) =>
+                                      setState(() => _advancedGrouping = value),
+                                  onOptimizeResultsChanged: (value) =>
+                                      setState(() => _optimizeResults = value),
+                                  onGenerateReportChanged: (value) =>
+                                      setState(() => _generateReport = value),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          // Mobile: Vertical layout
+                          return Column(
+                            children: [
+                              MeasurementConstraintsPanel(
                                 minWidthController: _minWidthController,
                                 maxWidthController: _maxWidthController,
                                 toleranceController: _toleranceController,
                               ),
-                            ),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: SortConfigurationPanel(
+                              SizedBox(height: 16),
+                              SortConfigurationPanel(
                                 selectedSortType: _selectedSortType,
                                 onChanged: (value) =>
                                     setState(() => _selectedSortType = value),
                               ),
-                            ),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: ProcessingOptionsPanel(
+                              SizedBox(height: 16),
+                              ProcessingOptionsPanel(
                                 advancedGrouping: _advancedGrouping,
                                 optimizeResults: _optimizeResults,
                                 generateReport: _generateReport,
@@ -206,75 +248,46 @@ class _GroupingModeScreenState extends State<GroupingModeScreen> {
                                 onGenerateReportChanged: (value) =>
                                     setState(() => _generateReport = value),
                               ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        // Mobile: Vertical layout
-                        return Column(
-                          children: [
-                            MeasurementConstraintsPanel(
-                              minWidthController: _minWidthController,
-                              maxWidthController: _maxWidthController,
-                              toleranceController: _toleranceController,
-                            ),
-                            SizedBox(height: 16),
-                            SortConfigurationPanel(
-                              selectedSortType: _selectedSortType,
-                              onChanged: (value) =>
-                                  setState(() => _selectedSortType = value),
-                            ),
-                            SizedBox(height: 16),
-                            ProcessingOptionsPanel(
-                              advancedGrouping: _advancedGrouping,
-                              optimizeResults: _optimizeResults,
-                              generateReport: _generateReport,
-                              onAdvancedGroupingChanged: (value) =>
-                                  setState(() => _advancedGrouping = value),
-                              onOptimizeResultsChanged: (value) =>
-                                  setState(() => _optimizeResults = value),
-                              onGenerateReportChanged: (value) =>
-                                  setState(() => _generateReport = value),
-                            ),
-                          ],
-                        );
-                      }
-                    },
-                  ),
+                            ],
+                          );
+                        }
+                      },
+                    ),
 
-                  SizedBox(height: 32),
+                    SizedBox(height: 32),
 
-                  // Next Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _startProcessing,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF6B4EEB),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Next',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    // Next Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _startProcessing,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF6B4EEB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 20),
-                        ],
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward, size: 20),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

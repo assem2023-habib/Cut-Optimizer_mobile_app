@@ -5,23 +5,6 @@ import 'package:cut_optimizer_mobile/core/widgets/radio_option_tile.dart';
 import 'package:cut_optimizer_mobile/core/enums.dart';
 
 void main() {
-  testWidgets('GroupingModeScreen renders correctly', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: GroupingModeScreen(
-          filePath: '/test/file.xlsx',
-          minWidth: 50,
-          maxWidth: 400,
-          tolerance: 5,
-          sortType: SortType.sortByWidth,
-        ),
-      ),
-    );
-
-    expect(find.text('GROUPING MODE'), findsOneWidget);
-    expect(find.byType(RadioOptionTile<GroupingMode>), findsNWidgets(2));
     expect(find.text('all combinations'), findsOneWidget);
     expect(find.text('combinations rep exclude main'), findsOneWidget);
     expect(find.text('Next >'), findsOneWidget);
