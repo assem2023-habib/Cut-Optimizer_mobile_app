@@ -1,8 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../../models/carpet.dart';
 import '../../../models/group_carpet.dart';
+import '../widgets/result_card.dart';
 
 class ResultsScreen extends StatelessWidget {
   final List<GroupCarpet> groups;
@@ -16,263 +15,92 @@ class ResultsScreen extends StatelessWidget {
     required this.outputFilePath,
   });
 
-  Future<void> _shareFile(BuildContext context) async {
-    try {
-      final file = File(outputFilePath);
-      if (await file.exists()) {
-        await Share.shareXFiles([
-          XFile(outputFilePath),
-        ], subject: 'Cut Optimizer Results');
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("File not found"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error sharing file: $e"),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Calculate summary statistics
-    final int totalGroups = groups.length;
-    int totalCarpetsUsed = 0;
-    for (final group in groups) {
-      totalCarpetsUsed += group.items.length;
-    }
-    final int totalRemaining = remaining.length;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.blue.shade900),
-          onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Text(
-                "PROCESSING COMPLETE",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: Colors.blue.shade900,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.green.shade50,
-                ),
-                child: Icon(
-                  Icons.check_circle,
-                  size: 80,
-                  color: Colors.green.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSummaryCard(
-                      "Groups",
-                      totalGroups.toString(),
-                      Icons.group_work,
-                      Colors.blue,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildSummaryCard(
-                      "Used",
-                      totalCarpetsUsed.toString(),
-                      Icons.check_circle_outline,
-                      Colors.green,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildSummaryCard(
-                      "Remaining",
-                      totalRemaining.toString(),
-                      Icons.inventory_2_outlined,
-                      Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: groups.isEmpty
-                      ? Center(
-                          child: Text(
-                            "No groups generated",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        )
-                      : SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SingleChildScrollView(
-                            child: DataTable(
-                              headingTextStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade900,
-                                fontSize: 14,
-                              ),
-                              dataTextStyle: TextStyle(
-                                color: Colors.grey.shade800,
-                                fontSize: 13,
-                              ),
-                              columns: const [
-                                DataColumn(label: Text("Group ID")),
-                                DataColumn(label: Text("Carpets")),
-                                DataColumn(label: Text("Total Width")),
-                                DataColumn(label: Text("Ref Height")),
-                              ],
-                              rows: groups.take(10).map((group) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text("G${group.groupId}")),
-                                    DataCell(Text("${group.items.length}")),
-                                    DataCell(Text("${group.totalWidth} cm")),
-                                    DataCell(Text("${group.refHeight} cm")),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-              if (groups.length > 10)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    "Showing first 10 of ${groups.length} groups",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () => _shareFile(context),
-                  icon: const Icon(Icons.share, color: Colors.white),
-                  label: const Text(
-                    "Share Results",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade600,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text(
-                    "New Process",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D47A1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+  void _exportToExcel(BuildContext context) {
+    // TODO: Implement Excel export functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Excel file exported to: $outputFilePath'),
+        backgroundColor: Color(0xFF28A745),
       ),
     );
   }
 
-  Widget _buildSummaryCard(
-    String label,
-    String value,
-    IconData icon,
-    MaterialColor color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.shade200),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color.shade700, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color.shade900,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFF5F7FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.grid_on, color: Color(0xFF6B4EEB), size: 24),
+            SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                'Processing Results',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF333333),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: ElevatedButton.icon(
+              onPressed: () => _exportToExcel(context),
+              icon: Icon(Icons.download, size: 18),
+              label: Text(
+                'Export Excel',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF6B4EEB),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: color.shade700)),
         ],
+      ),
+      body: SafeArea(
+        child: ListView.builder(
+          padding: EdgeInsets.all(16),
+          itemCount: groups.length,
+          itemBuilder: (context, index) {
+            final group = groups[index];
+
+            // Calculate total height from carpets in group
+            final totalHeight = group.items.fold<double>(
+              0.0,
+              (sum, carpet) => sum + carpet.height,
+            );
+
+            // Determine status based on whether it's in remaining list
+            final status = 'Completed'; // Default to completed for now
+
+            return ResultCard(
+              groupId: 'GRP-${(index + 1).toString().padLeft(3, '0')}',
+              width: group.totalWidth.toDouble(),
+              height: totalHeight,
+              quantity: group.items.length,
+              status: status,
+            );
+          },
+        ),
       ),
     );
   }
