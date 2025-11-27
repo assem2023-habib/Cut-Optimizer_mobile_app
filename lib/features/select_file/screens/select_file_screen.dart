@@ -1,9 +1,9 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import '../../../services/file_store_service.dart';
-import '../widgets/upload_box.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:excel/excel.dart';
+import 'dart:io';
+import '../widgets/file_import_section.dart';
+import '../widgets/file_preview_section.dart';
 import '../../set_constraints/screens/set_constraints_screen.dart';
 
 class SelectFileScreen extends StatefulWidget {
@@ -15,38 +15,48 @@ class SelectFileScreen extends StatefulWidget {
 
 class _SelectFileScreenState extends State<SelectFileScreen> {
   String? _selectedFilePath;
+  String? _fileName;
+  int? _rows;
+  int? _columns;
+  bool _isLoading = false;
 
-  void _handleFileSelection(String path) {
+  Future<void> _handleFileSelection(String filePath, PlatformFile file) async {
     setState(() {
-      _selectedFilePath = path;
+      _isLoading = true;
+      _selectedFilePath = filePath;
+      _fileName = file.name;
     });
-    // ignore: avoid_print
-    print("File selected: $path");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("File selected: ${path.split('/').last}"),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
 
-  Future<void> _pickFileManually() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx', 'xls'],
-      withData: true, // Ensure bytes are loaded on web
-    );
+    try {
+      // Read Excel file to get actual row/column count
+      var bytes = File(filePath).readAsBytesSync();
+      var excel = Excel.decodeBytes(bytes);
 
-    if (result != null) {
-      if (kIsWeb) {
-        if (result.files.single.bytes != null) {
-          FileStoreService().setInputBytes(result.files.single.bytes!);
-          // Use a dummy path for web to satisfy the non-null requirement
-          _handleFileSelection("web_upload.xlsx");
+      // Get the first sheet
+      if (excel.tables.isNotEmpty) {
+        var table = excel.tables[excel.tables.keys.first];
+        if (table != null) {
+          setState(() {
+            _rows = table.maxRows;
+            _columns = table.maxColumns;
+            _isLoading = false;
+          });
         }
-      } else if (result.files.single.path != null) {
-        _handleFileSelection(result.files.single.path!);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _rows = 0;
+        _columns = 0;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error reading Excel file: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -65,80 +75,113 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF5F7FA),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 0,
+      ),
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "SELECT EXCEL FILE",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    color: Colors.blue.shade900,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(24),
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 1200),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
                   ),
-                ),
-                const SizedBox(height: 40),
-                UploadBox(onFileSelected: _handleFileSelection),
-                const SizedBox(height: 40),
-                TextButton.icon(
-                  onPressed: _pickFileManually,
-                  icon: Icon(
-                    CupertinoIcons.folder,
-                    size: 20,
-                    color: Colors.blue.shade700,
+                ],
+              ),
+              padding: EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Responsive layout
+                      if (constraints.maxWidth > 600) {
+                        // Desktop/Tablet: Side by side
+                        return IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: FileImportSection(
+                                  onFileSelected: _handleFileSelection,
+                                ),
+                              ),
+                              SizedBox(width: 48),
+                              Expanded(
+                                child: FilePreviewSection(
+                                  fileName: _fileName,
+                                  rows: _rows,
+                                  columns: _columns,
+                                  isLoading: _isLoading,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        // Mobile: Stacked vertically
+                        return Column(
+                          children: [
+                            FileImportSection(
+                              onFileSelected: _handleFileSelection,
+                            ),
+                            SizedBox(height: 32),
+                            FilePreviewSection(
+                              fileName: _fileName,
+                              rows: _rows,
+                              columns: _columns,
+                              isLoading: _isLoading,
+                            ),
+                          ],
+                        );
+                      }
+                    },
                   ),
-                  label: Text(
-                    "or select from device",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue.shade700,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 60),
-                // Show Continue button only when file is selected
-                AnimatedOpacity(
-                  opacity: _selectedFilePath != null ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: AnimatedSlide(
-                    offset: _selectedFilePath != null
-                        ? Offset.zero
-                        : const Offset(0, 0.3),
-                    duration: const Duration(milliseconds: 300),
-                    child: SizedBox(
+
+                  // Next Button
+                  if (_selectedFilePath != null && !_isLoading) ...[
+                    SizedBox(height: 32),
+                    SizedBox(
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _selectedFilePath != null
-                            ? _navigateToNextScreen
-                            : null,
+                        onPressed: _navigateToNextScreen,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0D47A1),
-                          disabledBackgroundColor: Colors.grey.shade300,
+                          backgroundColor: Color(0xFF6B4EEB),
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          "Next >",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward, size: 20),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                ],
+              ),
             ),
           ),
         ),
