@@ -3,6 +3,8 @@ import '../../../models/carpet.dart';
 import '../../../models/group_carpet.dart';
 import '../widgets/result_card.dart';
 import '../../../services/report_service.dart';
+import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ResultsScreen extends StatelessWidget {
   final List<GroupCarpet> groups;
@@ -41,10 +43,31 @@ class ResultsScreen extends StatelessWidget {
       );
 
       if (context.mounted) {
+        // Share the file to allow saving/sending
+        await Share.shareXFiles([
+          XFile(outputFilePath),
+        ], text: 'Cut Optimizer Results');
+      }
+    } catch (e) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Excel file exported to: $outputFilePath'),
-            backgroundColor: Color(0xFF28A745),
+            content: Text('Error exporting Excel: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _openExcel(BuildContext context) async {
+    try {
+      final result = await OpenFile.open(outputFilePath);
+      if (result.type != ResultType.done && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open file: ${result.message}'),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -52,7 +75,7 @@ class ResultsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting Excel: $e'),
+            content: Text('Error opening file: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -135,6 +158,32 @@ class ResultsScreen extends StatelessWidget {
               status: status,
             );
           },
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, -5),
+            ),
+          ],
+        ),
+        child: ElevatedButton.icon(
+          onPressed: () => _openExcel(context),
+          icon: Icon(Icons.open_in_new),
+          label: Text('Open Excel File'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF28A745),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         ),
       ),
     );
