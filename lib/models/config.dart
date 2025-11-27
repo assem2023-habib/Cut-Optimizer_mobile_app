@@ -1,5 +1,7 @@
 import '../core/enums.dart';
 
+enum BackgroundType { gradient, image }
+
 class MachineSize {
   final String name;
   final int minWidth;
@@ -35,6 +37,7 @@ class Config {
   bool allowSplitRows;
   String theme;
   String backgroundImage;
+  BackgroundType backgroundType;
   List<MachineSize> machineSizes;
   GroupingMode selectedMode;
   SortType selectedSortType;
@@ -50,6 +53,7 @@ class Config {
     required this.allowSplitRows,
     required this.theme,
     required this.backgroundImage,
+    required this.backgroundType,
     required this.machineSizes,
     required this.selectedMode,
     required this.selectedSortType,
@@ -67,6 +71,9 @@ class Config {
       allowSplitRows: json['allow_split_rows'] as bool,
       theme: json['theme'] as String,
       backgroundImage: json['background_image'] as String,
+      backgroundType: _parseBackgroundType(
+        json['background_type'] as String? ?? 'gradient',
+      ),
       machineSizes: (json['machine_sizes'] as List<dynamic>? ?? [])
           .map((e) => MachineSize.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -87,10 +94,31 @@ class Config {
       'allow_split_rows': allowSplitRows,
       'theme': theme,
       'background_image': backgroundImage,
+      'background_type': _backgroundTypeToString(backgroundType),
       'machine_sizes': machineSizes.map((e) => e.toJson()).toList(),
       'selected_mode': _groupingModeToString(selectedMode),
       'selected_sort_type': _sortTypeToString(selectedSortType),
     };
+  }
+
+  static BackgroundType _parseBackgroundType(String value) {
+    switch (value) {
+      case 'gradient':
+        return BackgroundType.gradient;
+      case 'image':
+        return BackgroundType.image;
+      default:
+        return BackgroundType.gradient;
+    }
+  }
+
+  static String _backgroundTypeToString(BackgroundType type) {
+    switch (type) {
+      case BackgroundType.gradient:
+        return 'gradient';
+      case BackgroundType.image:
+        return 'image';
+    }
   }
 
   static GroupingMode _parseGroupingMode(String value) {
@@ -149,6 +177,7 @@ class Config {
       allowSplitRows: true,
       theme: "dark",
       backgroundImage: "gradient_blue_purple",
+      backgroundType: BackgroundType.gradient,
       machineSizes: [
         MachineSize(name: 'Small', minWidth: 50, maxWidth: 200),
         MachineSize(name: 'Medium', minWidth: 200, maxWidth: 350),

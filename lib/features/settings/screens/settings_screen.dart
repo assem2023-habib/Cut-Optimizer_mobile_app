@@ -50,6 +50,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _selectGradient(String gradientId) {
     setState(() {
       _config.backgroundImage = gradientId;
+      _config.backgroundType = BackgroundType.gradient;
+    });
+    _saveConfig();
+  }
+
+  void _setBackgroundType(BackgroundType type) {
+    setState(() {
+      _config.backgroundType = type;
+      // If switching to gradient and current background is a file path, set default gradient
+      if (type == BackgroundType.gradient &&
+          !_config.backgroundImage.startsWith('gradient_')) {
+        _config.backgroundImage = 'gradient_blue_purple';
+      }
     });
     _saveConfig();
   }
@@ -93,8 +106,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         await File(image.path).copy(savedPath);
 
+        // Delete old background images
+        await BackgroundService.deleteOldBackgroundImages(savedPath);
+
         setState(() {
           _config.backgroundImage = savedPath;
+          _config.backgroundType = BackgroundType.image;
         });
         _saveConfig();
 
@@ -192,51 +209,143 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SizedBox(height: 16),
-        // Subsection title
-        Text(
-          'Choose Background',
-          style: SettingsTheme.cardText.copyWith(fontSize: 14),
-        ),
-        SizedBox(height: 12),
-        // Gradient options
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: BackgroundService.presetGradients.map((gradient) {
-              return GradientOption(
-                gradient: gradient,
-                isSelected: _config.backgroundImage == gradient.id,
-                onTap: () => _selectGradient(gradient.id),
-              );
-            }).toList(),
-          ),
+        // Radio buttons for background type
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _setBackgroundType(BackgroundType.gradient),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: _config.backgroundType == BackgroundType.gradient
+                        ? SettingsTheme.neonGreen.withOpacity(0.2)
+                        : SettingsTheme.lightGlass,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _config.backgroundType == BackgroundType.gradient
+                          ? SettingsTheme.neonGreen
+                          : Colors.white.withOpacity(0.1),
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _config.backgroundType == BackgroundType.gradient
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        color: _config.backgroundType == BackgroundType.gradient
+                            ? SettingsTheme.neonGreen
+                            : SettingsTheme.textGrey,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Gradient',
+                        style: SettingsTheme.cardText.copyWith(
+                          fontSize: 16,
+                          color:
+                              _config.backgroundType == BackgroundType.gradient
+                              ? SettingsTheme.neonGreen
+                              : SettingsTheme.textWhite,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _setBackgroundType(BackgroundType.image),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: _config.backgroundType == BackgroundType.image
+                        ? SettingsTheme.neonGreen.withOpacity(0.2)
+                        : SettingsTheme.lightGlass,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _config.backgroundType == BackgroundType.image
+                          ? SettingsTheme.neonGreen
+                          : Colors.white.withOpacity(0.1),
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _config.backgroundType == BackgroundType.image
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        color: _config.backgroundType == BackgroundType.image
+                            ? SettingsTheme.neonGreen
+                            : SettingsTheme.textGrey,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Image',
+                        style: SettingsTheme.cardText.copyWith(
+                          fontSize: 16,
+                          color: _config.backgroundType == BackgroundType.image
+                              ? SettingsTheme.neonGreen
+                              : SettingsTheme.textWhite,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 16),
-        // Upload image button
-        GestureDetector(
-          onTap: _uploadImage,
-          child: Container(
-            height: 120,
-            width: 120,
-            decoration: SettingsTheme.glassContainer(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.cloud_upload_outlined,
-                  color: SettingsTheme.neonGreen,
-                  size: 40,
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Upload\nImage',
-                  textAlign: TextAlign.center,
-                  style: SettingsTheme.cardText.copyWith(fontSize: 14),
-                ),
-              ],
+        // Conditional rendering based on background type
+        if (_config.backgroundType == BackgroundType.gradient)
+          // Gradient options
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: BackgroundService.presetGradients.map((gradient) {
+                return GradientOption(
+                  gradient: gradient,
+                  isSelected: _config.backgroundImage == gradient.id,
+                  onTap: () => _selectGradient(gradient.id),
+                );
+              }).toList(),
+            ),
+          )
+        else
+          // Upload image button
+          GestureDetector(
+            onTap: _uploadImage,
+            child: Container(
+              height: 120,
+              width: 120,
+              decoration: SettingsTheme.glassContainer(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.cloud_upload_outlined,
+                    color: SettingsTheme.neonGreen,
+                    size: 40,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Upload\nImage',
+                    textAlign: TextAlign.center,
+                    style: SettingsTheme.cardText.copyWith(fontSize: 14),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }

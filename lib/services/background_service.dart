@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class BackgroundService {
   // Preset gradient backgrounds
@@ -64,6 +65,33 @@ class BackgroundService {
         fit: BoxFit.cover,
       ),
     );
+  }
+
+  static Future<void> deleteOldBackgroundImages(String currentImagePath) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final dir = Directory(directory.path);
+
+      // List all files in the directory
+      final files = dir.listSync();
+
+      for (var file in files) {
+        if (file is File) {
+          final fileName = file.path.split(Platform.pathSeparator).last;
+          // Check if it's a background image file and not the current one
+          if (fileName.startsWith('background_') &&
+              (fileName.endsWith('.jpg') ||
+                  fileName.endsWith('.jpeg') ||
+                  fileName.endsWith('.png')) &&
+              file.path != currentImagePath) {
+            await file.delete();
+            print('Deleted old background: ${file.path}');
+          }
+        }
+      }
+    } catch (e) {
+      print('Error deleting old background images: $e');
+    }
   }
 }
 
