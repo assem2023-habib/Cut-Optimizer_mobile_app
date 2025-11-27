@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
+import '../../../models/config.dart';
+import '../../../core/enums.dart';
 
 class ProcessingConfigSection extends StatefulWidget {
-  const ProcessingConfigSection({super.key});
+  final Config config;
+  final Function(
+    MachineSize? machine,
+    String tolerance,
+    SortType sortType,
+    GroupingMode groupingMode,
+  )
+  onChanged;
+
+  const ProcessingConfigSection({
+    super.key,
+    required this.config,
+    required this.onChanged,
+  });
 
   @override
   State<ProcessingConfigSection> createState() =>
@@ -10,33 +25,41 @@ class ProcessingConfigSection extends StatefulWidget {
 
 class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
   // State for Panel A
-  final List<Map<String, dynamic>> machineSizes = [
-    {'name': 'Small', 'min': 300, 'max': 400},
-    {'name': 'Medium', 'min': 400, 'max': 600},
-    {'name': 'Large', 'min': 600, 'max': 800},
-  ];
-  Map<String, dynamic>? selectedMachineSize;
+  MachineSize? selectedMachineSize;
   final TextEditingController toleranceController = TextEditingController(
     text: "5",
   );
 
   // State for Panel B
-  String sortOption = "Height";
+  SortType sortOption = SortType.sortByHeight;
 
   // State for Panel C
-  String processingOption = "No Main Repeat";
+  GroupingMode processingOption = GroupingMode.noMainRepeat;
 
   @override
   void initState() {
     super.initState();
     // Default selection for Panel A
-    if (machineSizes.isNotEmpty) {
-      selectedMachineSize = machineSizes[0];
+    if (widget.config.machineSizes.isNotEmpty) {
+      selectedMachineSize = widget.config.machineSizes[0];
     }
+    toleranceController.addListener(_notifyParent);
+    // Initial notification
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifyParent());
+  }
+
+  void _notifyParent() {
+    widget.onChanged(
+      selectedMachineSize,
+      toleranceController.text,
+      sortOption,
+      processingOption,
+    );
   }
 
   @override
   void dispose() {
+    toleranceController.removeListener(_notifyParent);
     toleranceController.dispose();
     super.dispose();
   }
@@ -91,11 +114,7 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child:
-            child, // BackdropFilter could be added here if performance allows
-      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(12), child: child),
     );
   }
 
@@ -155,15 +174,15 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
                 border: Border.all(color: accentColor),
               ),
               child: DropdownButtonHideUnderline(
-                child: DropdownButton<Map<String, dynamic>>(
+                child: DropdownButton<MachineSize>(
                   value: selectedMachineSize,
                   isExpanded: true,
                   icon: Icon(Icons.arrow_drop_down, color: accentColor),
-                  items: machineSizes.map((size) {
-                    return DropdownMenuItem<Map<String, dynamic>>(
+                  items: widget.config.machineSizes.map((size) {
+                    return DropdownMenuItem<MachineSize>(
                       value: size,
                       child: Text(
-                        "${size['name']} (${size['min']}-${size['max']})",
+                        "${size.name} (${size.minWidth}-${size.maxWidth})",
                         style: const TextStyle(
                           fontFamily: 'Segoe UI',
                           fontSize: 14,
@@ -174,6 +193,7 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
                   onChanged: (val) {
                     setState(() {
                       selectedMachineSize = val;
+                      _notifyParent();
                     });
                   },
                 ),
@@ -231,24 +251,28 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
           children: [
             _buildHeader("Sort Configuration", Icons.sort, accentColor),
 
-            _buildRadioButton(
-              "Width",
-              sortOption,
-              (val) => setState(() => sortOption = val!),
-              accentColor,
-            ),
-            _buildRadioButton(
-              "Quantity",
-              sortOption,
-              (val) => setState(() => sortOption = val!),
-              accentColor,
-            ),
-            _buildRadioButton(
-              "Height",
-              sortOption,
-              (val) => setState(() => sortOption = val!),
-              accentColor,
-            ),
+            _buildRadioButton("Width", SortType.sortByWidth, sortOption, (val) {
+              setState(() {
+                sortOption = val!;
+                _notifyParent();
+              });
+            }, accentColor),
+            _buildRadioButton("Quantity", SortType.sortByQuantity, sortOption, (
+              val,
+            ) {
+              setState(() {
+                sortOption = val!;
+                _notifyParent();
+              });
+            }, accentColor),
+            _buildRadioButton("Height", SortType.sortByHeight, sortOption, (
+              val,
+            ) {
+              setState(() {
+                sortOption = val!;
+                _notifyParent();
+              });
+            }, accentColor),
           ],
         ),
       ),
@@ -272,8 +296,14 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
               message: "Process all possible combinations",
               child: _buildRadioButton(
                 "All Combinations",
+                GroupingMode.allCombinations,
                 processingOption,
-                (val) => setState(() => processingOption = val!),
+                (val) {
+                  setState(() {
+                    processingOption = val!;
+                    _notifyParent();
+                  });
+                },
                 accentColor,
               ),
             ),
@@ -281,8 +311,14 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
               message: "Avoid repeating the main pattern",
               child: _buildRadioButton(
                 "No Main Repeat",
+                GroupingMode.noMainRepeat,
                 processingOption,
-                (val) => setState(() => processingOption = val!),
+                (val) {
+                  setState(() {
+                    processingOption = val!;
+                    _notifyParent();
+                  });
+                },
                 accentColor,
               ),
             ),
@@ -292,10 +328,11 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
     );
   }
 
-  Widget _buildRadioButton(
-    String value,
-    String groupValue,
-    ValueChanged<String?> onChanged,
+  Widget _buildRadioButton<T>(
+    String label,
+    T value,
+    T groupValue,
+    ValueChanged<T?> onChanged,
     Color activeColor,
   ) {
     return InkWell(
@@ -304,7 +341,7 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
           children: [
-            Radio<String>(
+            Radio<T>(
               value: value,
               groupValue: groupValue,
               onChanged: onChanged,
@@ -314,7 +351,7 @@ class _ProcessingConfigSectionState extends State<ProcessingConfigSection> {
             ),
             const SizedBox(width: 4),
             Text(
-              value,
+              label,
               style: const TextStyle(fontFamily: 'Segoe UI', fontSize: 14),
             ),
           ],

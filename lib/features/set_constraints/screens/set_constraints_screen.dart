@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_text_field.dart';
+import '../../../core/enums.dart';
+import '../../execution/screens/execution_screen.dart';
 import '../widgets/processing_config_section.dart';
-import '../../sorting_options/screens/sorting_options_screen.dart';
 import '../../../models/config.dart';
 
 class SetConstraintsScreen extends StatefulWidget {
@@ -19,40 +19,30 @@ class SetConstraintsScreen extends StatefulWidget {
 }
 
 class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
-  final TextEditingController _maxWidthController = TextEditingController(
-    text: "400",
-  );
-  final TextEditingController _minWidthController = TextEditingController(
-    text: "50",
-  );
-  final TextEditingController _toleranceController = TextEditingController(
-    text: "5",
-  );
-
+  // State to hold values from ProcessingConfigSection
   MachineSize? _selectedMachine;
+  String _tolerance = "5";
+  SortType _sortType = SortType.sortByHeight;
+  GroupingMode _groupingMode = GroupingMode.noMainRepeat;
 
-  @override
-  void dispose() {
-    _maxWidthController.dispose();
-    _minWidthController.dispose();
-    _toleranceController.dispose();
-    super.dispose();
-  }
-
-  void _onMachineSelected(MachineSize? machine) {
-    if (machine != null) {
-      setState(() {
-        _selectedMachine = machine;
-        _minWidthController.text = machine.minWidth.toString();
-        _maxWidthController.text = machine.maxWidth.toString();
-      });
-    }
+  void _onConfigChanged(
+    MachineSize? machine,
+    String tolerance,
+    SortType sortType,
+    GroupingMode groupingMode,
+  ) {
+    setState(() {
+      _selectedMachine = machine;
+      _tolerance = tolerance;
+      _sortType = sortType;
+      _groupingMode = groupingMode;
+    });
   }
 
   void _navigateToNextScreen() {
-    final maxWidth = int.tryParse(_maxWidthController.text) ?? 400;
-    final minWidth = int.tryParse(_minWidthController.text) ?? 50;
-    final tolerance = int.tryParse(_toleranceController.text) ?? 5;
+    final minWidth = _selectedMachine?.minWidth ?? 50;
+    final maxWidth = _selectedMachine?.maxWidth ?? 400;
+    final tolerance = int.tryParse(_tolerance) ?? 5;
 
     // Validate constraints
     if (minWidth >= maxWidth) {
@@ -65,14 +55,20 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
       return;
     }
 
+    // Navigate directly to ExecutionScreen, skipping SortingOptionsScreen and GroupingModeScreen
+    // as their configuration is now handled here.
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => SortingOptionsScreen(
+        builder: (context) => ExecutionScreen(
           filePath: widget.filePath,
           minWidth: minWidth,
           maxWidth: maxWidth,
           tolerance: tolerance,
+          sortType: _sortType,
+          groupingMode: _groupingMode,
           config: widget.config,
+          optimizeResults: true, // Default
+          generateReport: false, // Default
         ),
       ),
     );
@@ -111,72 +107,10 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
                             color: Colors.blue.shade900,
                           ),
                         ),
-                        const SizedBox(height: 40),
                         const SizedBox(height: 20),
-                        const ProcessingConfigSection(),
-                        const SizedBox(height: 40),
-                        /*
-                        if (widget.config.machineSizes.isNotEmpty) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButtonFormField<MachineSize>(
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  labelText: 'Select Machine',
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                value: _selectedMachine,
-                                items: widget.config.machineSizes.map((
-                                  machine,
-                                ) {
-                                  return DropdownMenuItem<MachineSize>(
-                                    value: machine,
-                                    child: Text(
-                                      "${machine.name} (${machine.minWidth}-${machine.maxWidth} cm)",
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: _onMachineSelected,
-                                icon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Colors.blue.shade900,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-                        CustomTextField(
-                          label: "Max Width",
-                          initialValue: "400",
-                          suffixText: "cm",
-                          controller: _maxWidthController,
-                        ),
-                        const SizedBox(height: 24),
-                        CustomTextField(
-                          label: "Min Width",
-                          initialValue: "50",
-                          suffixText: "cm",
-                          controller: _minWidthController,
-                        ),
-                        const SizedBox(height: 24),
-                        CustomTextField(
-                          label: "Tolerance",
-                          initialValue: "5",
-                          suffixText: "cm",
-                          controller: _toleranceController,
+                        ProcessingConfigSection(
+                          config: widget.config,
+                          onChanged: _onConfigChanged,
                         ),
                         const Spacer(),
                         SizedBox(
@@ -204,7 +138,6 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        */
                       ],
                     ),
                   ),
