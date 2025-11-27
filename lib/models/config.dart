@@ -1,5 +1,29 @@
 import '../core/enums.dart';
 
+class MachineSize {
+  final String name;
+  final int minWidth;
+  final int maxWidth;
+
+  MachineSize({
+    required this.name,
+    required this.minWidth,
+    required this.maxWidth,
+  });
+
+  factory MachineSize.fromJson(Map<String, dynamic> json) {
+    return MachineSize(
+      name: json['name'] as String,
+      minWidth: json['min_width'] as int,
+      maxWidth: json['max_width'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'name': name, 'min_width': minWidth, 'max_width': maxWidth};
+  }
+}
+
 class Config {
   int minWidth;
   int maxWidth;
@@ -11,6 +35,7 @@ class Config {
   bool allowSplitRows;
   String theme;
   String backgroundImage;
+  List<MachineSize> machineSizes;
   GroupingMode selectedMode;
   SortType selectedSortType;
 
@@ -25,6 +50,7 @@ class Config {
     required this.allowSplitRows,
     required this.theme,
     required this.backgroundImage,
+    required this.machineSizes,
     required this.selectedMode,
     required this.selectedSortType,
   });
@@ -41,6 +67,9 @@ class Config {
       allowSplitRows: json['allow_split_rows'] as bool,
       theme: json['theme'] as String,
       backgroundImage: json['background_image'] as String,
+      machineSizes: (json['machine_sizes'] as List<dynamic>? ?? [])
+          .map((e) => MachineSize.fromJson(e as Map<String, dynamic>))
+          .toList(),
       selectedMode: _parseGroupingMode(json['selected_mode'] as String),
       selectedSortType: _parseSortType(json['selected_sort_type'] as String),
     );
@@ -58,6 +87,7 @@ class Config {
       'allow_split_rows': allowSplitRows,
       'theme': theme,
       'background_image': backgroundImage,
+      'machine_sizes': machineSizes.map((e) => e.toJson()).toList(),
       'selected_mode': _groupingModeToString(selectedMode),
       'selected_sort_type': _sortTypeToString(selectedSortType),
     };
@@ -118,7 +148,12 @@ class Config {
       startWithLargest: true,
       allowSplitRows: true,
       theme: "dark",
-      backgroundImage: "config\\backgrounds\\img1.jpg",
+      backgroundImage: "gradient_blue_purple",
+      machineSizes: [
+        MachineSize(name: 'Small', minWidth: 50, maxWidth: 200),
+        MachineSize(name: 'Medium', minWidth: 200, maxWidth: 350),
+        MachineSize(name: 'Large', minWidth: 350, maxWidth: 500),
+      ],
       selectedMode: GroupingMode.allCombinations,
       selectedSortType: SortType.sortByWidth,
     );
