@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
+import '../widgets/processing_config_section.dart';
 import '../../sorting_options/screens/sorting_options_screen.dart';
 import '../../../models/config.dart';
 
@@ -28,12 +29,24 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
     text: "5",
   );
 
+  MachineSize? _selectedMachine;
+
   @override
   void dispose() {
     _maxWidthController.dispose();
     _minWidthController.dispose();
     _toleranceController.dispose();
     super.dispose();
+  }
+
+  void _onMachineSelected(MachineSize? machine) {
+    if (machine != null) {
+      setState(() {
+        _selectedMachine = machine;
+        _minWidthController.text = machine.minWidth.toString();
+        _maxWidthController.text = machine.maxWidth.toString();
+      });
+    }
   }
 
   void _navigateToNextScreen() {
@@ -99,6 +112,52 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
                           ),
                         ),
                         const SizedBox(height: 40),
+                        const SizedBox(height: 20),
+                        const ProcessingConfigSection(),
+                        const SizedBox(height: 40),
+                        /*
+                        if (widget.config.machineSizes.isNotEmpty) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButtonFormField<MachineSize>(
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  labelText: 'Select Machine',
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                value: _selectedMachine,
+                                items: widget.config.machineSizes.map((
+                                  machine,
+                                ) {
+                                  return DropdownMenuItem<MachineSize>(
+                                    value: machine,
+                                    child: Text(
+                                      "${machine.name} (${machine.minWidth}-${machine.maxWidth} cm)",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: _onMachineSelected,
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Colors.blue.shade900,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
                         CustomTextField(
                           label: "Max Width",
                           initialValue: "400",
@@ -145,6 +204,7 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
+                        */
                       ],
                     ),
                   ),
