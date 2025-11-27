@@ -113,6 +113,7 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
       });
 
       // Step 5: Generate output Excel file (80% - 95% progress)
+      print(groups);
       Directory appDir = await getApplicationDocumentsDirectory();
       String timestamp = DateTime.now()
           .toIso8601String()

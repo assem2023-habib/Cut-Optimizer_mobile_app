@@ -51,7 +51,7 @@ class ResultsScreen extends StatelessWidget {
     final int totalGroups = groups.length;
     int totalCarpetsUsed = 0;
     for (final group in groups) {
-      totalCarpetsUsed += group.carpets.length as int;
+      totalCarpetsUsed += group.items.length;
     }
     final int totalRemaining = remaining.length;
 
@@ -162,15 +162,11 @@ class ResultsScreen extends StatelessWidget {
                                 DataColumn(label: Text("Ref Height")),
                               ],
                               rows: groups.take(10).map((group) {
-                                int totalWidth = 0;
-                                for (final cu in group.carpets) {
-                                  totalWidth += cu.carpet.width;
-                                }
                                 return DataRow(
                                   cells: [
                                     DataCell(Text("G${group.groupId}")),
-                                    DataCell(Text("${group.carpets.length}")),
-                                    DataCell(Text("$totalWidth cm")),
+                                    DataCell(Text("${group.items.length}")),
+                                    DataCell(Text("${group.totalWidth} cm")),
                                     DataCell(Text("${group.refHeight} cm")),
                                   ],
                                 );

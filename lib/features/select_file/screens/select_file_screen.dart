@@ -1,6 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import '../../../services/file_store_service.dart';
 import '../widgets/upload_box.dart';
 import '../../set_constraints/screens/set_constraints_screen.dart';
 
@@ -33,10 +35,19 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx', 'xls'],
+      withData: true, // Ensure bytes are loaded on web
     );
 
-    if (result != null && result.files.single.path != null) {
-      _handleFileSelection(result.files.single.path!);
+    if (result != null) {
+      if (kIsWeb) {
+        if (result.files.single.bytes != null) {
+          FileStoreService().setInputBytes(result.files.single.bytes!);
+          // Use a dummy path for web to satisfy the non-null requirement
+          _handleFileSelection("web_upload.xlsx");
+        }
+      } else if (result.files.single.path != null) {
+        _handleFileSelection(result.files.single.path!);
+      }
     }
   }
 

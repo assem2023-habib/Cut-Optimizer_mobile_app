@@ -5,10 +5,8 @@ class GroupCarpet {
   final int groupId;
   final List<CarpetUsed> items;
 
-  GroupCarpet({
-    required this.groupId,
-    List<CarpetUsed>? items,
-  }) : items = items ?? [];
+  GroupCarpet({required this.groupId, List<CarpetUsed>? items})
+    : items = items ?? [];
 
   int get totalWidth => items.fold(0, (sum, item) => sum + item.width);
 
@@ -16,15 +14,20 @@ class GroupCarpet {
 
   int get totalLengthRef => items.fold(0, (sum, item) => sum + item.lengthRef);
 
-  int get maxHeight => items.isEmpty ? 0 : items.map((e) => e.height).reduce(math.max);
+  int get maxHeight =>
+      items.isEmpty ? 0 : items.map((e) => e.height).reduce(math.max);
 
-  int get maxWidth => items.isEmpty ? 0 : items.map((e) => e.width).reduce(math.max);
+  int get maxWidth =>
+      items.isEmpty ? 0 : items.map((e) => e.width).reduce(math.max);
 
-  int get minWidth => items.isEmpty ? 0 : items.map((e) => e.width).reduce(math.min);
+  int get minWidth =>
+      items.isEmpty ? 0 : items.map((e) => e.width).reduce(math.min);
 
-  int get maxLengthRef => items.isEmpty ? 0 : items.map((e) => e.lengthRef).reduce(math.max);
+  int get maxLengthRef =>
+      items.isEmpty ? 0 : items.map((e) => e.lengthRef).reduce(math.max);
 
-  int get minLengthRef => items.isEmpty ? 0 : items.map((e) => e.lengthRef).reduce(math.min);
+  int get minLengthRef =>
+      items.isEmpty ? 0 : items.map((e) => e.lengthRef).reduce(math.min);
 
   int get totalQty => items.fold(0, (sum, item) => sum + item.qtyUsed);
 
@@ -52,9 +55,10 @@ class GroupCarpet {
     return items[0].lengthRef;
   }
 
-  get carpets => null;
-
   void sortItemsByWidth({bool reverse = false}) {
-    items.sort((a, b) => reverse ? b.width.compareTo(a.width) : a.width.compareTo(b.width));
+    items.sort(
+      (a, b) =>
+          reverse ? b.width.compareTo(a.width) : a.width.compareTo(b.width),
+    );
   }
 }
