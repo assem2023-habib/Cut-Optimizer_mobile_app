@@ -83,7 +83,6 @@ class _SortingOptionsScreenState extends State<SortingOptionsScreen> {
                           minWidth: widget.minWidth,
                           maxWidth: widget.maxWidth,
                           tolerance: widget.tolerance,
-                          sortType: _selectedSortType,
                         ),
                       ),
                     );

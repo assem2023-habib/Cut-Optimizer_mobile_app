@@ -4,7 +4,7 @@ import 'package:excel/excel.dart';
 import 'dart:io';
 import '../widgets/file_import_section.dart';
 import '../widgets/file_preview_section.dart';
-import '../../set_constraints/screens/set_constraints_screen.dart';
+import '../../grouping_mode/screens/grouping_mode_screen.dart';
 
 class SelectFileScreen extends StatefulWidget {
   const SelectFileScreen({super.key});
@@ -29,7 +29,17 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
 
     try {
       // Read Excel file to get actual row/column count
-      var bytes = File(filePath).readAsBytesSync();
+      // Use bytes from PlatformFile for web compatibility
+      late List<int> bytes;
+
+      if (file.bytes != null) {
+        // Web platform - use bytes directly
+        bytes = file.bytes!;
+      } else {
+        // Mobile/Desktop platform - read from file path
+        bytes = File(filePath).readAsBytesSync();
+      }
+
       var excel = Excel.decodeBytes(bytes);
 
       // Get the first sheet
@@ -42,6 +52,12 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
             _isLoading = false;
           });
         }
+      } else {
+        setState(() {
+          _rows = 0;
+          _columns = 0;
+          _isLoading = false;
+        });
       }
     } catch (e) {
       setState(() {
@@ -63,10 +79,15 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
 
   void _navigateToNextScreen() {
     if (_selectedFilePath != null) {
+      // Navigate directly to Processing Configuration
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) =>
-              SetConstraintsScreen(filePath: _selectedFilePath!),
+          builder: (context) => GroupingModeScreen(
+            filePath: _selectedFilePath!,
+            minWidth: 50, // Default values
+            maxWidth: 400,
+            tolerance: 5,
+          ),
         ),
       );
     }

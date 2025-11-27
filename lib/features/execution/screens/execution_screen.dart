@@ -15,6 +15,8 @@ class ExecutionScreen extends StatefulWidget {
   final int tolerance;
   final SortType sortType;
   final GroupingMode groupingMode;
+  final bool optimizeResults;
+  final bool generateReport;
 
   const ExecutionScreen({
     super.key,
@@ -24,6 +26,8 @@ class ExecutionScreen extends StatefulWidget {
     required this.tolerance,
     required this.sortType,
     required this.groupingMode,
+    this.optimizeResults = true,
+    this.generateReport = false,
   });
 
   @override
@@ -113,7 +117,7 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
       });
 
       // Step 5: Generate output Excel file (80% - 95% progress)
-      
+
       Directory appDir = await getApplicationDocumentsDirectory();
       String timestamp = DateTime.now()
           .toIso8601String()

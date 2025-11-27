@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/enums.dart';
-import '../../../core/widgets/radio_option_tile.dart';
+import '../widgets/measurement_constraints_panel.dart';
+import '../widgets/sort_configuration_panel.dart';
+import '../widgets/processing_options_panel.dart';
 import '../../execution/screens/execution_screen.dart';
 
 class GroupingModeScreen extends StatefulWidget {
@@ -8,7 +10,6 @@ class GroupingModeScreen extends StatefulWidget {
   final int minWidth;
   final int maxWidth;
   final int tolerance;
-  final SortType sortType;
 
   const GroupingModeScreen({
     super.key,
@@ -16,7 +17,6 @@ class GroupingModeScreen extends StatefulWidget {
     required this.minWidth,
     required this.maxWidth,
     required this.tolerance,
-    required this.sortType,
   });
 
   @override
@@ -24,85 +24,259 @@ class GroupingModeScreen extends StatefulWidget {
 }
 
 class _GroupingModeScreenState extends State<GroupingModeScreen> {
-  GroupingMode _selectedMode = GroupingMode.allCombinations;
+  // Measurement Controllers
+  late TextEditingController _minWidthController;
+  late TextEditingController _maxWidthController;
+  late TextEditingController _toleranceController;
+
+  // Sort Configuration
+  SortType _selectedSortType = SortType.sortByHeight;
+
+  // Processing Options
+  bool _advancedGrouping = false;
+  bool _optimizeResults = true;
+  bool _generateReport = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _minWidthController = TextEditingController(
+      text: widget.minWidth.toString(),
+    );
+    _maxWidthController = TextEditingController(
+      text: widget.maxWidth.toString(),
+    );
+    _toleranceController = TextEditingController(
+      text: widget.tolerance.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _minWidthController.dispose();
+    _maxWidthController.dispose();
+    _toleranceController.dispose();
+    super.dispose();
+  }
+
+  void _startProcessing() {
+    // Parse input values
+    final minWidth = int.tryParse(_minWidthController.text);
+    final maxWidth = int.tryParse(_maxWidthController.text);
+    final tolerance = int.tryParse(_toleranceController.text);
+
+    // Validate inputs
+    if (minWidth == null || maxWidth == null || tolerance == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter valid numbers for all measurement fields',
+          ),
+          backgroundColor: Color(0xFFFF5252),
+        ),
+      );
+      return;
+    }
+
+    if (minWidth < 0 || maxWidth < 0 || tolerance < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('All measurements must be positive numbers'),
+          backgroundColor: Color(0xFFFF5252),
+        ),
+      );
+      return;
+    }
+
+    if (minWidth >= maxWidth) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Minimum width must be less than maximum width'),
+          backgroundColor: Color(0xFFFF5252),
+        ),
+      );
+      return;
+    }
+
+    // Determine grouping mode based on Advanced Grouping option
+    GroupingMode groupingMode = _advancedGrouping
+        ? GroupingMode.noMainRepeat
+        : GroupingMode.allCombinations;
+
+    // Navigate to execution screen with all configuration
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ExecutionScreen(
+          filePath: widget.filePath,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          tolerance: tolerance,
+          sortType: _selectedSortType,
+          groupingMode: groupingMode,
+          optimizeResults: _optimizeResults,
+          generateReport: _generateReport,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF5F7FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.blue.shade900),
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "GROUPING MODE",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: Colors.blue.shade900,
-                ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(24),
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 1200),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
-              RadioOptionTile<GroupingMode>(
-                value: GroupingMode.allCombinations,
-                groupValue: _selectedMode,
-                label: "all combinations",
-                onChanged: (val) => setState(() => _selectedMode = val!),
-              ),
-              RadioOptionTile<GroupingMode>(
-                value: GroupingMode.noMainRepeat,
-                groupValue: _selectedMode,
-                label: "combinations rep exclude main",
-                onChanged: (val) => setState(() => _selectedMode = val!),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ExecutionScreen(
-                          filePath: widget.filePath,
-                          minWidth: widget.minWidth,
-                          maxWidth: widget.maxWidth,
-                          tolerance: widget.tolerance,
-                          sortType: widget.sortType,
-                          groupingMode: _selectedMode,
+              padding: EdgeInsets.all(32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      Icon(Icons.tune, color: Color(0xFF6B4EEB), size: 24),
+                      SizedBox(width: 12),
+                      Text(
+                        'Processing Conf',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333),
                         ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D47A1), // Corporate Blue
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
+                    ],
                   ),
-                  child: const Text(
-                    "Next >",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  SizedBox(height: 32),
+
+                  // Three Panels
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth > 800) {
+                        // Desktop: Horizontal layout
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: MeasurementConstraintsPanel(
+                                minWidthController: _minWidthController,
+                                maxWidthController: _maxWidthController,
+                                toleranceController: _toleranceController,
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: SortConfigurationPanel(
+                                selectedSortType: _selectedSortType,
+                                onChanged: (value) =>
+                                    setState(() => _selectedSortType = value),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: ProcessingOptionsPanel(
+                                advancedGrouping: _advancedGrouping,
+                                optimizeResults: _optimizeResults,
+                                generateReport: _generateReport,
+                                onAdvancedGroupingChanged: (value) =>
+                                    setState(() => _advancedGrouping = value),
+                                onOptimizeResultsChanged: (value) =>
+                                    setState(() => _optimizeResults = value),
+                                onGenerateReportChanged: (value) =>
+                                    setState(() => _generateReport = value),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        // Mobile: Vertical layout
+                        return Column(
+                          children: [
+                            MeasurementConstraintsPanel(
+                              minWidthController: _minWidthController,
+                              maxWidthController: _maxWidthController,
+                              toleranceController: _toleranceController,
+                            ),
+                            SizedBox(height: 16),
+                            SortConfigurationPanel(
+                              selectedSortType: _selectedSortType,
+                              onChanged: (value) =>
+                                  setState(() => _selectedSortType = value),
+                            ),
+                            SizedBox(height: 16),
+                            ProcessingOptionsPanel(
+                              advancedGrouping: _advancedGrouping,
+                              optimizeResults: _optimizeResults,
+                              generateReport: _generateReport,
+                              onAdvancedGroupingChanged: (value) =>
+                                  setState(() => _advancedGrouping = value),
+                              onOptimizeResultsChanged: (value) =>
+                                  setState(() => _optimizeResults = value),
+                              onGenerateReportChanged: (value) =>
+                                  setState(() => _generateReport = value),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+
+                  SizedBox(height: 32),
+
+                  // Next Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _startProcessing,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF6B4EEB),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Next',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward, size: 20),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
