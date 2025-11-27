@@ -10,6 +10,9 @@ void main() {
           groups: const [],
           remaining: const [],
           outputFilePath: '/test/output.xlsx',
+          minWidth: 100,
+          maxWidth: 200,
+          tolerance: 5,
         ),
       ),
     );

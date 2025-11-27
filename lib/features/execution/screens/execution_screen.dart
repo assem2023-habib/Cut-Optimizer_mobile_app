@@ -159,6 +159,11 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
               groups: groups,
               remaining: remaining,
               outputFilePath: outputPath,
+              minWidth: widget.minWidth,
+              maxWidth: widget.maxWidth,
+              tolerance: widget.tolerance,
+              originalGroups: originalCarpets,
+              suggestedGroups: suggestedGroups,
             ),
           ),
         );

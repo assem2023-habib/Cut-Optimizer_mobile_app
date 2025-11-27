@@ -2,27 +2,62 @@ import 'package:flutter/material.dart';
 import '../../../models/carpet.dart';
 import '../../../models/group_carpet.dart';
 import '../widgets/result_card.dart';
+import '../../../services/report_service.dart';
 
 class ResultsScreen extends StatelessWidget {
   final List<GroupCarpet> groups;
   final List<Carpet> remaining;
   final String outputFilePath;
+  final int minWidth;
+  final int maxWidth;
+  final int tolerance;
+  final List<Carpet>? originalGroups;
+  final List<List<GroupCarpet>>? suggestedGroups;
 
   const ResultsScreen({
     super.key,
     required this.groups,
     required this.remaining,
     required this.outputFilePath,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.tolerance,
+    this.originalGroups,
+    this.suggestedGroups,
   });
 
-  void _exportToExcel(BuildContext context) {
-    // TODO: Implement Excel export functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Excel file exported to: $outputFilePath'),
-        backgroundColor: Color(0xFF28A745),
-      ),
-    );
+  Future<void> _exportToExcel(BuildContext context) async {
+    try {
+      final reportService = ReportService();
+      await reportService.generateReport(
+        groups: groups,
+        remaining: remaining,
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        tolerance: tolerance,
+        outputPath: outputFilePath,
+        originalGroups: originalGroups,
+        suggestedGroups: suggestedGroups,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Excel file exported to: $outputFilePath'),
+            backgroundColor: Color(0xFF28A745),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting Excel: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
