@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/config.dart';
 import '../../../services/background_service.dart';
 import '../styles/settings_theme.dart';
+import '../../../utils/background_color_helper.dart';
 import 'glass_container.dart';
 
 class AppearanceSettingsWidget extends StatelessWidget {
@@ -20,7 +21,12 @@ class AppearanceSettingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = BackgroundColorHelper.getTextColorFromConfig(config);
+    final secondaryTextColor =
+        BackgroundColorHelper.getSecondaryTextColorFromConfig(config);
+
     return GlassContainer(
+      textColor: textColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -30,9 +36,17 @@ class AppearanceSettingsWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text('🎨', style: TextStyle(fontSize: 20)),
+                  Text('🎨', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 8),
-                  Text('Appearance', style: SettingsTheme.sectionTitle),
+                  Text(
+                    'Appearance',
+                    style: TextStyle(
+                      fontFamily: 'Segoe UI',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -40,7 +54,11 @@ class AppearanceSettingsWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Customize the application appearance according to your preferences',
-            style: SettingsTheme.cardSubtext.copyWith(fontSize: 12),
+            style: TextStyle(
+              fontFamily: 'Segoe UI',
+              fontSize: 12,
+              color: secondaryTextColor,
+            ),
           ),
           const SizedBox(height: 16),
 

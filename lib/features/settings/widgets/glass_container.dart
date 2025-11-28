@@ -5,12 +5,14 @@ class GlassContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final double borderRadius;
+  final Color? textColor; // Optional text color override
 
   const GlassContainer({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(20),
     this.borderRadius = 16,
+    this.textColor,
   });
 
   @override
@@ -44,7 +46,10 @@ class GlassContainer extends StatelessWidget {
                 ],
               ),
             ),
-            child: child,
+            child: DefaultTextStyle(
+              style: TextStyle(color: textColor ?? Colors.white),
+              child: child,
+            ),
           ),
         ),
       ),

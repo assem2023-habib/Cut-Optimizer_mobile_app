@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/config.dart';
 import '../styles/settings_theme.dart';
+import '../../../utils/background_color_helper.dart';
 import 'glass_container.dart';
 
 class MachineSizesWidget extends StatelessWidget {
@@ -19,7 +20,10 @@ class MachineSizesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = BackgroundColorHelper.getTextColorFromConfig(config);
+
     return GlassContainer(
+      textColor: textColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,7 +32,15 @@ class MachineSizesWidget extends StatelessWidget {
             children: [
               const Text('📏', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              Text('Machine Sizes', style: SettingsTheme.sectionTitle),
+              Text(
+                'Machine Sizes',
+                style: TextStyle(
+                  fontFamily: 'Segoe UI',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
