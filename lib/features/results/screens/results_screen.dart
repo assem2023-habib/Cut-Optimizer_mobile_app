@@ -179,28 +179,29 @@ class ResultsScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: Offset(0, -5),
+      bottomNavigationBar: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.25),
+              border: Border(
+                top: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+              ),
             ),
-          ],
-        ),
-        child: ElevatedButton.icon(
-          onPressed: () => _openExcel(context),
-          icon: Icon(Icons.open_in_new),
-          label: Text('Open Excel File'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF28A745),
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+            child: ElevatedButton.icon(
+              onPressed: () => _openExcel(context),
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('Open Excel File'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF28A745),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
           ),
         ),
