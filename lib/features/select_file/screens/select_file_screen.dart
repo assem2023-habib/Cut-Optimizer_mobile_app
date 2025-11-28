@@ -1,6 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:excel/excel.dart';
+import 'package:excel/excel.dart' hide Border;
 import 'dart:io';
 import '../widgets/file_import_section.dart';
 import '../widgets/file_preview_section.dart';
@@ -161,103 +162,116 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Container(
-                constraints: BoxConstraints(maxWidth: 1200),
+                constraints: const BoxConstraints(maxWidth: 1200),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color.fromRGBO(255, 255, 255, 0.25),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                    width: 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(0, 0, 0, 0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
+                      color: const Color(0xFF6B4EEB).withOpacity(0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  children: [
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        // Responsive layout
-                        if (constraints.maxWidth > 600) {
-                          // Desktop/Tablet: Side by side
-                          return IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: FileImportSection(
-                                    onFileSelected: _handleFileSelection,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        children: [
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              // Responsive layout
+                              if (constraints.maxWidth > 600) {
+                                // Desktop/Tablet: Side by side
+                                return IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Expanded(
+                                        child: FileImportSection(
+                                          onFileSelected: _handleFileSelection,
+                                        ),
+                                      ),
+                                      SizedBox(width: 48),
+                                      Expanded(
+                                        child: FilePreviewSection(
+                                          fileName: _fileName,
+                                          rows: _rows,
+                                          columns: _columns,
+                                          isLoading: _isLoading,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                SizedBox(width: 48),
-                                Expanded(
-                                  child: FilePreviewSection(
-                                    fileName: _fileName,
-                                    rows: _rows,
-                                    columns: _columns,
-                                    isLoading: _isLoading,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          // Mobile: Stacked vertically
-                          return Column(
-                            children: [
-                              FileImportSection(
-                                onFileSelected: _handleFileSelection,
-                              ),
-                              SizedBox(height: 32),
-                              FilePreviewSection(
-                                fileName: _fileName,
-                                rows: _rows,
-                                columns: _columns,
-                                isLoading: _isLoading,
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    ),
+                                );
+                              } else {
+                                // Mobile: Stacked vertically
+                                return Column(
+                                  children: [
+                                    FileImportSection(
+                                      onFileSelected: _handleFileSelection,
+                                    ),
+                                    SizedBox(height: 32),
+                                    FilePreviewSection(
+                                      fileName: _fileName,
+                                      rows: _rows,
+                                      columns: _columns,
+                                      isLoading: _isLoading,
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          ),
 
-                    // Next Button
-                    if (_selectedFilePath != null && !_isLoading) ...[
-                      SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _navigateToNextScreen,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF6B4EEB),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Next',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                          // Next Button
+                          if (_selectedFilePath != null && !_isLoading) ...[
+                            SizedBox(height: 32),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: _navigateToNextScreen,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF6B4EEB),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Next',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Icon(Icons.arrow_forward, size: 20),
+                                  ],
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward, size: 20),
-                            ],
-                          ),
-                        ),
+                            ),
+                          ],
+                        ],
                       ),
-                    ],
-                  ],
+                    ),
+                  ),
                 ),
               ),
             ),
