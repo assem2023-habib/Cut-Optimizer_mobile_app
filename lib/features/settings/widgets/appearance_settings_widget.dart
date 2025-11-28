@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/config.dart';
 import '../../../services/background_service.dart';
 import '../styles/settings_theme.dart';
+import 'glass_container.dart';
 
 class AppearanceSettingsWidget extends StatelessWidget {
   final Config config;
@@ -19,9 +20,7 @@ class AppearanceSettingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: SettingsTheme.groupBoxDecoration(),
+    return GlassContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

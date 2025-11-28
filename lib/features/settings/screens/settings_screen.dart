@@ -155,59 +155,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SettingsTheme.darkBackground, // #1E1E1E
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(),
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    AppearanceSettingsWidget(
-                      config: _config,
-                      onTypeChanged: _onBackgroundTypeChanged,
-                      onGradientChanged: _onGradientChanged,
-                      onImageUpload: _onImageUpload,
-                    ),
-                    const SizedBox(height: 20),
-                    MachineSizesWidget(
-                      config: _config,
-                      onAdd: _onAddMachineSize,
-                      onDelete: _onDeleteMachineSize,
-                      onUpdate: _updateConfig,
-                    ),
-                    const SizedBox(height: 20),
-                    MeasurementSettingsWidget(
-                      config: _config,
-                      onUnitChanged: _onUnitChanged,
-                    ),
-                    const SizedBox(height: 20),
-                    // Close Button (Bottom Action)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.of(context).pop(_config),
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        label: const Text('Close'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD32F2F), // Dark Red
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BackgroundService.getBackgroundDecoration(
+          _config.backgroundImage,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              _buildHeader(),
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      AppearanceSettingsWidget(
+                        config: _config,
+                        onTypeChanged: _onBackgroundTypeChanged,
+                        onGradientChanged: _onGradientChanged,
+                        onImageUpload: _onImageUpload,
+                      ),
+                      const SizedBox(height: 20),
+                      MachineSizesWidget(
+                        config: _config,
+                        onAdd: _onAddMachineSize,
+                        onDelete: _onDeleteMachineSize,
+                        onUpdate: _updateConfig,
+                      ),
+                      const SizedBox(height: 20),
+                      MeasurementSettingsWidget(
+                        config: _config,
+                        onUnitChanged: _onUnitChanged,
+                      ),
+                      const SizedBox(height: 20),
+                      // Close Button (Bottom Action)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).pop(_config),
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          label: const Text('Close'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFFD32F2F,
+                            ), // Dark Red
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -212,129 +213,147 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Container(
-                constraints: BoxConstraints(maxWidth: 800),
+                constraints: const BoxConstraints(maxWidth: 800),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: const Color.fromRGBO(255, 255, 255, 0.25),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.5),
+                    width: 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(0, 0, 0, 0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
+                      color: const Color(0xFF6B4EEB).withOpacity(0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "READY TO EXECUTE",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: Colors.blue.shade900,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-                    // Circular Progress Indicator
-                    SizedBox(
-                      width: 200,
-                      height: 200,
-                      child: Stack(
-                        fit: StackFit.expand,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          CircularProgressIndicator(
-                            value: _progress,
-                            strokeWidth: 12,
-                            backgroundColor: Colors.blue.shade50,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.blue.shade700,
+                          Text(
+                            "READY TO EXECUTE",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Colors.blue.shade900,
                             ),
                           ),
-                          Center(
-                            child: Text(
-                              "${(_progress * 100).toInt()}%",
-                              style: TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade900,
+                          const SizedBox(height: 48),
+                          // Circular Progress Indicator
+                          SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: _progress,
+                                  strokeWidth: 12,
+                                  backgroundColor: Colors.blue.shade50,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.blue.shade700,
+                                  ),
+                                ),
+                                Center(
+                                  child: Text(
+                                    "${(_progress * 100).toInt()}%",
+                                    style: TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue.shade900,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Status Message
+                          Text(
+                            _statusMessage,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          // Start Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: _isExecuting ? null : _startExecution,
+                              icon: const Icon(
+                                Icons.play_arrow,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
+                                "Start Execution",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green.shade600,
+                                disabledBackgroundColor: Colors.grey.shade400,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Cancel Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: _isExecuting
+                                  ? null
+                                  : () {
+                                      Navigator.of(context).pop();
+                                    },
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red.shade600,
+                                disabledBackgroundColor: Colors.grey.shade400,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    // Status Message
-                    Text(
-                      _statusMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-                    // Start Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: _isExecuting ? null : _startExecution,
-                        icon: const Icon(Icons.play_arrow, color: Colors.white),
-                        label: const Text(
-                          "Start Execution",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          disabledBackgroundColor: Colors.grey.shade400,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Cancel Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: _isExecuting
-                            ? null
-                            : () {
-                                Navigator.of(context).pop();
-                              },
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        label: const Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          disabledBackgroundColor: Colors.grey.shade400,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
