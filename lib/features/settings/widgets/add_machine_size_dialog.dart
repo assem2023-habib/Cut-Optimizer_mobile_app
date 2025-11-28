@@ -16,12 +16,14 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
   final _nameController = TextEditingController();
   final _minWidthController = TextEditingController();
   final _maxWidthController = TextEditingController();
+  final _toleranceController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _minWidthController.dispose();
     _maxWidthController.dispose();
+    _toleranceController.dispose();
     super.dispose();
   }
 
@@ -31,6 +33,7 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
         name: _nameController.text,
         minWidth: int.parse(_minWidthController.text),
         maxWidth: int.parse(_maxWidthController.text),
+        tolerance: int.parse(_toleranceController.text),
       );
       Navigator.of(context).pop(machineSize);
     }
@@ -117,6 +120,25 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
                       final minNum = int.tryParse(_minWidthController.text);
                       if (minNum != null && num <= minNum) {
                         return 'Max must be greater than min';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  // Tolerance field
+                  _buildTextField(
+                    controller: _toleranceController,
+                    label: 'Tolerance (cm)',
+                    hint: 'e.g., 10',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter tolerance';
+                      }
+                      final num = int.tryParse(value);
+                      if (num == null || num <= 0) {
+                        return 'Tolerance must be > 0';
                       }
                       return null;
                     },

@@ -4,7 +4,7 @@ import 'package:excel/excel.dart';
 import 'dart:io';
 import '../widgets/file_import_section.dart';
 import '../widgets/file_preview_section.dart';
-import '../../grouping_mode/screens/grouping_mode_screen.dart';
+import '../../set_constraints/screens/set_constraints_screen.dart';
 import '../../settings/screens/settings_screen.dart';
 import '../../../models/config.dart';
 import '../../../services/config_service.dart';
@@ -115,14 +115,11 @@ class _SelectFileScreenState extends State<SelectFileScreen> {
 
   void _navigateToNextScreen() {
     if (_selectedFilePath != null) {
-      // Navigate directly to Processing Configuration
+      // Navigate directly to Processing Configuration (SetConstraintsScreen)
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => GroupingModeScreen(
+          builder: (context) => SetConstraintsScreen(
             filePath: _selectedFilePath!,
-            minWidth: 50, // Default values
-            maxWidth: 400,
-            tolerance: 5,
             config: _config ?? Config.defaultConfig(),
           ),
         ),

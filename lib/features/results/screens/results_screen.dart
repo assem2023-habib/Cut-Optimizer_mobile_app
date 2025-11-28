@@ -1,8 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../models/carpet.dart';
 import '../../../models/group_carpet.dart';
 import '../widgets/result_card.dart';
 import '../../../services/report_service.dart';
+import '../../../services/background_service.dart';
+import '../../../models/config.dart';
 import 'package:open_file/open_file.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -15,6 +18,7 @@ class ResultsScreen extends StatelessWidget {
   final int tolerance;
   final List<Carpet>? originalGroups;
   final List<List<GroupCarpet>>? suggestedGroups;
+  final Config? config;
 
   const ResultsScreen({
     super.key,
@@ -26,6 +30,7 @@ class ResultsScreen extends StatelessWidget {
     required this.tolerance,
     this.originalGroups,
     this.suggestedGroups,
+    this.config,
   });
 
   Future<void> _exportToExcel(BuildContext context) async {
@@ -86,18 +91,18 @@ class ResultsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F7FA),
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Row(
           children: [
-            Icon(Icons.grid_on, color: Color(0xFF6B4EEB), size: 24),
-            SizedBox(width: 12),
+            const Icon(Icons.grid_on, color: Color(0xFF6B4EEB), size: 24),
+            const SizedBox(width: 12),
             Flexible(
               child: Text(
                 'Processing Results',
@@ -113,18 +118,21 @@ class ResultsScreen extends StatelessWidget {
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.only(right: 12),
             child: ElevatedButton.icon(
               onPressed: () => _exportToExcel(context),
-              icon: Icon(Icons.download, size: 18),
-              label: Text(
+              icon: const Icon(Icons.download, size: 18),
+              label: const Text(
                 'Export Excel',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF6B4EEB),
+                backgroundColor: const Color(0xFF6B4EEB),
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -134,30 +142,41 @@ class ResultsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: ListView.builder(
-          padding: EdgeInsets.all(16),
-          itemCount: groups.length,
-          itemBuilder: (context, index) {
-            final group = groups[index];
+      body: Container(
+        decoration: config != null
+            ? BackgroundService.getBackgroundDecoration(config!.backgroundImage)
+            : const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFFF5F7FA), Color(0xFFE8EAF6)],
+                ),
+              ),
+        child: SafeArea(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              final group = groups[index];
 
-            // Calculate total height from carpets in group
-            final totalHeight = group.items.fold<double>(
-              0.0,
-              (sum, carpet) => sum + carpet.height,
-            );
+              // Calculate total height from carpets in group
+              final totalHeight = group.items.fold<double>(
+                0.0,
+                (sum, carpet) => sum + carpet.height,
+              );
 
-            // Determine status based on whether it's in remaining list
-            final status = 'Completed'; // Default to completed for now
+              // Determine status based on whether it's in remaining list
+              final status = 'Completed'; // Default to completed for now
 
-            return ResultCard(
-              groupId: 'GRP-${(index + 1).toString().padLeft(3, '0')}',
-              width: group.totalWidth.toDouble(),
-              height: totalHeight,
-              quantity: group.items.length,
-              status: status,
-            );
-          },
+              return ResultCard(
+                groupId: 'GRP-${(index + 1).toString().padLeft(3, '0')}',
+                width: group.totalWidth.toDouble(),
+                height: totalHeight,
+                quantity: group.items.length,
+                status: status,
+              );
+            },
+          ),
         ),
       ),
       bottomNavigationBar: Container(

@@ -55,8 +55,17 @@ class SettingsTheme {
     );
   }
 
+  // Group Box Decoration (Dark Grey Border, Rounded Corners)
+  static BoxDecoration groupBoxDecoration() {
+    return BoxDecoration(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: const Color(0xFF3A3A3A), width: 1.5),
+    );
+  }
+
   // Dark Glass Background
   static BoxDecoration darkGlassBackground() {
-    return BoxDecoration(color: darkGlass);
+    return BoxDecoration(color: darkBackground);
   }
 }

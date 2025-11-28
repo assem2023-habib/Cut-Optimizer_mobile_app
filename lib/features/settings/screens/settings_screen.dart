@@ -5,8 +5,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import '../styles/settings_theme.dart';
-import '../widgets/gradient_option.dart';
-import '../widgets/machine_size_card.dart';
+import '../widgets/appearance_settings_widget.dart';
+import '../widgets/machine_sizes_widget.dart';
+import '../widgets/measurement_settings_widget.dart';
 import '../widgets/add_machine_size_dialog.dart';
 import '../../../models/config.dart';
 import '../../../services/config_service.dart';
@@ -47,18 +48,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _selectGradient(String gradientId) {
-    setState(() {
-      _config.backgroundImage = gradientId;
-      _config.backgroundType = BackgroundType.gradient;
-    });
+  void _updateConfig() {
     _saveConfig();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Settings updated successfully!'),
+          backgroundColor: SettingsTheme.neonGreen,
+        ),
+      );
+    }
   }
 
-  void _setBackgroundType(BackgroundType type) {
+  void _onBackgroundTypeChanged(BackgroundType type) {
     setState(() {
       _config.backgroundType = type;
-      // If switching to gradient and current background is a file path, set default gradient
       if (type == BackgroundType.gradient &&
           !_config.backgroundImage.startsWith('gradient_')) {
         _config.backgroundImage = 'gradient_blue_purple';
@@ -67,28 +71,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _saveConfig();
   }
 
-  Future<void> _addMachineSize() async {
-    final result = await showDialog<MachineSize>(
-      context: context,
-      builder: (context) => AddMachineSizeDialog(),
-    );
-
-    if (result != null) {
-      setState(() {
-        _config.machineSizes.add(result);
-      });
-      _saveConfig();
-    }
-  }
-
-  void _deleteMachineSize(int index) {
+  void _onGradientChanged(String gradientId) {
     setState(() {
-      _config.machineSizes.removeAt(index);
+      _config.backgroundImage = gradientId;
+      _config.backgroundType = BackgroundType.gradient;
     });
     _saveConfig();
   }
 
-  Future<void> _uploadImage() async {
+  Future<void> _onImageUpload() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
@@ -98,15 +89,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
       if (image != null) {
-        // Copy image to app directory
         final directory = await getApplicationDocumentsDirectory();
         final fileName =
             'background_${DateTime.now().millisecondsSinceEpoch}${path.extension(image.path)}';
         final savedPath = '${directory.path}/$fileName';
 
         await File(image.path).copy(savedPath);
-
-        // Delete old background images
         await BackgroundService.deleteOldBackgroundImages(savedPath);
 
         setState(() {
@@ -117,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Background image uploaded!'),
               backgroundColor: SettingsTheme.neonGreen,
             ),
@@ -136,36 +124,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _onAddMachineSize() async {
+    final result = await showDialog<MachineSize>(
+      context: context,
+      builder: (context) => const AddMachineSizeDialog(),
+    );
+
+    if (result != null) {
+      setState(() {
+        _config.machineSizes.add(result);
+      });
+      _saveConfig();
+    }
+  }
+
+  void _onDeleteMachineSize(int index) {
+    setState(() {
+      _config.machineSizes.removeAt(index);
+    });
+    _saveConfig();
+  }
+
+  void _onUnitChanged(MeasurementUnit unit) {
+    setState(() {
+      _config.measurementUnit = unit;
+    });
+    _saveConfig();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: SettingsTheme.darkGlassBackground(),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: SafeArea(
-            child: Column(
-              children: [
-                // Header
-                _buildHeader(),
-                // Content
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildAppearanceSection(),
-                        SizedBox(height: 32),
-                        _buildMachineSizesSection(),
-                      ],
+      backgroundColor: SettingsTheme.darkBackground, // #1E1E1E
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(),
+            // Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    AppearanceSettingsWidget(
+                      config: _config,
+                      onTypeChanged: _onBackgroundTypeChanged,
+                      onGradientChanged: _onGradientChanged,
+                      onImageUpload: _onImageUpload,
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    MachineSizesWidget(
+                      config: _config,
+                      onAdd: _onAddMachineSize,
+                      onDelete: _onDeleteMachineSize,
+                      onUpdate: _updateConfig,
+                    ),
+                    const SizedBox(height: 20),
+                    MeasurementSettingsWidget(
+                      config: _config,
+                      onUnitChanged: _onUnitChanged,
+                    ),
+                    const SizedBox(height: 20),
+                    // Close Button (Bottom Action)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.of(context).pop(_config),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        label: const Text('Close'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD32F2F), // Dark Red
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -173,257 +215,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      alignment: Alignment.center,
+      child: const Text(
+        '⚙️ Application Settings',
+        style: SettingsTheme.settingsTitle,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Settings', style: SettingsTheme.settingsTitle),
-          IconButton(
-            onPressed: () => Navigator.of(context).pop(_config),
-            icon: Icon(Icons.close, color: SettingsTheme.textWhite, size: 28),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppearanceSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section title
-        Row(
-          children: [
-            Icon(
-              Icons.palette_outlined,
-              color: SettingsTheme.neonGreen,
-              size: 24,
-            ),
-            SizedBox(width: 8),
-            Text('Appearance', style: SettingsTheme.sectionTitle),
-          ],
-        ),
-        SizedBox(height: 16),
-        // Radio buttons for background type
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _setBackgroundType(BackgroundType.gradient),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: _config.backgroundType == BackgroundType.gradient
-                        ? SettingsTheme.neonGreen.withOpacity(0.2)
-                        : SettingsTheme.lightGlass,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _config.backgroundType == BackgroundType.gradient
-                          ? SettingsTheme.neonGreen
-                          : Colors.white.withOpacity(0.1),
-                      width: 2,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _config.backgroundType == BackgroundType.gradient
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: _config.backgroundType == BackgroundType.gradient
-                            ? SettingsTheme.neonGreen
-                            : SettingsTheme.textGrey,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Gradient',
-                        style: SettingsTheme.cardText.copyWith(
-                          fontSize: 16,
-                          color:
-                              _config.backgroundType == BackgroundType.gradient
-                              ? SettingsTheme.neonGreen
-                              : SettingsTheme.textWhite,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _setBackgroundType(BackgroundType.image),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: _config.backgroundType == BackgroundType.image
-                        ? SettingsTheme.neonGreen.withOpacity(0.2)
-                        : SettingsTheme.lightGlass,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _config.backgroundType == BackgroundType.image
-                          ? SettingsTheme.neonGreen
-                          : Colors.white.withOpacity(0.1),
-                      width: 2,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _config.backgroundType == BackgroundType.image
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: _config.backgroundType == BackgroundType.image
-                            ? SettingsTheme.neonGreen
-                            : SettingsTheme.textGrey,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Image',
-                        style: SettingsTheme.cardText.copyWith(
-                          fontSize: 16,
-                          color: _config.backgroundType == BackgroundType.image
-                              ? SettingsTheme.neonGreen
-                              : SettingsTheme.textWhite,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 16),
-        // Conditional rendering based on background type
-        if (_config.backgroundType == BackgroundType.gradient)
-          // Gradient options
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: BackgroundService.presetGradients.map((gradient) {
-                return GradientOption(
-                  gradient: gradient,
-                  isSelected: _config.backgroundImage == gradient.id,
-                  onTap: () => _selectGradient(gradient.id),
-                );
-              }).toList(),
-            ),
-          )
-        else
-          // Upload image button
-          GestureDetector(
-            onTap: _uploadImage,
-            child: Container(
-              height: 120,
-              width: 120,
-              decoration: SettingsTheme.glassContainer(),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.cloud_upload_outlined,
-                    color: SettingsTheme.neonGreen,
-                    size: 40,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Upload\nImage',
-                    textAlign: TextAlign.center,
-                    style: SettingsTheme.cardText.copyWith(fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildMachineSizesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section title
-        Row(
-          children: [
-            Icon(
-              Icons.settings_outlined,
-              color: SettingsTheme.neonGreen,
-              size: 24,
-            ),
-            SizedBox(width: 8),
-            Text('Machine Sizes', style: SettingsTheme.sectionTitle),
-          ],
-        ),
-        SizedBox(height: 16),
-        // Machine size cards
-        if (_config.machineSizes.isEmpty)
-          Container(
-            padding: EdgeInsets.all(24),
-            decoration: SettingsTheme.glassContainer(),
-            child: Center(
-              child: Text(
-                'No machine sizes added yet',
-                style: SettingsTheme.cardSubtext,
-              ),
-            ),
-          )
-        else
-          ..._config.machineSizes.asMap().entries.map((entry) {
-            return MachineSizeCard(
-              machineSize: entry.value,
-              onDelete: () => _deleteMachineSize(entry.key),
-            );
-          }).toList(),
-        SizedBox(height: 16),
-        // Add button
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: SettingsTheme.buttonGradient,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ElevatedButton(
-              onPressed: _addMachineSize,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add, color: Colors.white, size: 24),
-                  SizedBox(width: 8),
-                  Text(
-                    'Add Machine Size',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

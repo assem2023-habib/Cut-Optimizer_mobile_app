@@ -168,6 +168,7 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
               tolerance: widget.tolerance,
               originalGroups: originalCarpets,
               suggestedGroups: suggestedGroups,
+              config: widget.config,
             ),
           ),
         );

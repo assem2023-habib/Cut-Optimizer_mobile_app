@@ -2,15 +2,19 @@ import '../core/enums.dart';
 
 enum BackgroundType { gradient, image }
 
+enum MeasurementUnit { m2, m, cm }
+
 class MachineSize {
   final String name;
   final int minWidth;
   final int maxWidth;
+  final int tolerance;
 
   MachineSize({
     required this.name,
     required this.minWidth,
     required this.maxWidth,
+    this.tolerance = 0,
   });
 
   factory MachineSize.fromJson(Map<String, dynamic> json) {
@@ -18,11 +22,17 @@ class MachineSize {
       name: json['name'] as String,
       minWidth: json['min_width'] as int,
       maxWidth: json['max_width'] as int,
+      tolerance: json['tolerance'] as int? ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'name': name, 'min_width': minWidth, 'max_width': maxWidth};
+    return {
+      'name': name,
+      'min_width': minWidth,
+      'max_width': maxWidth,
+      'tolerance': tolerance,
+    };
   }
 }
 
@@ -41,6 +51,7 @@ class Config {
   List<MachineSize> machineSizes;
   GroupingMode selectedMode;
   SortType selectedSortType;
+  MeasurementUnit measurementUnit;
 
   Config({
     required this.minWidth,
@@ -57,6 +68,7 @@ class Config {
     required this.machineSizes,
     required this.selectedMode,
     required this.selectedSortType,
+    required this.measurementUnit,
   });
 
   factory Config.fromJson(Map<String, dynamic> json) {
@@ -79,6 +91,9 @@ class Config {
           .toList(),
       selectedMode: _parseGroupingMode(json['selected_mode'] as String),
       selectedSortType: _parseSortType(json['selected_sort_type'] as String),
+      measurementUnit: _parseMeasurementUnit(
+        json['measurement_unit'] as String? ?? 'm2',
+      ),
     );
   }
 
@@ -98,6 +113,7 @@ class Config {
       'machine_sizes': machineSizes.map((e) => e.toJson()).toList(),
       'selected_mode': _groupingModeToString(selectedMode),
       'selected_sort_type': _sortTypeToString(selectedSortType),
+      'measurement_unit': _measurementUnitToString(measurementUnit),
     };
   }
 
@@ -165,6 +181,30 @@ class Config {
     }
   }
 
+  static MeasurementUnit _parseMeasurementUnit(String value) {
+    switch (value) {
+      case 'm2':
+        return MeasurementUnit.m2;
+      case 'm':
+        return MeasurementUnit.m;
+      case 'cm':
+        return MeasurementUnit.cm;
+      default:
+        return MeasurementUnit.m2;
+    }
+  }
+
+  static String _measurementUnitToString(MeasurementUnit unit) {
+    switch (unit) {
+      case MeasurementUnit.m2:
+        return 'm2';
+      case MeasurementUnit.m:
+        return 'm';
+      case MeasurementUnit.cm:
+        return 'cm';
+    }
+  }
+
   static Config defaultConfig() {
     return Config(
       minWidth: 370,
@@ -179,12 +219,18 @@ class Config {
       backgroundImage: "gradient_blue_purple",
       backgroundType: BackgroundType.gradient,
       machineSizes: [
-        MachineSize(name: 'Small', minWidth: 50, maxWidth: 200),
-        MachineSize(name: 'Medium', minWidth: 200, maxWidth: 350),
-        MachineSize(name: 'Large', minWidth: 350, maxWidth: 500),
+        MachineSize(name: 'Small', minWidth: 50, maxWidth: 200, tolerance: 10),
+        MachineSize(
+          name: 'Medium',
+          minWidth: 200,
+          maxWidth: 350,
+          tolerance: 10,
+        ),
+        MachineSize(name: 'Large', minWidth: 350, maxWidth: 500, tolerance: 10),
       ],
       selectedMode: GroupingMode.allCombinations,
       selectedSortType: SortType.sortByWidth,
+      measurementUnit: MeasurementUnit.m2,
     );
   }
 }

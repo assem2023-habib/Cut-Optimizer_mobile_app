@@ -3,6 +3,7 @@ import '../../../core/enums.dart';
 import '../../execution/screens/execution_screen.dart';
 import '../widgets/processing_config_section.dart';
 import '../../../models/config.dart';
+import '../../../services/background_service.dart';
 
 class SetConstraintsScreen extends StatefulWidget {
   final String filePath;
@@ -55,8 +56,7 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
       return;
     }
 
-    // Navigate directly to ExecutionScreen, skipping SortingOptionsScreen and GroupingModeScreen
-    // as their configuration is now handled here.
+    // Navigate directly to ExecutionScreen
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ExecutionScreen(
@@ -77,74 +77,72 @@ class _SetConstraintsScreenState extends State<SetConstraintsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.blue.shade900),
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
+      body: Container(
+        decoration: BackgroundService.getBackgroundDecoration(
+          widget.config.backgroundImage,
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "SET CONSTRAINTS",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            color: Colors.blue.shade900,
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // The Processing Configuration Section (Glass Card)
+                    ProcessingConfigSection(
+                      config: widget.config,
+                      onChanged: _onConfigChanged,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Next Button
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _navigateToNextScreen,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6B4EEB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          elevation: 4,
+                          shadowColor: const Color(0xFF6B4EEB).withOpacity(0.4),
                         ),
-                        const SizedBox(height: 20),
-                        ProcessingConfigSection(
-                          config: widget.config,
-                          onChanged: _onConfigChanged,
-                        ),
-                        const Spacer(),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: _navigateToNextScreen,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFF0D47A1,
-                              ), // Corporate Blue
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              "Next >",
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Start Processing",
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
+                            SizedBox(width: 8),
+                            Icon(Icons.play_arrow_rounded, size: 24),
+                          ],
                         ),
-                        const SizedBox(height: 24),
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
