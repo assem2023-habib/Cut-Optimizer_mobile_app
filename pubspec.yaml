@@ -50,7 +50,7 @@ dependencies:
   image_picker: ^1.1.2
 
   # Charts
-  fl_chart: 1.1.1
+  fl_chart: ^1.1.1
 
   # Data helpers
   collection: ^1.19.0
@@ -65,6 +65,9 @@ dependencies:
   pluto_grid: ^8.0.0
   universal_html: ^2.3.0
   open_file: ^3.5.10
+
+  # Fonts
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:

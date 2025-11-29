@@ -10,7 +10,11 @@ import '../../../models/group_carpet.dart';
 import '../../results/screens/results_screen.dart';
 import '../../../models/config.dart';
 import '../../../services/background_service.dart';
+import '../widgets/progress_indicator.dart';
+import '../widgets/execution_buttons.dart';
 
+/// شاشة التنفيذ (Execution Screen)
+/// تنفيذ عملية المعالجة والانتقال للنتائج
 class ExecutionScreen extends StatefulWidget {
   final String filePath;
   final int minWidth;
@@ -122,7 +126,6 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
       });
 
       // Step 5: Generate output Excel file (80% - 95% progress)
-
       Directory appDir = await getApplicationDocumentsDirectory();
       String timestamp = DateTime.now()
           .toIso8601String()
@@ -202,7 +205,7 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF333333)),
           onPressed: _isExecuting ? null : () => Navigator.of(context).pop(),
         ),
       ),
@@ -249,36 +252,14 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
                               color: Colors.blue.shade900,
                             ),
                           ),
+
                           const SizedBox(height: 48),
-                          // Circular Progress Indicator
-                          SizedBox(
-                            width: 200,
-                            height: 200,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                CircularProgressIndicator(
-                                  value: _progress,
-                                  strokeWidth: 12,
-                                  backgroundColor: Colors.blue.shade50,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.blue.shade700,
-                                  ),
-                                ),
-                                Center(
-                                  child: Text(
-                                    "${(_progress * 100).toInt()}%",
-                                    style: TextStyle(
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue.shade900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+
+                          // Progress Indicator (from widget)
+                          ExecutionProgressIndicator(progress: _progress),
+
                           const SizedBox(height: 24),
+
                           // Status Message
                           Text(
                             _statusMessage,
@@ -288,67 +269,14 @@ class _ExecutionScreenState extends State<ExecutionScreen> {
                               color: Colors.grey.shade700,
                             ),
                           ),
+
                           const SizedBox(height: 48),
-                          // Start Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton.icon(
-                              onPressed: _isExecuting ? null : _startExecution,
-                              icon: const Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
-                              ),
-                              label: const Text(
-                                "Start Execution",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green.shade600,
-                                disabledBackgroundColor: Colors.grey.shade400,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          // Cancel Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton.icon(
-                              onPressed: _isExecuting
-                                  ? null
-                                  : () {
-                                      Navigator.of(context).pop();
-                                    },
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                              label: const Text(
-                                "Cancel",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red.shade600,
-                                disabledBackgroundColor: Colors.grey.shade400,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                            ),
+
+                          // Action Buttons (from widget)
+                          ExecutionActionButtons(
+                            isExecuting: _isExecuting,
+                            onStart: _startExecution,
+                            onCancel: () => Navigator.of(context).pop(),
                           ),
                         ],
                       ),
