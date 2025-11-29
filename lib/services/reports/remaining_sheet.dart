@@ -2,7 +2,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 
 void createRemainingSheet(Workbook workbook, List<Carpet> remaining) {
-  final Worksheet sheet = workbook.worksheets.addWithName('المتبقي');
+  final Worksheet sheet = workbook.worksheets.addWithName('السجاد المتبقي');
 
   List<String> headers = [
     'معرف السجادة',
@@ -23,7 +23,8 @@ void createRemainingSheet(Workbook workbook, List<Carpet> remaining) {
       if (r.repeated.isNotEmpty) {
         for (var rep in r.repeated) {
           if ((rep['qty_rem'] as int) > 0) {
-            String key = "${rep['id']}|${r.width}|${r.height}|${rep['client_order']}";
+            String key =
+                "${rep['id']}|${r.width}|${r.height}|${rep['client_order']}";
             aggregated[key] = (aggregated[key] ?? 0) + (rep['qty_rem'] as int);
           }
         }

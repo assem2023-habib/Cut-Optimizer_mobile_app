@@ -47,7 +47,7 @@ class ReportService {
     createAuditSheet(workbook, groups, remaining, originalGroups);
 
     // 6. Waste
-    createWasteSheet(workbook, groups, maxWidth);
+    createWasteSheet(workbook, groups, maxWidth, originalGroups);
 
     // 7. Remaining Suggestions
     createRemainingSuggestionSheet(

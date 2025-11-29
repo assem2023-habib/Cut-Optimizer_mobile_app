@@ -2,7 +2,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/group_carpet.dart';
 
 void createGroupSummarySheet(Workbook workbook, List<GroupCarpet> groups) {
-  final Worksheet sheet = workbook.worksheets.addWithName('ملخص المجموعات');
+  final Worksheet sheet = workbook.worksheets.addWithName('ملخص القصات');
 
   List<String> headers = [
     'رقم القصة',
@@ -53,7 +53,7 @@ void createGroupSummarySheet(Workbook workbook, List<GroupCarpet> groups) {
   }
 
   rowIndex++;
-  
+
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setNumber(totalWidth);
   sheet.getRangeByIndex(rowIndex, 3).setNumber(groups.length.toDouble());

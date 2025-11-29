@@ -2,8 +2,13 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 
-void createAuditSheet(Workbook workbook, List<GroupCarpet> groups, List<Carpet> remaining, List<Carpet>? originals) {
-  final Worksheet sheet = workbook.worksheets.addWithName('تدقيق');
+void createAuditSheet(
+  Workbook workbook,
+  List<GroupCarpet> groups,
+  List<Carpet> remaining,
+  List<Carpet>? originals,
+) {
+  final Worksheet sheet = workbook.worksheets.addWithName('تدقيق الكميات');
 
   List<String> headers = [
     'معرف السجادة',
@@ -22,16 +27,18 @@ void createAuditSheet(Workbook workbook, List<GroupCarpet> groups, List<Carpet> 
   }
 
   Map<String, int> usedTotals = {};
-  
+
   for (var g in groups) {
     for (var it in g.items) {
       if (it.repeated.isNotEmpty) {
         for (var rep in it.repeated) {
-          String key = "${rep['id']}|${it.width}|${it.height}|${rep['client_order']}";
+          String key =
+              "${rep['id']}|${it.width}|${it.height}|${rep['client_order']}";
           usedTotals[key] = (usedTotals[key] ?? 0) + (rep['qty'] as int);
         }
       } else {
-        String key = "${it.carpetId}|${it.width}|${it.height}|${it.clientOrder}";
+        String key =
+            "${it.carpetId}|${it.width}|${it.height}|${it.clientOrder}";
         usedTotals[key] = (usedTotals[key] ?? 0) + it.qtyUsed;
       }
     }
@@ -42,8 +49,10 @@ void createAuditSheet(Workbook workbook, List<GroupCarpet> groups, List<Carpet> 
     if (r.repeated.isNotEmpty) {
       for (var rep in r.repeated) {
         if ((rep['qty_rem'] as int) > 0) {
-          String key = "${rep['id']}|${r.width}|${r.height}|${rep['client_order']}";
-          remainingTotals[key] = (remainingTotals[key] ?? 0) + (rep['qty_rem'] as int);
+          String key =
+              "${rep['id']}|${r.width}|${r.height}|${rep['client_order']}";
+          remainingTotals[key] =
+              (remainingTotals[key] ?? 0) + (rep['qty_rem'] as int);
         }
       }
     } else {
@@ -67,7 +76,11 @@ void createAuditSheet(Workbook workbook, List<GroupCarpet> groups, List<Carpet> 
     }
   }
 
-  Set<String> allKeys = {...originalTotals.keys, ...usedTotals.keys, ...remainingTotals.keys};
+  Set<String> allKeys = {
+    ...originalTotals.keys,
+    ...usedTotals.keys,
+    ...remainingTotals.keys,
+  };
   List<String> sortedKeys = allKeys.toList();
   // Sort logic similar to python: id, width, height
   sortedKeys.sort((a, b) {
@@ -76,11 +89,11 @@ void createAuditSheet(Workbook workbook, List<GroupCarpet> groups, List<Carpet> 
     int idA = int.parse(partsA[0]);
     int idB = int.parse(partsB[0]);
     if (idA != idB) return idA.compareTo(idB);
-    
+
     int wA = int.parse(partsA[1]);
     int wB = int.parse(partsB[1]);
     if (wA != wB) return wA.compareTo(wB);
-    
+
     int hA = int.parse(partsA[2]);
     int hB = int.parse(partsB[2]);
     return hA.compareTo(hB);
@@ -127,7 +140,9 @@ void createAuditSheet(Workbook workbook, List<GroupCarpet> groups, List<Carpet> 
   }
 
   rowIndex++;
-  String isSame = totalOriginalQty == totalUsedQty + totalRemQty ? '✅ نعم' : '❌ لا';
+  String isSame = totalOriginalQty == totalUsedQty + totalRemQty
+      ? '✅ نعم'
+      : '❌ لا';
 
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setText('');

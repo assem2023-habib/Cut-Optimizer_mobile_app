@@ -1,22 +1,41 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/group_carpet.dart';
+import '../../models/carpet.dart';
 
-void createWasteSheet(Workbook workbook, List<GroupCarpet> groups, int maxWidth) {
+void createWasteSheet(
+  Workbook workbook,
+  List<GroupCarpet> groups,
+  int maxWidth,
+  List<Carpet>? originals,
+) {
   final Worksheet sheet = workbook.worksheets.addWithName('الهادر');
 
   List<String> headers = [
     'رقم القصة',
     'العرض الإجمالي',
     'الهادر في العرض',
-    'اطول مسار',
-    'نتيجة الضرب',
-    'الهادر في المسارات',
-    'نتيجة الجمع',
-    'مجموع هادرالمسارات في المجموعة',
+    'المسار المرجعي',
+    'هادر المسارات',
+    'نسبة الهدر',
   ];
 
   for (int i = 0; i < headers.length; i++) {
     sheet.getRangeByIndex(1, i + 1).setText(headers[i]);
+  }
+
+  // Calculate total original area
+  double totalOriginal = 0;
+  if (originals != null && originals.isNotEmpty) {
+    for (var carpet in originals) {
+      totalOriginal += carpet.area * carpet.qty;
+    }
+  } else {
+    // Fallback: calculate from groups if originals not available
+    for (var group in groups) {
+      for (var carpet in group.items) {
+        totalOriginal += carpet.area * (carpet.qtyUsed + carpet.qtyRem);
+      }
+    }
   }
 
   int rowIndex = 2;
@@ -24,60 +43,55 @@ void createWasteSheet(Workbook workbook, List<GroupCarpet> groups, int maxWidth)
 
   double totalWidth = 0;
   double totalWasteWidth = 0;
-  double totalPathLoss = 0;
   double totalMaxPath = 0;
-  double totalWasteMaxPath = 0;
-  double totalSumPathLoss = 0;
-  double totalResult = 0;
+  double totalPathWaste = 0;
+  double totalWastePercentage = 0;
 
   for (var g in groups) {
     groupId++;
-    double sumPathLoss = 0;
-    
+
+    // Waste in width = maxWidth - totalWidth of group
+    double wasteWidth = (maxWidth - g.totalWidth).toDouble();
+
+    // Max path (reference path) = longest path in the group
+    int maxPath = g.maxLengthRef;
+
+    // Path waste = sum of (maxPath - itemPath) * itemWidth for all items
+    double pathWaste = 0;
     for (var item in g.items) {
-      sumPathLoss += g.maxLengthRef - item.lengthRef;
+      pathWaste += (maxPath - item.lengthRef) * item.width;
     }
 
-    double wasteWidth = maxWidth - g.totalWidth.toDouble();
-    double pathLoss = (g.maxLengthRef - g.minLengthRef).toDouble();
+    // Add width waste area to path waste
+    pathWaste += wasteWidth * maxPath;
+
+    // Waste percentage for this group = (pathWaste / totalOriginal) * 100
+    double wastePercentage = totalOriginal > 0
+        ? (pathWaste / totalOriginal * 100)
+        : 0;
 
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
     sheet.getRangeByIndex(rowIndex, 2).setNumber(g.totalWidth.toDouble());
     sheet.getRangeByIndex(rowIndex, 3).setNumber(wasteWidth);
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(g.maxLengthRef.toDouble());
-    sheet.getRangeByIndex(rowIndex, 5).setNumber(wasteWidth * g.maxLengthRef);
-    sheet.getRangeByIndex(rowIndex, 6).setNumber(pathLoss);
-    sheet.getRangeByIndex(rowIndex, 7).setNumber(wasteWidth * g.maxLengthRef + pathLoss);
-    sheet.getRangeByIndex(rowIndex, 8).setNumber(sumPathLoss);
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(maxPath.toDouble());
+    sheet.getRangeByIndex(rowIndex, 5).setNumber(pathWaste);
+    sheet.getRangeByIndex(rowIndex, 6).setNumber(wastePercentage);
 
     totalWidth += g.totalWidth;
     totalWasteWidth += wasteWidth;
-    totalWasteMaxPath += wasteWidth * g.maxLengthRef;
-    totalPathLoss += pathLoss;
-    totalSumPathLoss += sumPathLoss;
-    totalResult += pathLoss * wasteWidth; // Wait, python code: total_result+= pathLoss * wasteWidth. But row calculation is wasteWidth * g.max_length_ref() + pathLoss.
-    // Python code:
-    // 'نتيجة الجمع': wasteWidth * g.max_length_ref() + pathLoss,
-    // total_result+= pathLoss * wasteWidth
-    // This seems inconsistent in python code variable naming vs usage?
-    // Let's check python code again.
-    // total_result+= pathLoss * wasteWidth
-    // But the column 'نتيجة الجمع' is wasteWidth * g.max_length_ref() + pathLoss.
-    // I will follow the python code logic exactly even if it looks weird.
-    
-    totalMaxPath += g.maxLengthRef;
+    totalMaxPath += maxPath;
+    totalPathWaste += pathWaste;
+    totalWastePercentage += wastePercentage;
 
     rowIndex++;
   }
 
   rowIndex++;
-  
+
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setNumber(totalWidth);
   sheet.getRangeByIndex(rowIndex, 3).setNumber(totalWasteWidth);
   sheet.getRangeByIndex(rowIndex, 4).setNumber(totalMaxPath);
-  sheet.getRangeByIndex(rowIndex, 5).setNumber(totalWasteMaxPath);
-  sheet.getRangeByIndex(rowIndex, 6).setNumber(totalPathLoss);
-  sheet.getRangeByIndex(rowIndex, 7).setNumber(totalResult);
-  sheet.getRangeByIndex(rowIndex, 8).setNumber(totalSumPathLoss);
+  sheet.getRangeByIndex(rowIndex, 5).setNumber(totalPathWaste);
+  sheet.getRangeByIndex(rowIndex, 6).setNumber(totalWastePercentage);
 }
