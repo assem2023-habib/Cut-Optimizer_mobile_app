@@ -81,10 +81,13 @@ class DownloadExcelButton extends StatelessWidget {
       );
 
       if (outputFile != null) {
-        // التحقق مما إذا كان يجب الكتابة يدوياً (لبعض المنصات)
-        final File savedFile = File(outputFile);
-        if (!await savedFile.exists()) {
-          await savedFile.writeAsBytes(bytes);
+        // على Android و iOS، المكتبة تقوم بالحفظ تلقائياً عند تمرير bytes
+        // لذا لا داعي لمحاولة الكتابة يدوياً أو التحقق من المسار الذي قد يكون SAF URI
+        if (!Platform.isAndroid && !Platform.isIOS) {
+          final File savedFile = File(outputFile);
+          if (!await savedFile.exists()) {
+            await savedFile.writeAsBytes(bytes);
+          }
         }
 
         if (context.mounted) {
