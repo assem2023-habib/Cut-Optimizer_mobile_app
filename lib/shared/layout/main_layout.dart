@@ -19,12 +19,19 @@ class MainLayout extends StatelessWidget {
   /// هل توجد بيانات معالجة؟ (لتفعيل أزرار التقارير والإحصائيات)
   final bool hasProcessedData;
 
+  final List<dynamic>? groups;
+  final List<dynamic>? remaining;
+  final List<dynamic>? originalGroups;
+
   const MainLayout({
     super.key,
     required this.child,
     this.currentPage,
     this.showBottomNav = true,
     this.hasProcessedData = false,
+    this.groups,
+    this.remaining,
+    this.originalGroups,
   });
 
   @override
@@ -63,6 +70,9 @@ class MainLayout extends StatelessWidget {
               BottomNavBar(
                 currentPage: currentPage,
                 hasProcessedData: hasProcessedData,
+                groups: groups,
+                remaining: remaining,
+                originalGroups: originalGroups,
               ),
           ],
         ),

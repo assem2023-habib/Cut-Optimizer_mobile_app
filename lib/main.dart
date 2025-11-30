@@ -7,6 +7,10 @@ import 'features/home/screens/home_screen.dart';
 import 'features/upload/screens/upload_screen.dart';
 import 'features/processing/screens/processing_options_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
+import 'features/reports/screens/reports_screen.dart';
+import 'features/statistics/screens/statistics_screen.dart';
+import 'models/group_carpet.dart';
+import 'models/carpet.dart';
 
 import 'models/config.dart';
 import 'core/services/config_service.dart';
@@ -41,6 +45,26 @@ class MyApp extends StatelessWidget {
         '/processing-options': (context) =>
             ProcessingOptionsScreen(fileName: 'demo.xlsx', fileSize: 45000),
         AppRoutes.settings: (context) => SettingsScreen(config: config),
+        AppRoutes.reports: (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+          return ReportsScreen(
+            groups: (args['groups'] as List).cast<GroupCarpet>(),
+            remaining: (args['remaining'] as List).cast<Carpet>(),
+            originalGroups:
+                (args['originalGroups'] as List?)?.cast<Carpet>() ?? [],
+          );
+        },
+        AppRoutes.statistics: (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+          return StatisticsScreen(
+            groups: (args['groups'] as List).cast<GroupCarpet>(),
+            remaining: (args['remaining'] as List).cast<Carpet>(),
+          );
+        },
       },
     );
   }

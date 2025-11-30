@@ -43,6 +43,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       currentPage: 'reports',
       showBottomNav: true,
       hasProcessedData: true,
+      groups: widget.groups,
+      remaining: widget.remaining,
+      originalGroups: widget.originalGroups,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

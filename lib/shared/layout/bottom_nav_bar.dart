@@ -8,11 +8,17 @@ import '../../core/constants/app_routes.dart';
 class BottomNavBar extends StatelessWidget {
   final String? currentPage;
   final bool hasProcessedData;
+  final List<dynamic>? groups;
+  final List<dynamic>? remaining;
+  final List<dynamic>? originalGroups;
 
   const BottomNavBar({
     super.key,
     this.currentPage,
     this.hasProcessedData = false,
+    this.groups,
+    this.remaining,
+    this.originalGroups,
   });
 
   @override
@@ -26,7 +32,7 @@ class BottomNavBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: const Color.fromRGBO(0, 0, 0, 0.1),
             blurRadius: AppDimensions.shadowBlurRadius,
             offset: const Offset(0, -AppDimensions.shadowOffsetY),
           ),
@@ -92,7 +98,18 @@ class BottomNavBar extends StatelessWidget {
   }
 
   void _navigate(BuildContext context, String route) {
-    Navigator.of(context).pushNamed(route);
+    if (route == AppRoutes.reports || route == AppRoutes.statistics) {
+      Navigator.of(context).pushNamed(
+        route,
+        arguments: {
+          'groups': groups,
+          'remaining': remaining,
+          'originalGroups': originalGroups,
+        },
+      );
+    } else {
+      Navigator.of(context).pushNamed(route);
+    }
   }
 }
 

@@ -14,11 +14,13 @@ import '../widgets/tips_box.dart';
 class StatisticsScreen extends StatelessWidget {
   final List<GroupCarpet> groups;
   final List<Carpet> remaining;
+  final List<Carpet>? originalGroups;
 
   const StatisticsScreen({
     super.key,
     required this.groups,
     required this.remaining,
+    this.originalGroups,
   });
 
   @override
@@ -41,6 +43,9 @@ class StatisticsScreen extends StatelessWidget {
       currentPage: 'statistics',
       showBottomNav: true,
       hasProcessedData: true,
+      groups: groups,
+      remaining: remaining,
+      originalGroups: originalGroups,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
