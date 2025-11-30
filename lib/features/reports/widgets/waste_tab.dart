@@ -9,6 +9,7 @@ class WasteTab extends StatelessWidget {
   const WasteTab({super.key, required this.groups});
 
   @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         ...groups.asMap().entries.map((entry) {
