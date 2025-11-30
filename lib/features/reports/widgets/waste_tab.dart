@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../models/group_carpet.dart';
-import '../../../models/carpet_used.dart';
 
 /// Tab 4: الهادر
 class WasteTab extends StatelessWidget {

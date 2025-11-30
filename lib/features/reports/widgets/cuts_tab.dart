@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../models/group_carpet.dart';
-import '../../../models/carpet_used.dart';
 import '../../../utils/results_calculator.dart';
 
 /// Tab 1: القصات
