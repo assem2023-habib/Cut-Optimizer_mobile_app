@@ -18,40 +18,44 @@ class AuditTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: originalGroups.map((original) {
-        // Calculate produced quantity for this carpet ID
-        int produced = 0;
-        for (GroupCarpet group in groups) {
-          for (var item in group.items) {
-            if (item.carpetId == original.id) {
-              produced += item.qtyUsed * group.repetitions;
+      children: [
+        ...originalGroups.map((original) {
+          // Calculate produced quantity for this carpet ID
+          int produced = 0;
+          for (GroupCarpet group in groups) {
+            for (var item in group.items) {
+              if (item.carpetId == original.id) {
+                produced += item.qtyUsed * group.repetitions;
+              }
             }
           }
-        }
 
-        // Add remaining quantity
-        int rem = 0;
-        for (var r in remaining) {
-          if (r.id == original.id) {
-            rem = r.remQty;
+          // Add remaining quantity
+          int rem = 0;
+          for (var r in remaining) {
+            if (r.id == original.id) {
+              rem = r.remQty;
+            }
           }
-        }
 
-        // Total accounted for = produced + remaining
-        int totalAccounted = produced + rem;
-        bool isMatch = totalAccounted == original.qty;
+          // Total accounted for = produced + remaining
+          int totalAccounted = produced + rem;
+          bool isMatch = totalAccounted == original.qty;
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _AuditCard(
-            orderId: 'C-${original.id.toString().padLeft(3, '0')}',
-            requested: original.qty,
-            produced: produced,
-            remaining: rem,
-            isMatch: isMatch,
-          ),
-        );
-      }).toList(),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _AuditCard(
+              orderId: 'C-${original.id.toString().padLeft(3, '0')}',
+              requested: original.qty,
+              produced: produced,
+              remaining: rem,
+              isMatch: isMatch,
+            ),
+          );
+        }).toList(),
+        // مسافة إضافية لتجنب تداخل مع BottomNavBar
+        const SizedBox(height: 80),
+      ],
     );
   }
 }

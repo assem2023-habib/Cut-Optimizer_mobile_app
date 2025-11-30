@@ -159,6 +159,9 @@ class ResultsScreen extends StatelessWidget {
 
             // Download Excel Button
             DownloadExcelButton(filePath: outputFilePath),
+
+            // مسافة إضافية لتجنب تداخل مع BottomNavBar
+            const SizedBox(height: 80),
           ],
         ),
       ),

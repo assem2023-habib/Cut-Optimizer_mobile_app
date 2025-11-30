@@ -40,39 +40,42 @@ class MainLayout extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: Directionality(
         textDirection: TextDirection.rtl, // RTL للعربية
-        child: Column(
+        child: Stack(
           children: [
-            // ========== Header الثابت ==========
-            const AppHeader(),
-
             // ========== المحتوى الديناميكي ==========
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: AppDimensions.maxAppWidth,
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: showBottomNav
-                          ? AppDimensions.contentPaddingBottom
-                          : 0,
+            Column(
+              children: [
+                // ========== Header الثابت ==========
+                const AppHeader(),
+
+                // ========== المحتوى القابل للتمرير ==========
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: AppDimensions.maxAppWidth,
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
                 ),
-              ),
+              ],
             ),
 
             // ========== Bottom Navigation الثابت ==========
             // يختفي في صفحة Processing
             if (showBottomNav && currentPage != 'processing')
-              BottomNavBar(
-                currentPage: currentPage,
-                hasProcessedData: hasProcessedData,
-                groups: groups,
-                remaining: remaining,
-                originalGroups: originalGroups,
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: BottomNavBar(
+                  currentPage: currentPage,
+                  hasProcessedData: hasProcessedData,
+                  groups: groups,
+                  remaining: remaining,
+                  originalGroups: originalGroups,
+                ),
               ),
           ],
         ),

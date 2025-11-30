@@ -99,6 +99,9 @@ class StatisticsScreen extends StatelessWidget {
 
             // Tips
             const TipsBox(),
+
+            // مسافة إضافية لتجنب تداخل مع BottomNavBar
+            const SizedBox(height: 80),
           ],
         ),
       ),

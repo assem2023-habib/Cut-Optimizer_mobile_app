@@ -98,8 +98,22 @@ class BottomNavBar extends StatelessWidget {
   }
 
   void _navigate(BuildContext context, String route) {
+    // التحقق من البيانات للشاشات التي تحتاجها
     if (route == AppRoutes.reports || route == AppRoutes.statistics) {
-      Navigator.of(context).pushNamed(
+      // التحقق من وجود البيانات
+      if (groups == null || remaining == null) {
+        // عرض رسالة خطأ
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('يرجى تنفيذ عملية معالجة أولاً'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
+      Navigator.of(context).pushReplacementNamed(
         route,
         arguments: {
           'groups': groups,
@@ -108,7 +122,7 @@ class BottomNavBar extends StatelessWidget {
         },
       );
     } else {
-      Navigator.of(context).pushNamed(route);
+      Navigator.of(context).pushReplacementNamed(route);
     }
   }
 }

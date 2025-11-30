@@ -19,7 +19,7 @@ class AppDimensions {
   static const double headerPadding = 16.0;
 
   /// حجم خط عنوان Header
-  static const double headerFontSize = 36.0;
+  static const double headerFontSize = 30.0;
 
   // ========== Bottom Navigation Dimensions ==========
 
@@ -49,8 +49,8 @@ class AppDimensions {
   // ========== Content Dimensions ==========
 
   /// حشو سفلي للمحتوى لتجنب تداخل مع Bottom Navigation
-  /// 80px (أكبر من ارتفاع Bottom Nav لإضافة مساحة آمنة)
-  static const double contentPaddingBottom = 80.0;
+  /// 64px (يطابق ارتفاع Bottom Nav بالضبط)
+  static const double contentPaddingBottom = 64.0;
 
   /// حشو جانبي افتراضي للمحتوى
   static const double contentPaddingHorizontal = 16.0;

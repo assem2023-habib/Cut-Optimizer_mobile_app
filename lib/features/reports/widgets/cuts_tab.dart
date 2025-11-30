@@ -12,17 +12,21 @@ class CutsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: groups.asMap().entries.map((entry) {
-        final index = entry.key;
-        final group = entry.value;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _ExpandableCutCard(
-            group: group,
-            color: ResultsCalculator.getColorForGroup(index),
-          ),
-        );
-      }).toList(),
+      children: [
+        ...groups.asMap().entries.map((entry) {
+          final index = entry.key;
+          final group = entry.value;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _ExpandableCutCard(
+              group: group,
+              color: ResultsCalculator.getColorForGroup(index),
+            ),
+          );
+        }).toList(),
+        // مسافة إضافية لتجنب تداخل مع BottomNavBar
+        const SizedBox(height: 80),
+      ],
     );
   }
 }

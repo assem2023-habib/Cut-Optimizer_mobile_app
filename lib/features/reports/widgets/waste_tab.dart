@@ -9,31 +9,34 @@ class WasteTab extends StatelessWidget {
   const WasteTab({super.key, required this.groups});
 
   @override
-  Widget build(BuildContext context) {
     return Column(
-      children: groups.asMap().entries.map((entry) {
-        final group = entry.value;
-        final totalArea = (group.totalWidth * group.maxHeight).toDouble();
-        final usedArea = group.items.fold(
-          0.0,
-          (sum, item) => sum + (item.width * item.height * item.qtyUsed),
-        );
-        final wasteArea = totalArea - usedArea;
-        final wastePercentage = totalArea > 0
-            ? (wasteArea / totalArea) * 100
-            : 0.0;
+      children: [
+        ...groups.asMap().entries.map((entry) {
+          final group = entry.value;
+          final totalArea = (group.totalWidth * group.maxHeight).toDouble();
+          final usedArea = group.items.fold(
+            0.0,
+            (sum, item) => sum + (item.width * item.height * item.qtyUsed),
+          );
+          final wasteArea = totalArea - usedArea;
+          final wastePercentage = totalArea > 0
+              ? (wasteArea / totalArea) * 100
+              : 0.0;
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _WasteCard(
-            groupId: group.groupId,
-            totalArea: totalArea,
-            usedArea: usedArea,
-            wasteArea: wasteArea,
-            wastePercentage: wastePercentage,
-          ),
-        );
-      }).toList(),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _WasteCard(
+              groupId: group.groupId,
+              totalArea: totalArea,
+              usedArea: usedArea,
+              wasteArea: wasteArea,
+              wastePercentage: wastePercentage,
+            ),
+          );
+        }).toList(),
+        // مسافة إضافية لتجنب تداخل مع BottomNavBar
+        const SizedBox(height: 80),
+      ],
     );
   }
 }

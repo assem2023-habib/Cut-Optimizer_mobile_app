@@ -18,19 +18,23 @@ class RemainingTab extends StatelessWidget {
       );
     }
     return Column(
-      children: remaining
-          .map(
-            (carpet) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _RemainingPieceCard(
-                orderId: 'C-${carpet.id.toString().padLeft(3, '0')}',
-                width: carpet.width,
-                height: carpet.height,
-                quantity: carpet.remQty,
+      children: [
+        ...remaining
+            .map(
+              (carpet) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _RemainingPieceCard(
+                  orderId: 'C-${carpet.id.toString().padLeft(3, '0')}',
+                  width: carpet.width,
+                  height: carpet.height,
+                  quantity: carpet.remQty,
+                ),
               ),
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+        // مسافة إضافية لتجنب تداخل مع BottomNavBar
+        const SizedBox(height: 80),
+      ],
     );
   }
 }
