@@ -6,6 +6,7 @@ import '../widgets/measurement_unit.dart';
 import '../widgets/prep_codes.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/info_box.dart';
+import '../../../core/services/config_service.dart';
 
 /// شاشة الإعدادات (Settings Screen) - التصميم الجديد
 /// 4 أقسام: إعدادات النول + وحدة القياس + أكواد التحضير + أزرار الإجراءات
@@ -32,22 +33,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _config = Config.defaultConfig();
     });
+    ConfigService.instance.saveConfig(_config);
   }
 
-  void _saveSettings() {
-    // TODO: Save to persistent storage
-    setState(() {
-      _isSaved = true;
-    });
+  void _saveSettings() async {
+    final success = await ConfigService.instance.saveConfig(_config);
 
-    // Reset saved state after 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _isSaved = false;
-        });
+    if (mounted) {
+      setState(() {
+        _isSaved = success;
+      });
+
+      // Reset saved state after 2 seconds
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _isSaved = false;
+          });
+        }
+      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حفظ الإعدادات بنجاح'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('حدث خطأ أثناء حفظ الإعدادات'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-    });
+    }
   }
 
   @override

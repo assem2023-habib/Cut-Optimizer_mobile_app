@@ -10,13 +10,22 @@ import 'features/processing/screens/processing_loader_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 
 import 'models/config.dart';
+import 'core/services/config_service.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize ConfigService and load saved config
+  await ConfigService.instance.init();
+  final config = await ConfigService.instance.loadConfig();
+
+  runApp(MyApp(config: config));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Config config;
+
+  const MyApp({super.key, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +43,7 @@ class MyApp extends StatelessWidget {
         '/processing-options': (context) =>
             ProcessingOptionsScreen(fileName: 'demo.xlsx', fileSize: 45000),
         '/processing': (context) => const ProcessingLoaderScreen(),
-        AppRoutes.settings: (context) =>
-            SettingsScreen(config: Config.defaultConfig()),
+        AppRoutes.settings: (context) => SettingsScreen(config: config),
       },
     );
   }
