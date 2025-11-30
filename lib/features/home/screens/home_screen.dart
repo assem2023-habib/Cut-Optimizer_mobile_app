@@ -17,7 +17,6 @@ class HomeScreen extends StatelessWidget {
     return const MainLayout(
       currentPage: 'home',
       showBottomNav: true,
-      hasProcessedData: false,
       child: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(

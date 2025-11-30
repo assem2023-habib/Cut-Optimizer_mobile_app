@@ -56,10 +56,6 @@ class ResultsScreen extends StatelessWidget {
     return MainLayout(
       currentPage: 'results',
       showBottomNav: true,
-      hasProcessedData: true,
-      groups: groups,
-      remaining: remaining,
-      originalGroups: originalGroups,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

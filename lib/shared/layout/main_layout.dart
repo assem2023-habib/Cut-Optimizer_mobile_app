@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dimensions.dart';
+import '../../core/state/app_state_provider.dart';
 import 'app_header.dart';
 import 'bottom_nav_bar.dart';
 
@@ -16,26 +17,18 @@ class MainLayout extends StatelessWidget {
   /// هل نعرض Bottom Navigation؟ (نخفيه في صفحة Processing)
   final bool showBottomNav;
 
-  /// هل توجد بيانات معالجة؟ (لتفعيل أزرار التقارير والإحصائيات)
-  final bool hasProcessedData;
-
-  final List<dynamic>? groups;
-  final List<dynamic>? remaining;
-  final List<dynamic>? originalGroups;
-
   const MainLayout({
     super.key,
     required this.child,
     this.currentPage,
     this.showBottomNav = true,
-    this.hasProcessedData = false,
-    this.groups,
-    this.remaining,
-    this.originalGroups,
   });
 
   @override
   Widget build(BuildContext context) {
+    // الوصول للحالة المشتركة
+    final appState = AppStateProvider.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Directionality(
@@ -71,10 +64,10 @@ class MainLayout extends StatelessWidget {
                 right: 0,
                 child: BottomNavBar(
                   currentPage: currentPage,
-                  hasProcessedData: hasProcessedData,
-                  groups: groups,
-                  remaining: remaining,
-                  originalGroups: originalGroups,
+                  hasProcessedData: appState.hasProcessedData,
+                  groups: appState.groups,
+                  remaining: appState.remaining,
+                  originalGroups: appState.originalGroups,
                 ),
               ),
           ],

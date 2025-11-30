@@ -4,6 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import '../../../core/enums.dart';
 import '../../../services/data_service.dart';
 import '../../../services/algorithm_service.dart';
+import '../../../services/results_storage_service.dart';
+import '../../../core/state/app_state_provider.dart';
 import '../../../models/carpet.dart';
 import '../../../models/group_carpet.dart';
 import '../../results/screens/results_screen.dart';
@@ -132,11 +134,42 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
       );
 
       setState(() {
+        _statusMessage = 'حفظ النتائج...';
+      });
+
+      // Step 6: Save results to SharedPreferences
+      await ResultsStorageService.instance.saveResults(
+        groups: groups,
+        remaining: remaining,
+        originalGroups: originalCarpets,
+        suggestedGroups: suggestedGroups,
+        outputFilePath: outputPath,
+        minWidth: widget.minWidth,
+        maxWidth: widget.maxWidth,
+        tolerance: widget.tolerance,
+      );
+
+      // تحديث الحالة المشتركة
+      if (mounted) {
+        final appState = AppStateProvider.of(context);
+        appState.updateResults(
+          groups: groups,
+          remaining: remaining,
+          originalGroups: originalCarpets,
+          suggestedGroups: suggestedGroups,
+          outputFilePath: outputPath,
+          minWidth: widget.minWidth,
+          maxWidth: widget.maxWidth,
+          tolerance: widget.tolerance,
+        );
+      }
+
+      setState(() {
         _statusMessage = 'الانتهاء...';
       });
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Step 6: Navigate to ResultsScreen
+      // Step 7: Navigate to ResultsScreen
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

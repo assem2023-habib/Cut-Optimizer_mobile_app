@@ -76,7 +76,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return MainLayout(
       currentPage: 'settings',
       showBottomNav: true,
-      hasProcessedData: false,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

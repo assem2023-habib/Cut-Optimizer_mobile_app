@@ -73,7 +73,6 @@ class _UploadScreenState extends State<UploadScreen> {
     return MainLayout(
       currentPage: 'upload',
       showBottomNav: true,
-      hasProcessedData: false,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
