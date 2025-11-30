@@ -44,9 +44,10 @@ class ResultsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // حساب الإحصائيات من البيانات الحقيقية
     final efficiency = ResultsCalculator.calculateEfficiency(groups, remaining);
-    final wastePercentage = ResultsCalculator.calculateWastePercentage(
+    final wastePercentage = ResultsCalculator.calculateCorrectWastePercentage(
       groups,
-      remaining,
+      originalGroups,
+      maxWidth,
     );
     final totalArea = ResultsCalculator.calculateTotalArea(groups, remaining);
     final usedArea = ResultsCalculator.calculateUsedArea(groups);
@@ -122,6 +123,7 @@ class ResultsScreen extends StatelessWidget {
                             groups: groups,
                             remaining: remaining,
                             originalGroups: originalGroups ?? [],
+                            maxWidth: maxWidth,
                           ),
                         ),
                       );
@@ -142,6 +144,7 @@ class ResultsScreen extends StatelessWidget {
                             groups: groups,
                             remaining: remaining,
                             originalGroups: originalGroups,
+                            maxWidth: maxWidth,
                           ),
                         ),
                       );

@@ -16,12 +16,14 @@ class ReportsScreen extends StatefulWidget {
   final List<GroupCarpet> groups;
   final List<Carpet> remaining;
   final List<Carpet> originalGroups; // For audit
+  final int maxWidth; // For waste calculation
 
   const ReportsScreen({
     super.key,
     required this.groups,
     required this.remaining,
     required this.originalGroups,
+    required this.maxWidth,
   });
 
   @override
@@ -125,7 +127,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
           remaining: widget.remaining,
         );
       case 3:
-        return WasteTab(groups: widget.groups);
+        return WasteTab(
+          groups: widget.groups,
+          maxWidth: widget.maxWidth,
+          originalGroups: widget.originalGroups,
+        );
       default:
         return Container();
     }

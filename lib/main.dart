@@ -60,6 +60,7 @@ class MyApp extends StatelessWidget {
               remaining: (args['remaining'] as List).cast<Carpet>(),
               originalGroups:
                   (args['originalGroups'] as List?)?.cast<Carpet>() ?? [],
+              maxWidth: (args['maxWidth'] as int?) ?? 400,
             );
           },
           AppRoutes.statistics: (context) {
@@ -69,6 +70,8 @@ class MyApp extends StatelessWidget {
             return StatisticsScreen(
               groups: (args['groups'] as List).cast<GroupCarpet>(),
               remaining: (args['remaining'] as List).cast<Carpet>(),
+              originalGroups: (args['originalGroups'] as List?)?.cast<Carpet>(),
+              maxWidth: (args['maxWidth'] as int?) ?? 400,
             );
           },
         },

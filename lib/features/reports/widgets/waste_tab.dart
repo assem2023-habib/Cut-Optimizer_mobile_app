@@ -1,35 +1,56 @@
 import 'package:flutter/material.dart';
 import '../../../models/group_carpet.dart';
+import '../../../models/carpet.dart';
+import '../../../utils/results_calculator.dart';
 
 /// Tab 4: الهادر
 class WasteTab extends StatelessWidget {
   final List<GroupCarpet> groups;
+  final int maxWidth;
+  final List<Carpet>? originalGroups;
 
-  const WasteTab({super.key, required this.groups});
+  const WasteTab({
+    super.key,
+    required this.groups,
+    required this.maxWidth,
+    this.originalGroups,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Calculate totalOriginal once - matching waste_sheet.dart logic
+    final totalOriginal = ResultsCalculator.calculateTotalOriginalArea(
+      originalGroups,
+      groups,
+    );
+
     return Column(
       children: [
         ...groups.asMap().entries.map((entry) {
           final group = entry.value;
-          final totalArea = (group.totalWidth * group.maxHeight).toDouble();
-          final usedArea = group.items.fold(
-            0.0,
-            (sum, item) => sum + (item.width * item.height * item.qtyUsed),
+
+          // Use correct waste calculation matching Excel logic
+          final pathWaste = ResultsCalculator.calculatePathWasteForGroup(
+            group,
+            maxWidth,
           );
-          final wasteArea = totalArea - usedArea;
-          final wastePercentage = totalArea > 0
-              ? (wasteArea / totalArea) * 100
+
+          final wastePercentage = totalOriginal > 0
+              ? (pathWaste / totalOriginal * 100)
               : 0.0;
+
+          // Additional metrics for display
+          final wasteWidth = (maxWidth - group.totalWidth).toDouble();
+          final maxPath = group.maxLengthRef.toDouble();
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _WasteCard(
               groupId: group.groupId,
-              totalArea: totalArea,
-              usedArea: usedArea,
-              wasteArea: wasteArea,
+              totalWidth: group.totalWidth.toDouble(),
+              wasteWidth: wasteWidth,
+              maxPath: maxPath,
+              pathWaste: pathWaste,
               wastePercentage: wastePercentage,
             ),
           );
@@ -43,16 +64,18 @@ class WasteTab extends StatelessWidget {
 
 class _WasteCard extends StatelessWidget {
   final int groupId;
-  final double totalArea;
-  final double usedArea;
-  final double wasteArea;
+  final double totalWidth;
+  final double wasteWidth;
+  final double maxPath;
+  final double pathWaste;
   final double wastePercentage;
 
   const _WasteCard({
     required this.groupId,
-    required this.totalArea,
-    required this.usedArea,
-    required this.wasteArea,
+    required this.totalWidth,
+    required this.wasteWidth,
+    required this.maxPath,
+    required this.pathWaste,
     required this.wastePercentage,
   });
 
@@ -105,18 +128,23 @@ class _WasteCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _WasteRow(
-            label: 'المساحة الكلية:',
-            value: '${(totalArea / 10000).toStringAsFixed(2)} م²',
+            label: 'العرض الإجمالي:',
+            value: '${totalWidth.toStringAsFixed(0)} سم',
           ),
           const SizedBox(height: 4),
           _WasteRow(
-            label: 'المساحة المستخدمة:',
-            value: '${(usedArea / 10000).toStringAsFixed(2)} م²',
+            label: 'الهادر في العرض:',
+            value: '${wasteWidth.toStringAsFixed(0)} سم',
+          ),
+          const SizedBox(height: 4),
+          _WasteRow(
+            label: 'المسار المرجعي:',
+            value: '${maxPath.toStringAsFixed(0)} سم',
           ),
           const Divider(height: 16),
           _WasteRow(
-            label: 'الهادر:',
-            value: '${(wasteArea / 10000).toStringAsFixed(2)} م²',
+            label: 'هادر المسارات:',
+            value: '${(pathWaste / 10000).toStringAsFixed(2)} م²',
             isHighlight: true,
           ),
         ],

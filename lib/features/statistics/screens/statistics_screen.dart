@@ -15,21 +15,24 @@ class StatisticsScreen extends StatelessWidget {
   final List<GroupCarpet> groups;
   final List<Carpet> remaining;
   final List<Carpet>? originalGroups;
+  final int maxWidth;
 
   const StatisticsScreen({
     super.key,
     required this.groups,
     required this.remaining,
     this.originalGroups,
+    required this.maxWidth,
   });
 
   @override
   Widget build(BuildContext context) {
     // Calculate statistics
     final efficiency = ResultsCalculator.calculateEfficiency(groups, remaining);
-    final wastePercentage = ResultsCalculator.calculateWastePercentage(
+    final wastePercentage = ResultsCalculator.calculateCorrectWastePercentage(
       groups,
-      remaining,
+      originalGroups,
+      maxWidth,
     );
     final totalArea = ResultsCalculator.calculateTotalArea(groups, remaining);
     final usedArea = ResultsCalculator.calculateUsedArea(groups);

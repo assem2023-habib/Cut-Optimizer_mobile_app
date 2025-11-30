@@ -104,6 +104,68 @@ class ResultsCalculator {
     return group.maxHeight;
   }
 
+  /// حساب المساحة الأصلية الكلية (قبل القص) - من السجاد الأصلي
+  /// This matches the logic in waste_sheet.dart for totalOriginal calculation
+  static double calculateTotalOriginalArea(
+    List<Carpet>? originals,
+    List<GroupCarpet> groups,
+  ) {
+    double totalOriginal = 0;
+    if (originals != null && originals.isNotEmpty) {
+      // Use original carpet data
+      for (var carpet in originals) {
+        totalOriginal += carpet.area * carpet.qty;
+      }
+    } else {
+      // Fallback: calculate from groups if originals not available
+      for (var group in groups) {
+        for (var carpet in group.items) {
+          totalOriginal += carpet.area * (carpet.qtyUsed + carpet.qtyRem);
+        }
+      }
+    }
+    return totalOriginal;
+  }
+
+  /// حساب هادر المسارات لمجموعة واحدة (matching waste_sheet.dart logic)
+  /// Calculates path waste for a single group including width waste
+  static double calculatePathWasteForGroup(GroupCarpet group, int maxWidth) {
+    // Waste in width = maxWidth - totalWidth of group
+    double wasteWidth = (maxWidth - group.totalWidth).toDouble();
+
+    // Max path (reference path) = longest path in the group
+    int maxPath = group.maxLengthRef;
+
+    // Path waste = sum of (maxPath - itemPath) * itemWidth for all items
+    double pathWaste = 0;
+    for (var item in group.items) {
+      pathWaste += (maxPath - item.lengthRef) * item.width;
+    }
+
+    // Add width waste area to path waste
+    pathWaste += wasteWidth * maxPath;
+
+    return pathWaste;
+  }
+
+  /// حساب نسبة الهادر الصحيحة (matching waste_sheet.dart logic)
+  /// Uses totalOriginal as denominator instead of totalArea
+  static double calculateCorrectWastePercentage(
+    List<GroupCarpet> groups,
+    List<Carpet>? originals,
+    int maxWidth,
+  ) {
+    double totalOriginal = calculateTotalOriginalArea(originals, groups);
+    if (totalOriginal == 0) return 0;
+
+    double totalPathWaste = 0;
+    for (var group in groups) {
+      totalPathWaste += calculatePathWasteForGroup(group, maxWidth);
+    }
+
+    return (totalPathWaste / totalOriginal) * 100;
+  }
+
   /// تحويل index إلى لون HEX (للعرض)
   static String getColorForGroup(int index) {
     final colors = [
