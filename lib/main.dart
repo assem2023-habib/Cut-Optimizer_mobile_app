@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppStateWrapper(
       child: MaterialApp(
-        title: '',
+        title: 'D',
         debugShowCheckedModeBanner: false,
 
         // استخدام الثيم الجديد مع خط Cairo

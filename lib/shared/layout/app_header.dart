@@ -18,7 +18,7 @@ class AppHeader extends StatelessWidget {
         bottom: false, // نحتاج SafeArea فقط للأعلى
         child: Center(
           child: Text(
-            'نظام تحسين قص السجاد',
+            '',
             style: TextStyle(
               color: AppColors.white,
               fontSize: AppDimensions.headerFontSize,

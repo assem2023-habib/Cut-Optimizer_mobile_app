@@ -4,6 +4,7 @@ import '../../core/constants/app_dimensions.dart';
 import '../../core/state/app_state_provider.dart';
 import 'app_header.dart';
 import 'bottom_nav_bar.dart';
+import '../widgets/results_floating_button.dart';
 
 /// البنية الرئيسية للتطبيق (Main Layout)
 /// يحتوي على: Header (ثابت) + Content (ديناميكي) + Bottom Navigation (ثابت)
@@ -69,6 +70,15 @@ class MainLayout extends StatelessWidget {
                   remaining: appState.remaining,
                   originalGroups: appState.originalGroups,
                 ),
+              ),
+
+            // ========== Floating Action Button ==========
+            // يظهر في جميع الشاشات ما عدا النتائج والمعالجة
+            if (currentPage != 'results' && currentPage != 'processing')
+              const Positioned(
+                bottom: 100, // ارتفاع الناف بار + مسافة
+                left: 20,
+                child: ResultsFloatingButton(),
               ),
           ],
         ),
