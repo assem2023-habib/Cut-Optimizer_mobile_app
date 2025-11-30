@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../shared/layout/main_layout.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../processing/screens/processing_options_screen.dart';
 
 /// شاشة رفع الملف (Upload Screen) - التصميم الجديد
 /// 6 أقسام: العنوان + منطقة الرفع + رسالة خطأ + المتطلبات + زر المتابعة + نصيحة
@@ -51,8 +52,16 @@ class _UploadScreenState extends State<UploadScreen> {
       return;
     }
 
-    // TODO: Navigate to processing options
-    Navigator.of(context).pushNamed(AppRoutes.processingOptions);
+    // Navigate to processing options with file details
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ProcessingOptionsScreen(
+          fileName: _file!.name,
+          fileSize: _file!.size,
+          filePath: _file!.path,
+        ),
+      ),
+    );
   }
 
   @override

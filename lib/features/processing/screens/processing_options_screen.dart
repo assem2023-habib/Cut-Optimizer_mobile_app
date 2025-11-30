@@ -9,17 +9,21 @@ import '../widgets/selected_loom_details.dart';
 import '../widgets/sort_options.dart';
 import '../widgets/repeat_main_option.dart';
 import '../widgets/processing_action_buttons.dart';
+import '../screens/processing_loader_screen.dart';
+import '../../../core/enums.dart';
 
 /// شاشة خيارات المعالجة (Processing Options)
 /// تسمح باختيار النول وخيارات الترتيب قبل بدء المعالجة
 class ProcessingOptionsScreen extends StatefulWidget {
   final String fileName;
   final int fileSize;
+  final String? filePath; // Add file path parameter
 
   const ProcessingOptionsScreen({
     super.key,
     required this.fileName,
     required this.fileSize,
+    this.filePath,
   });
 
   @override
@@ -49,10 +53,44 @@ class _ProcessingOptionsScreenState extends State<ProcessingOptionsScreen> {
   }
 
   void _startProcessing() {
-    if (_selectedLoomIndex == null) return;
+    if (_selectedLoomIndex == null || _config == null) return;
 
-    // TODO: Save selected options and navigate to processing
-    Navigator.of(context).pushNamed(AppRoutes.processing);
+    final selectedLoom = _config!.machineSizes[_selectedLoomIndex!];
+
+    // Convert sort option to SortType
+    SortType sortType;
+    switch (_sortOption) {
+      case 'width':
+        sortType = SortType.sortByWidth;
+        break;
+      case 'quantity':
+        sortType = SortType.sortByQuantity;
+        break;
+      case 'length':
+      default:
+        sortType = SortType.sortByHeight;
+        break;
+    }
+
+    // Convert repeat option to GroupingMode
+    GroupingMode groupingMode = _repeatMain == 'no-repeat'
+        ? GroupingMode.noMainRepeat
+        : GroupingMode.allCombinations;
+
+    // Navigate to ProcessingLoaderScreen
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ProcessingLoaderScreen(
+          filePath: widget.filePath ?? '',
+          minWidth: selectedLoom.minWidth,
+          maxWidth: selectedLoom.maxWidth,
+          tolerance: selectedLoom.tolerance,
+          sortType: sortType,
+          groupingMode: groupingMode,
+          config: _config!,
+        ),
+      ),
+    );
   }
 
   @override

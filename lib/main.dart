@@ -6,7 +6,6 @@ import 'core/constants/app_routes.dart';
 import 'features/home/screens/home_screen.dart';
 import 'features/upload/screens/upload_screen.dart';
 import 'features/processing/screens/processing_options_screen.dart';
-import 'features/processing/screens/processing_loader_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 
 import 'models/config.dart';
@@ -36,13 +35,11 @@ class MyApp extends StatelessWidget {
       // استخدام الثيم الجديد مع خط Cairo
       theme: AppTheme.lightTheme,
 
-      // Routes للتنقل بين الصفحات
       routes: {
         AppRoutes.home: (context) => const HomeScreen(),
         AppRoutes.upload: (context) => const UploadScreen(),
         '/processing-options': (context) =>
             ProcessingOptionsScreen(fileName: 'demo.xlsx', fileSize: 45000),
-        '/processing': (context) => const ProcessingLoaderScreen(),
         AppRoutes.settings: (context) => SettingsScreen(config: config),
       },
     );

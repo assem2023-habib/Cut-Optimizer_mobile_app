@@ -49,10 +49,10 @@ class AlgorithmService {
     // We iterate through a copy or handle the loop carefully since we modify state
     // The python loop iterates over `carpets` which is a list.
     // In Dart, we can iterate over the list.
-    
+
     // Note: The python logic iterates over `carpets` but inside the loop it might modify `rem_qty` of items in `carpets`.
     // It does NOT remove items from `carpets` list itself during iteration, so standard for-in is fine.
-    
+
     for (var main in carpets) {
       if (!main.isAvailable) {
         continue;
@@ -62,19 +62,23 @@ class AlgorithmService {
 
       if (selectedSortType != SortType.sortByQuantity) {
         int remainingWidth = maxWidth - main.width;
-        
+
         // Find first index where width <= remainingWidth
         int foundIndex = -1;
-        for(int j=0; j<carpets.length; j++) {
-            if (carpets[j].width <= remainingWidth) {
-                foundIndex = j;
-                break;
-            }
+        for (int j = 0; j < carpets.length; j++) {
+          if (carpets[j].width <= remainingWidth) {
+            foundIndex = j;
+            break;
+          }
         }
-        
+
         if (foundIndex == -1) {
           var singleGroup = tryCreateSingleGroup(
-              main, minWidth, maxWidth, groupId);
+            main,
+            minWidth,
+            maxWidth,
+            groupId,
+          );
           if (singleGroup != null) {
             group.add(singleGroup);
             groupId++;
@@ -92,7 +96,11 @@ class AlgorithmService {
         currentMaxPartner = 12;
       }
 
-      for (int partnerLevel = 1; partnerLevel <= currentMaxPartner; partnerLevel++) {
+      for (
+        int partnerLevel = 1;
+        partnerLevel <= currentMaxPartner;
+        partnerLevel++
+      ) {
         if (!main.isAvailable) {
           break;
         }
@@ -108,7 +116,7 @@ class AlgorithmService {
           selectedMode: selectedMode,
           startIndex: startIndex,
         );
-        
+
         List<GroupCarpet> newGroups = result.groups;
         groupId = result.nextGroupId;
 
@@ -123,19 +131,23 @@ class AlgorithmService {
             // Or maybe it's just a safety reset?
             // `generateAndProcessPartners` only consumes if it successfully creates a group.
             // However, let's follow the python logic exactly.
-             main.remQty = remQty;
-             continue;
+            main.remQty = remQty;
+            continue;
           }
         }
         group.addAll(newGroups);
       }
 
       if (selectedMode == GroupingMode.noMainRepeat) {
-        for (int partnerLevel = 1; partnerLevel <= currentMaxPartner; partnerLevel++) {
+        for (
+          int partnerLevel = 1;
+          partnerLevel <= currentMaxPartner;
+          partnerLevel++
+        ) {
           if (!main.isAvailable) {
             break;
           }
-           var result = generateAndProcessPartners(
+          var result = generateAndProcessPartners(
             main: main,
             carpets: carpets,
             partnerLevel: partnerLevel,
@@ -143,7 +155,8 @@ class AlgorithmService {
             maxWidth: maxWidth,
             tolerance: tolerance,
             groupId: groupId,
-            selectedMode: GroupingMode.allCombinations, // Force all combinations here as per python logic
+            selectedMode: GroupingMode
+                .allCombinations, // Force all combinations here as per python logic
             startIndex: startIndex,
           );
           group.addAll(result.groups);
@@ -151,8 +164,7 @@ class AlgorithmService {
         }
       }
 
-      var singleGroup = tryCreateSingleGroup(
-          main, minWidth, maxWidth, groupId);
+      var singleGroup = tryCreateSingleGroup(main, minWidth, maxWidth, groupId);
       if (singleGroup != null) {
         group.add(singleGroup);
         groupId++;
@@ -164,9 +176,9 @@ class AlgorithmService {
     }
 
     group.sort((a, b) {
-        int widthA = a.items.isNotEmpty ? a.items[0].width : 0;
-        int widthB = b.items.isNotEmpty ? b.items[0].width : 0;
-        return widthB.compareTo(widthA);
+      int widthA = a.items.isNotEmpty ? a.items[0].width : 0;
+      int widthB = b.items.isNotEmpty ? b.items[0].width : 0;
+      return widthB.compareTo(widthA);
     });
 
     return group;
@@ -193,45 +205,53 @@ class AlgorithmService {
     List<List<Carpet>> partnerSets = [];
 
     if (selectedMode == GroupingMode.noMainRepeat) {
-      partnerSets.addAll(CombinationUtils.generateValidPartnerCombinations(
-        main: main,
-        candidates: carpets,
-        n: partnerLevel,
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        allowRepetition: false,
-        startIndex: startIndex,
-        excludeMain: true,
-      ));
-      partnerSets.addAll(CombinationUtils.generateValidPartnerCombinations(
-        main: main,
-        candidates: carpets,
-        n: partnerLevel,
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        allowRepetition: true,
-        startIndex: startIndex,
-        excludeMain: true,
-      ));
+      partnerSets.addAll(
+        CombinationUtils.generateValidPartnerCombinations(
+          main: main,
+          candidates: carpets,
+          n: partnerLevel,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          allowRepetition: false,
+          startIndex: startIndex,
+          excludeMain: true,
+        ),
+      );
+      partnerSets.addAll(
+        CombinationUtils.generateValidPartnerCombinations(
+          main: main,
+          candidates: carpets,
+          n: partnerLevel,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          allowRepetition: true,
+          startIndex: startIndex,
+          excludeMain: true,
+        ),
+      );
     } else {
-      partnerSets.addAll(CombinationUtils.generateValidPartnerCombinations(
-        main: main,
-        candidates: carpets,
-        n: partnerLevel,
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        allowRepetition: false,
-        startIndex: startIndex,
-      ));
-      partnerSets.addAll(CombinationUtils.generateValidPartnerCombinations(
-        main: main,
-        candidates: carpets,
-        n: partnerLevel,
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        allowRepetition: true,
-        startIndex: startIndex,
-      ));
+      partnerSets.addAll(
+        CombinationUtils.generateValidPartnerCombinations(
+          main: main,
+          candidates: carpets,
+          n: partnerLevel,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          allowRepetition: false,
+          startIndex: startIndex,
+        ),
+      );
+      partnerSets.addAll(
+        CombinationUtils.generateValidPartnerCombinations(
+          main: main,
+          candidates: carpets,
+          n: partnerLevel,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          allowRepetition: true,
+          startIndex: startIndex,
+        ),
+      );
     }
 
     for (var partners in partnerSets) {
@@ -307,8 +327,8 @@ class AlgorithmService {
     List<Map<String, dynamic>> rollbackData = [];
 
     for (int i = 0; i < uniqueElements.length; i++) {
-        Carpet e = uniqueElements[i];
-        int x = xVals[i];
+      Carpet e = uniqueElements[i];
+      int x = xVals[i];
 
       if (x <= 0) {
         allValid = false;
@@ -334,25 +354,27 @@ class AlgorithmService {
         List<Map<String, dynamic>> result = [];
         // Check if repeated is not empty
         if (e.repeated.isNotEmpty) {
-            result = e.consumeFromRepeated(qtyPerRepetition);
+          result = e.consumeFromRepeated(qtyPerRepetition);
         }
         e.consume(qtyPerRepetition);
 
         rollbackData.add({
           "carpet": e,
           "qty": qtyPerRepetition,
-          "consumed_repeated": result
+          "consumed_repeated": result,
         });
 
-        usedItems.add(CarpetUsed(
-          carpetId: e.id,
-          width: e.width,
-          height: e.height,
-          qtyUsed: qtyPerRepetition,
-          qtyRem: e.remQty,
-          clientOrder: e.clientOrder,
-          repeated: result,
-        ));
+        usedItems.add(
+          CarpetUsed(
+            carpetId: e.id,
+            width: e.width,
+            height: e.height,
+            qtyUsed: qtyPerRepetition,
+            qtyRem: e.remQty,
+            clientOrder: e.clientOrder,
+            repeated: result,
+          ),
+        );
       }
     }
 
@@ -361,7 +383,10 @@ class AlgorithmService {
       return null;
     }
 
-    GroupCarpet newGroup = GroupCarpet(groupId: currentGroupId, items: usedItems);
+    GroupCarpet newGroup = GroupCarpet(
+      groupId: currentGroupId,
+      items: usedItems,
+    );
     if (newGroup.isValid(minWidth, maxWidth)) {
       return ProcessResult(newGroup, currentGroupId + 1);
     }
@@ -371,7 +396,11 @@ class AlgorithmService {
   }
 
   GroupCarpet? tryCreateSingleGroup(
-      Carpet carpet, int minWidth, int maxWidth, int groupId) {
+    Carpet carpet,
+    int minWidth,
+    int maxWidth,
+    int groupId,
+  ) {
     if (!(carpet.width >= minWidth &&
         carpet.width <= maxWidth &&
         carpet.isAvailable &&
@@ -383,7 +412,7 @@ class AlgorithmService {
     if (carpet.repeated.isNotEmpty) {
       result = carpet.consumeFromRepeated(carpet.remQty);
     }
-    
+
     // Note: In python code, it consumes rem_qty.
     int qtyToConsume = carpet.remQty;
 
@@ -394,7 +423,8 @@ class AlgorithmService {
       qtyUsed: qtyToConsume, // In python it was carpet.rem_qty before consume
       qtyRem: 0,
       clientOrder: carpet.clientOrder,
-      repeated: result, // Python code didn't pass repeated to CarpetUsed constructor in try_create_single_group explicitly but it seems it should if it consumed from repeated? 
+      repeated:
+          result, // Python code didn't pass repeated to CarpetUsed constructor in try_create_single_group explicitly but it seems it should if it consumed from repeated?
       // Wait, python code:
       // result= []
       // if hasattr(carpet, "repeated") and carpet.repeated:
@@ -403,23 +433,26 @@ class AlgorithmService {
       // Yes it does pass it.
     );
 
-    GroupCarpet singleGroup = GroupCarpet(groupId: groupId, items: [singleItem]);
+    GroupCarpet singleGroup = GroupCarpet(
+      groupId: groupId,
+      items: [singleItem],
+    );
 
     if (!singleGroup.isValid(minWidth, maxWidth)) {
-        // If not valid, we should probably restore? 
-        // But we haven't consumed yet in python code until AFTER validity check.
-        // Python:
-        // if not single_group.is_valid(...): return None
-        // qty_to_consume = carpet.rem_qty
-        // carpet.consume(qty_to_consume)
-        // return single_group
-        
-        // Wait, if I consumed from repeated BEFORE validity check, I need to restore if invalid.
-        // Python code consumes from repeated BEFORE validity check.
-        // But consumes from main carpet AFTER validity check.
-        // This looks like a potential bug in python code if it returns None, it doesn't restore repeated?
-        // Let's look at python code again.
-        /*
+      // If not valid, we should probably restore?
+      // But we haven't consumed yet in python code until AFTER validity check.
+      // Python:
+      // if not single_group.is_valid(...): return None
+      // qty_to_consume = carpet.rem_qty
+      // carpet.consume(qty_to_consume)
+      // return single_group
+
+      // Wait, if I consumed from repeated BEFORE validity check, I need to restore if invalid.
+      // Python code consumes from repeated BEFORE validity check.
+      // But consumes from main carpet AFTER validity check.
+      // This looks like a potential bug in python code if it returns None, it doesn't restore repeated?
+      // Let's look at python code again.
+      /*
         result= []
         if hasattr(carpet, "repeated") and carpet.repeated:
             result= carpet.consume_from_repeated(carpet.rem_qty)
@@ -428,13 +461,13 @@ class AlgorithmService {
         if not single_group.is_valid(min_width, max_width):
             return None
         */
-        // YES! It seems it returns None without restoring repeated. 
-        // I should fix this in Dart or follow it? I should probably fix it to be safe.
-        // I will restore if invalid.
-        if (result.isNotEmpty) {
-            carpet.restoreRepeated(result);
-        }
-        return null;
+      // YES! It seems it returns None without restoring repeated.
+      // I should fix this in Dart or follow it? I should probably fix it to be safe.
+      // I will restore if invalid.
+      if (result.isNotEmpty) {
+        carpet.restoreRepeated(result);
+      }
+      return null;
     }
 
     carpet.consume(qtyToConsume);
@@ -484,7 +517,7 @@ extension AlgorithmServiceExtensions on AlgorithmService {
     if (availableCarpets.isEmpty) return suggestions;
 
     int minRemainingWidth = availableCarpets.map((c) => c.width).reduce(min);
-    
+
     // Create a work copy of carpets to preserve original state across iterations if needed?
     // Actually, in the loop we create `carpetsForRun` which are deep copies of `workCopy`.
     // `workCopy` itself should be a deep copy of `remaining` to avoid modifying `remaining`.
@@ -505,16 +538,18 @@ extension AlgorithmServiceExtensions on AlgorithmService {
       );
 
       if (groups.isNotEmpty) {
-         // Check if this set of groups is already in suggestions
-         // We need a way to check equality of List<GroupCarpet>
-         // For now, we can check if string summaries match or implement deep equality.
-         // Using summary string for simplicity as it captures structure.
-         String currentSummary = groups.map((g) => g.summary()).join("|");
-         bool exists = suggestions.any((s) => s.map((g) => g.summary()).join("|") == currentSummary);
-         
-         if (!exists) {
-           suggestions.add(groups);
-         }
+        // Check if this set of groups is already in suggestions
+        // We need a way to check equality of List<GroupCarpet>
+        // For now, we can check if string summaries match or implement deep equality.
+        // Using summary string for simplicity as it captures structure.
+        String currentSummary = groups.map((g) => g.summary()).join("|");
+        bool exists = suggestions.any(
+          (s) => s.map((g) => g.summary()).join("|") == currentSummary,
+        );
+
+        if (!exists) {
+          suggestions.add(groups);
+        }
       }
 
       currentMin -= step;
