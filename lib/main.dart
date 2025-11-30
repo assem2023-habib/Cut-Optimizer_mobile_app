@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'نظام تحسين قص السجاد',
+      title: '',
       debugShowCheckedModeBanner: false,
 
       // استخدام الثيم الجديد مع خط Cairo

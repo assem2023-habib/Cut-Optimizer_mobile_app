@@ -119,6 +119,8 @@ class _UploadScreenState extends State<UploadScreen> {
 
             // 6. Info Box
             const _InfoBox(),
+
+            const SizedBox(height: 64),
           ],
         ),
       ),
@@ -380,7 +382,7 @@ class _FileRequirements extends StatelessWidget {
 }
 
 const _requirements = [
-  'الملف بدون ترويسة في الصف الأول',
+  'الملف مع ترويسة في الصف الأول',
   'العمود A: رقم طلب العميل',
   'العمود B: العرض (Width)',
   'العمود C: الطول (Height)',

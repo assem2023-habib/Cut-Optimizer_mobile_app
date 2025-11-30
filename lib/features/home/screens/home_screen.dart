@@ -50,6 +50,8 @@ class HomeScreen extends StatelessWidget {
 
             // 6. Info Box - نصيحة
             InfoBox(),
+
+            SizedBox(height: 64),
           ],
         ),
       ),

@@ -110,6 +110,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             totalGroups: totalGroups,
             totalRemaining: totalRemaining,
           ),
+          const SizedBox(height: 64),
         ],
       ),
     );

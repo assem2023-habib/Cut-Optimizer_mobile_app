@@ -144,6 +144,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // Info Box
             const SettingsInfoBox(),
+
+            const SizedBox(height: 64),
           ],
         ),
       ),
