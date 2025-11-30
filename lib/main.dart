@@ -7,10 +7,8 @@ import 'features/home/screens/home_screen.dart';
 import 'features/upload/screens/upload_screen.dart';
 import 'features/processing/screens/processing_options_screen.dart';
 import 'features/processing/screens/processing_loader_screen.dart';
-import 'features/results/screens/results_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
-import 'features/reports/screens/reports_screen.dart';
-import 'features/statistics/screens/statistics_screen.dart';
+
 import 'models/config.dart';
 
 void main() {
@@ -28,9 +26,6 @@ class MyApp extends StatelessWidget {
 
       // استخدام الثيم الجديد مع خط Cairo
       theme: AppTheme.lightTheme,
-
-      // Home screen الجديدة
-      home: const HomeScreen(),
 
       // Routes للتنقل بين الصفحات
       routes: {

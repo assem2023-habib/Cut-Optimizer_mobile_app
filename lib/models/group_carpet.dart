@@ -5,8 +5,13 @@ class GroupCarpet {
   final int groupId;
   final List<CarpetUsed> items;
 
-  GroupCarpet({required this.groupId, List<CarpetUsed>? items})
-    : items = items ?? [];
+  final int repetitions;
+
+  GroupCarpet({
+    required this.groupId,
+    List<CarpetUsed>? items,
+    this.repetitions = 1,
+  }) : items = items ?? [];
 
   int get totalWidth => items.fold(0, (sum, item) => sum + item.width);
 
