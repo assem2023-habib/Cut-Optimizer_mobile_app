@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../../services/file_store_service.dart';
 import '../../../shared/layout/main_layout.dart';
 import '../../../core/providers/config_provider.dart';
 import '../../processing/screens/processing_options_screen.dart';
@@ -27,9 +28,15 @@ class _UploadScreenState extends State<UploadScreen> {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['xlsx', 'xls'],
+        withData: true, // Important for Android 13+ to get bytes
       );
 
       if (result != null) {
+        // Store bytes for global access (fixes Android 13 issue)
+        if (result.files.first.bytes != null) {
+          FileStoreService().setInputBytes(result.files.first.bytes!);
+        }
+
         setState(() {
           _file = result.files.first;
           _error = null;
@@ -43,6 +50,7 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   void _clearFile() {
+    FileStoreService().clear(); // Clear stored bytes
     setState(() {
       _file = null;
       _error = null;

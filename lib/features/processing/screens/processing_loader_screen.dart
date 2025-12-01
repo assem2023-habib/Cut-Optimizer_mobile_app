@@ -5,6 +5,7 @@ import '../../../core/enums.dart';
 import '../../../services/data_service.dart';
 import '../../../services/algorithm_service.dart';
 import '../../../services/results_storage_service.dart';
+import '../../../services/file_store_service.dart';
 import '../../../core/state/app_state_provider.dart';
 import '../../../models/carpet.dart';
 import '../../../models/group_carpet.dart';
@@ -45,6 +46,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
   final DataService _dataService = DataService();
   final AlgorithmService _algorithmService = AlgorithmService();
   String _statusMessage = 'جاري بدء المعالجة...';
+  String? _error;
 
   @override
   void initState() {
@@ -61,6 +63,9 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
       await Future.delayed(const Duration(milliseconds: 500));
 
       List<Carpet> carpets = await _dataService.readInputExcel(widget.filePath);
+
+      // Free up memory after reading
+      FileStoreService().clear();
 
       if (carpets.isEmpty) {
         throw Exception("لم يتم العثور على بيانات صالحة في الملف");
@@ -190,16 +195,68 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ: $e'), backgroundColor: Colors.red),
-        );
-        Navigator.of(context).pop();
+        setState(() {
+          _error = e.toString();
+        });
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                const SizedBox(height: 16),
+                Text(
+                  'حدث خطأ أثناء المعالجة',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    _error!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('عودة وتعديل الخيارات'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB), // background
       body: Directionality(

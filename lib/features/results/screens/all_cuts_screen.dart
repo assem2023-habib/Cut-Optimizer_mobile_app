@@ -130,7 +130,7 @@ class _CutDetailItem extends StatelessWidget {
               ),
               Expanded(
                 child: _InfoColumn(
-                  label: 'أقصى طول مرجعي',
+                  label: 'أطول مسار',
                   value: '${group.maxLengthRef} سم',
                   icon: Icons.straighten,
                 ),

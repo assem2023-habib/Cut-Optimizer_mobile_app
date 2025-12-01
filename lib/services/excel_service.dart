@@ -8,16 +8,16 @@ import '../models/carpet.dart';
 class ExcelService {
   Future<List<Carpet>> readInputExcel(String path) async {
     List<int> bytes;
-    if (kIsWeb) {
-      if (FileStoreService().inputBytes == null) {
-        throw Exception("No file data found for web");
-      }
+
+    // 1. Try to get bytes from memory (FileStoreService) - Works for Web & Android 13+
+    if (FileStoreService().inputBytes != null) {
       bytes = FileStoreService().inputBytes!;
-    } else {
-      if (!File(path).existsSync()) {
-        throw FileSystemException("File not found", path);
-      }
+    }
+    // 2. Fallback to reading from path (Legacy Android / Desktop)
+    else if (!kIsWeb && File(path).existsSync()) {
       bytes = File(path).readAsBytesSync();
+    } else {
+      throw Exception("Could not read file data. Please try again.");
     }
 
     var excel = Excel.decodeBytes(bytes);
