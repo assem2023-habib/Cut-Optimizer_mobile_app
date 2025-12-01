@@ -55,11 +55,17 @@ class MyApp extends StatelessWidget {
               routes: {
                 AppRoutes.home: (context) => const HomeScreen(),
                 AppRoutes.upload: (context) => const UploadScreen(),
-                '/processing-options': (context) => ProcessingOptionsScreen(
-                  fileName: 'demo.xlsx',
-                  fileSize: 45000,
-                  config: currentConfig,
-                ),
+                '/processing-options': (context) {
+                  final args =
+                      ModalRoute.of(context)!.settings.arguments
+                          as Map<String, dynamic>;
+                  return ProcessingOptionsScreen(
+                    fileName: args['fileName'] as String,
+                    fileSize: args['fileSize'] as int,
+                    filePath: args['filePath'] as String?,
+                    config: currentConfig,
+                  );
+                },
                 AppRoutes.settings: (context) =>
                     SettingsScreen(config: currentConfig),
                 AppRoutes.reports: (context) {
