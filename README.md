@@ -363,7 +363,7 @@ flutter run --profile
 هذا المشروع مملوك لـ [اسم الشركة/المطور] وهو **خاص** (Private).
 
 ```
-Copyright © 2025 [اسم الشركة/المطور]
+Copyright © 2025 Assem Habib
 All rights reserved.
 ```
 
@@ -371,7 +371,7 @@ All rights reserved.
 
 ## 👨‍💻 المطور
 
-**تم التطوير بواسطة:** [اسمك/اسم الفريق]
+**تم التطوير بواسطة:** Assem Habib
 
 📧 **للتواصل:** [your.email@example.com](mailto:your.email@example.com)
 
