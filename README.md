@@ -360,7 +360,7 @@ flutter run --profile
 
 ## 📄 الترخيص
 
-هذا المشروع مملوك لـ [اسم الشركة/المطور] وهو **خاص** (Private).
+هذا المشروع مملوك لـ Assem Habib وهو **خاص** (Private).
 
 ```
 Copyright © 2025 Assem Habib
@@ -373,9 +373,7 @@ All rights reserved.
 
 **تم التطوير بواسطة:** Assem Habib
 
-📧 **للتواصل:** [your.email@example.com](mailto:your.email@example.com)
-
-🌐 **الموقع الإلكتروني:** [www.yourwebsite.com](https://www.yourwebsite.com)
+📧 **للتواصل:** 099assemhb@gmail.com
 
 ---
 
