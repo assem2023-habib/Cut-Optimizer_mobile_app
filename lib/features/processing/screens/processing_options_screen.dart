@@ -17,12 +17,14 @@ class ProcessingOptionsScreen extends StatefulWidget {
   final String fileName;
   final int fileSize;
   final String? filePath; // Add file path parameter
+  final Config config;
 
   const ProcessingOptionsScreen({
     super.key,
     required this.fileName,
     required this.fileSize,
     this.filePath,
+    required this.config,
   });
 
   @override
@@ -44,9 +46,9 @@ class _ProcessingOptionsScreenState extends State<ProcessingOptionsScreen> {
   }
 
   Future<void> _loadConfig() async {
-    final config = await ConfigService.instance.loadConfig();
+    // Use widget.config directly instead of loading
     setState(() {
-      _config = config;
+      _config = widget.config;
       _isLoading = false;
     });
   }

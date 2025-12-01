@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../shared/layout/main_layout.dart';
+import '../../../core/providers/config_provider.dart';
 import '../../processing/screens/processing_options_screen.dart';
 import '../widgets/upload_area.dart';
 import '../widgets/error_message.dart';
@@ -56,6 +57,15 @@ class _UploadScreenState extends State<UploadScreen> {
       return;
     }
 
+    // Get config from ConfigProvider
+    final config = ConfigProvider.of(context);
+    if (config == null) {
+      setState(() {
+        _error = 'خطأ في تحميل الإعدادات';
+      });
+      return;
+    }
+
     // Navigate to processing options with file details
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -63,6 +73,7 @@ class _UploadScreenState extends State<UploadScreen> {
           fileName: _file!.name,
           fileSize: _file!.size,
           filePath: _file!.path,
+          config: config,
         ),
       ),
     );

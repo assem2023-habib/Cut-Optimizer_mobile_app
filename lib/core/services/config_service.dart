@@ -13,9 +13,16 @@ class ConfigService {
   // Singleton instance
   static final ConfigService instance = ConfigService._();
 
+  // Config Notifier for reactive updates
+  final ValueNotifier<Config> configNotifier = ValueNotifier(
+    Config.defaultConfig(),
+  );
+
   /// Initialize SharedPreferences
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+    // Load initial config into notifier
+    configNotifier.value = await loadConfig();
   }
 
   /// Save Config to persistent storage
@@ -23,7 +30,11 @@ class ConfigService {
     if (_prefs == null) await init();
     try {
       final String jsonString = jsonEncode(config.toJson());
-      return await _prefs!.setString(_configKey, jsonString);
+      final result = await _prefs!.setString(_configKey, jsonString);
+      if (result) {
+        configNotifier.value = config; // Update notifier
+      }
+      return result;
     } catch (e) {
       debugPrint('Error saving config: $e');
       return false;

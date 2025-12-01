@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/layout/main_layout.dart';
 import '../../../models/config.dart';
 import '../widgets/loom_settings.dart';
+import '../widgets/appearance_settings_widget.dart';
 import '../widgets/measurement_unit.dart';
 import '../widgets/prep_codes.dart';
 import '../widgets/action_buttons.dart';
@@ -99,6 +100,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: Color(0xFF4B5563), // gray-600
                 fontSize: 14,
               ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // 0. إعدادات المظهر (الخلفية)
+            AppearanceSettingsWidget(
+              config: _config,
+              onTypeChanged: (type) {
+                setState(() {
+                  _config.backgroundType = type;
+                });
+              },
+              onGradientChanged: (gradientId) {
+                setState(() {
+                  _config.backgroundImage = gradientId;
+                });
+                // Save immediately for live update
+                ConfigService.instance.saveConfig(_config);
+              },
+              onImageUpload: () {
+                // TODO: Implement image upload
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('سيتم إضافة هذه الميزة قريباً')),
+                );
+              },
             ),
 
             const SizedBox(height: 24),

@@ -35,6 +35,77 @@ class BackgroundService {
       name: 'Dark Blue',
       colors: [Color(0xFF0f2027), Color(0xFF2c5364)],
     ),
+    // ✨ NEW Beautiful Gradients
+    BackgroundGradient(
+      id: 'gradient_sunset',
+      name: 'Sunset Glow',
+      colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_ocean',
+      name: 'Deep Ocean',
+      colors: [Color(0xFF667eea), Color(0xFF00F5FF)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_forest',
+      name: 'Forest Dream',
+      colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_purple_night',
+      name: 'Purple Night',
+      colors: [Color(0xFF360033), Color(0xFF0b8793)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_fire',
+      name: 'Fire Blaze',
+      colors: [Color(0xFFf12711), Color(0xFFf5af19)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_northern_lights',
+      name: 'Northern Lights',
+      colors: [Color(0xFF00c6ff), Color(0xFF0072ff)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_royal',
+      name: 'Royal Purple',
+      colors: [Color(0xFF141E30), Color(0xFF243B55)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_cherry',
+      name: 'Cherry Blossom',
+      colors: [Color(0xFFEB3349), Color(0xFFF45C43)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_mint',
+      name: 'Fresh Mint',
+      colors: [Color(0xFF00b09b), Color(0xFF96c93d)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_cosmic',
+      name: 'Cosmic Purple',
+      colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_peach',
+      name: 'Peach Sunset',
+      colors: [Color(0xFFFFECD2), Color(0xFFFCB69F)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_emerald',
+      name: 'Emerald Water',
+      colors: [Color(0xFF348F50), Color(0xFF56B4D3)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_aurora',
+      name: 'Aurora Sky',
+      colors: [Color(0xFF00d2ff), Color(0xFF928DAB)],
+    ),
+    BackgroundGradient(
+      id: 'gradient_lavender',
+      name: 'Lavender Dream',
+      colors: [Color(0xFFD3959B), Color(0xFFBFE6BA)],
+    ),
   ];
 
   static BackgroundGradient? getGradientById(String id) {

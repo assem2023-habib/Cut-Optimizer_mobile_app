@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_routes.dart';
 import 'core/state/app_state_provider.dart';
+import 'core/providers/config_provider.dart';
 
 // Screens
 import 'features/home/screens/home_screen.dart';
@@ -37,45 +38,58 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppStateWrapper(
-      child: MaterialApp(
-        title: 'D',
-        debugShowCheckedModeBanner: false,
+    return ValueListenableBuilder<Config>(
+      valueListenable: ConfigService.instance.configNotifier,
+      builder: (context, currentConfig, child) {
+        return ConfigProvider(
+          config: currentConfig,
+          child: AppStateWrapper(
+            child: MaterialApp(
+              title: 'D',
+              debugShowCheckedModeBanner: false,
 
-        // استخدام الثيم الجديد مع خط Cairo
-        theme: AppTheme.lightTheme,
+              // استخدام الثيم الجديد مع خط Cairo
+              theme: AppTheme.lightTheme,
 
-        routes: {
-          AppRoutes.home: (context) => const HomeScreen(),
-          AppRoutes.upload: (context) => const UploadScreen(),
-          '/processing-options': (context) =>
-              ProcessingOptionsScreen(fileName: 'demo.xlsx', fileSize: 45000),
-          AppRoutes.settings: (context) => SettingsScreen(config: config),
-          AppRoutes.reports: (context) {
-            final args =
-                ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-            return ReportsScreen(
-              groups: (args['groups'] as List).cast<GroupCarpet>(),
-              remaining: (args['remaining'] as List).cast<Carpet>(),
-              originalGroups:
-                  (args['originalGroups'] as List?)?.cast<Carpet>() ?? [],
-              maxWidth: (args['maxWidth'] as int?) ?? 400,
-            );
-          },
-          AppRoutes.statistics: (context) {
-            final args =
-                ModalRoute.of(context)!.settings.arguments
-                    as Map<String, dynamic>;
-            return StatisticsScreen(
-              groups: (args['groups'] as List).cast<GroupCarpet>(),
-              remaining: (args['remaining'] as List).cast<Carpet>(),
-              originalGroups: (args['originalGroups'] as List?)?.cast<Carpet>(),
-              maxWidth: (args['maxWidth'] as int?) ?? 400,
-            );
-          },
-        },
-      ),
+              routes: {
+                AppRoutes.home: (context) => const HomeScreen(),
+                AppRoutes.upload: (context) => const UploadScreen(),
+                '/processing-options': (context) => ProcessingOptionsScreen(
+                  fileName: 'demo.xlsx',
+                  fileSize: 45000,
+                  config: currentConfig,
+                ),
+                AppRoutes.settings: (context) =>
+                    SettingsScreen(config: currentConfig),
+                AppRoutes.reports: (context) {
+                  final args =
+                      ModalRoute.of(context)!.settings.arguments
+                          as Map<String, dynamic>;
+                  return ReportsScreen(
+                    groups: (args['groups'] as List).cast<GroupCarpet>(),
+                    remaining: (args['remaining'] as List).cast<Carpet>(),
+                    originalGroups:
+                        (args['originalGroups'] as List?)?.cast<Carpet>() ?? [],
+                    maxWidth: (args['maxWidth'] as int?) ?? 400,
+                  );
+                },
+                AppRoutes.statistics: (context) {
+                  final args =
+                      ModalRoute.of(context)!.settings.arguments
+                          as Map<String, dynamic>;
+                  return StatisticsScreen(
+                    groups: (args['groups'] as List).cast<GroupCarpet>(),
+                    remaining: (args['remaining'] as List).cast<Carpet>(),
+                    originalGroups: (args['originalGroups'] as List?)
+                        ?.cast<Carpet>(),
+                    maxWidth: (args['maxWidth'] as int?) ?? 400,
+                  );
+                },
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

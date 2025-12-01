@@ -92,52 +92,49 @@ class AppearanceSettingsWidget extends StatelessWidget {
               ),
             )
           else
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1,
               ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: config.backgroundImage.startsWith('gradient_')
-                      ? config.backgroundImage
-                      : 'gradient_blue_purple', // Default fallback
-                  isExpanded: true,
-                  dropdownColor: const Color(0xFF2A2A2A),
-                  style: SettingsTheme.cardText,
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                  items: BackgroundService.presetGradients.map((gradient) {
-                    return DropdownMenuItem<String>(
-                      value: gradient.id,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: gradient.colors,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(gradient.name),
-                        ],
+              itemCount: BackgroundService.presetGradients.length,
+              itemBuilder: (context, index) {
+                final gradient = BackgroundService.presetGradients[index];
+                final isSelected = config.backgroundImage == gradient.id;
+
+                return GestureDetector(
+                  onTap: () => onGradientChanged(gradient.id),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: gradient.colors,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      onGradientChanged(value);
-                    }
-                  },
-                ),
-              ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: isSelected
+                          ? Border.all(color: Colors.white, width: 3)
+                          : Border.all(color: Colors.white.withOpacity(0.2)),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: gradient.colors.first.withOpacity(0.5),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: isSelected
+                        ? const Icon(Icons.check, color: Colors.white, size: 20)
+                        : null,
+                  ),
+                );
+              },
             ),
 
           const SizedBox(height: 12),
