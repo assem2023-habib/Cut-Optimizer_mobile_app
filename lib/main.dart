@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
           config: currentConfig,
           child: AppStateWrapper(
             child: MaterialApp(
-              title: 'D',
+              title: 'سجادي',
               debugShowCheckedModeBanner: false,
 
               // استخدام الثيم الجديد مع خط Cairo

@@ -105,27 +105,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // 0. إعدادات المظهر (الخلفية)
-            // AppearanceSettingsWidget(
-            //   config: _config,
-            //   onTypeChanged: (type) {
-            //     setState(() {
-            //       _config.backgroundType = type;
-            //     });
-            //   },
-            //   onGradientChanged: (gradientId) {
-            //     setState(() {
-            //       _config.backgroundImage = gradientId;
-            //     });
-            //     // Save immediately for live update
-            //     ConfigService.instance.saveConfig(_config);
-            //   },
-            //   onImageUpload: () {
-            //     // TODO: Implement image upload
-            //     ScaffoldMessenger.of(context).showSnackBar(
-            //       const SnackBar(content: Text('سيتم إضافة هذه الميزة قريباً')),
-            //     );
-            //   },
-            // ),
+            AppearanceSettingsWidget(
+              config: _config,
+              onTypeChanged: (type) {
+                setState(() {
+                  _config.backgroundType = type;
+                });
+              },
+              onGradientChanged: (gradientId) {
+                setState(() {
+                  _config.backgroundImage = gradientId;
+                });
+                // Save immediately for live update
+                ConfigService.instance.saveConfig(_config);
+              },
+              onImageUpload: () {
+                // TODO: Implement image upload
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('سيتم إضافة هذه الميزة قريباً')),
+                );
+              },
+            ),
 
             // const SizedBox(height: 24),
 

@@ -37,6 +37,11 @@ class BackgroundService {
     ),
     // ✨ NEW Beautiful Gradients
     BackgroundGradient(
+      id: 'gradient_clean_white',
+      name: 'Clean White',
+      colors: [Colors.white, Colors.white, Color(0xFFE0F2F1)],
+    ),
+    BackgroundGradient(
       id: 'gradient_sunset',
       name: 'Sunset Glow',
       colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D)],
