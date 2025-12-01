@@ -1,15 +1,24 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
+import '../../models/config.dart';
 
-void createTotalsSheet(Workbook workbook, List<Carpet>? originalGroups, List<GroupCarpet> groups, List<Carpet> remaining) {
+void createTotalsSheet(
+  Workbook workbook,
+  List<Carpet>? originalGroups,
+  List<GroupCarpet> groups,
+  List<Carpet> remaining,
+  MeasurementUnit unit,
+) {
   final Worksheet sheet = workbook.worksheets.addWithName('الإجماليات');
+
+  String areaLabel = unit == MeasurementUnit.cm ? ' (سم²)' : ' (م²)';
 
   List<String> headers = [
     '',
-    'الإجمالي الأصلي (cm²)',
-    'المستهلك (cm²)',
-    'المتبقي (cm²)',
+    'الإجمالي الأصلي$areaLabel',
+    'المستهلك$areaLabel',
+    'المتبقي$areaLabel',
     'نسبة الاستهلاك (%)',
   ];
 
@@ -41,7 +50,16 @@ void createTotalsSheet(Workbook workbook, List<Carpet>? originalGroups, List<Gro
   }
 
   double totalUsed = totalOriginal - totalRemaining;
-  double consumptionRatio = totalOriginal > 0 ? (totalUsed / totalOriginal * 100) : 0;
+  double consumptionRatio = totalOriginal > 0
+      ? (totalUsed / totalOriginal * 100)
+      : 0;
+
+  // Convert if needed
+  if (unit != MeasurementUnit.cm) {
+    totalOriginal /= 10000.0;
+    totalRemaining /= 10000.0;
+    totalUsed /= 10000.0;
+  }
 
   sheet.getRangeByIndex(2, 1).setText('');
   sheet.getRangeByIndex(2, 2).setNumber(totalOriginal);

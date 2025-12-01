@@ -1,21 +1,35 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/group_carpet.dart';
 import '../../models/carpet.dart';
+import '../../models/config.dart';
 
 void createWasteSheet(
   Workbook workbook,
   List<GroupCarpet> groups,
   int maxWidth,
   List<Carpet>? originals,
+  MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('الهادر');
 
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
+  String areaLabel = unit == MeasurementUnit.cm ? ' (سم²)' : ' (م²)';
+
   List<String> headers = [
     'رقم القصة',
-    'العرض الإجمالي',
-    'الهادر في العرض',
-    'المسار المرجعي',
-    'هادر المسارات',
+    'العرض الإجمالي$unitLabel',
+    'الهادر في العرض$unitLabel',
+    'المسار المرجعي$unitLabel',
+    'هادر المسارات$areaLabel',
     'نسبة الهدر',
   ];
 
@@ -70,17 +84,29 @@ void createWasteSheet(
         ? (pathWaste / totalOriginal * 100)
         : 0;
 
+    double displayWidth = convert(g.totalWidth);
+    double displayWasteWidth = convert(wasteWidth);
+    double displayMaxPath = convert(maxPath);
+
+    // Path waste is area.
+    // If cm: cm * cm = cm2.
+    // If m: m * m = m2.
+    // So we need to convert pathWaste area.
+    double displayPathWaste = unit == MeasurementUnit.cm
+        ? pathWaste
+        : pathWaste / 10000.0;
+
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
-    sheet.getRangeByIndex(rowIndex, 2).setNumber(g.totalWidth.toDouble());
-    sheet.getRangeByIndex(rowIndex, 3).setNumber(wasteWidth);
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(maxPath.toDouble());
-    sheet.getRangeByIndex(rowIndex, 5).setNumber(pathWaste);
+    sheet.getRangeByIndex(rowIndex, 2).setNumber(displayWidth);
+    sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWasteWidth);
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayMaxPath);
+    sheet.getRangeByIndex(rowIndex, 5).setNumber(displayPathWaste);
     sheet.getRangeByIndex(rowIndex, 6).setNumber(wastePercentage);
 
-    totalWidth += g.totalWidth;
-    totalWasteWidth += wasteWidth;
-    totalMaxPath += maxPath;
-    totalPathWaste += pathWaste;
+    totalWidth += displayWidth;
+    totalWasteWidth += displayWasteWidth;
+    totalMaxPath += displayMaxPath;
+    totalPathWaste += displayPathWaste;
     totalWastePercentage += wastePercentage;
 
     rowIndex++;

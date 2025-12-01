@@ -1,20 +1,33 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
+import '../../models/config.dart';
 
 void createAuditSheet(
   Workbook workbook,
   List<GroupCarpet> groups,
   List<Carpet> remaining,
   List<Carpet>? originals,
+  MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('تدقيق الكميات');
+
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
 
   List<String> headers = [
     'معرف السجادة',
     'أمر العميل',
-    'العرض',
-    'الارتفاع',
+    'العرض$unitLabel',
+    'الارتفاع$unitLabel',
     'الكمية الأصلية',
     'الكمية المستخدمة',
     'الكمية المتبقية',
@@ -119,8 +132,11 @@ void createAuditSheet(
     int rem = remainingTotals[key] ?? 0;
     int diff = used + rem - orig;
 
-    totalWidth += w;
-    totalHeight += h;
+    double displayWidth = convert(w);
+    double displayHeight = convert(h);
+
+    totalWidth += displayWidth;
+    totalHeight += displayHeight;
     totalOriginalQty += orig;
     totalUsedQty += used;
     totalRemQty += rem;
@@ -128,8 +144,8 @@ void createAuditSheet(
 
     sheet.getRangeByIndex(rowIndex, 1).setNumber(rid.toDouble());
     sheet.getRangeByIndex(rowIndex, 2).setNumber(co.toDouble());
-    sheet.getRangeByIndex(rowIndex, 3).setNumber(w.toDouble());
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(h.toDouble());
+    sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWidth);
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayHeight);
     sheet.getRangeByIndex(rowIndex, 5).setNumber(orig.toDouble());
     sheet.getRangeByIndex(rowIndex, 6).setNumber(used.toDouble());
     sheet.getRangeByIndex(rowIndex, 7).setNumber(rem.toDouble());

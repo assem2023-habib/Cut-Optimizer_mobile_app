@@ -131,6 +131,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
         toleranceLength: widget.tolerance,
         originals: originalCarpets,
         suggestedGroups: suggestedGroups,
+        measurementUnit: widget.config.measurementUnit,
       );
 
       setState(() {

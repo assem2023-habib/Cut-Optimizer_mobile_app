@@ -166,6 +166,17 @@ class ResultsCalculator {
     return (totalPathWaste / totalOriginal) * 100;
   }
 
+  /// حساب مساحة الهادر الحقيقية (مطابق لتقرير الهادر)
+  /// True Waste = Sum of (Path Waste + Width Waste) for all groups
+  static double calculateTrueWasteArea(List<GroupCarpet> groups, int maxWidth) {
+    double totalPathWaste = 0;
+    for (var group in groups) {
+      totalPathWaste += calculatePathWasteForGroup(group, maxWidth);
+    }
+    // Convert from cm² to m²
+    return totalPathWaste / 10000.0;
+  }
+
   /// تحويل index إلى لون HEX (للعرض)
   static String getColorForGroup(int index) {
     final colors = [

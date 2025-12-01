@@ -1,6 +1,7 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
+import '../../models/config.dart';
 import 'dart:math';
 
 void createRemainingSuggestionSheet(
@@ -9,19 +10,31 @@ void createRemainingSuggestionSheet(
   int minWidth,
   int maxWidth,
   int tolerance,
+  MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('اقتراحات المتبقيات');
+
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
 
   List<String> headers = [
     'معرف السجادة',
     'أمر العميل',
-    'العرض',
-    'الطول',
+    'العرض$unitLabel',
+    'الطول$unitLabel',
     'الكمية المتبقية',
-    'اقل عرض مجموعة',
-    'أعلى عرض مجموعة',
-    'اقل طول مرجعي',
-    'اكبر طول مرجعي',
+    'اقل عرض مجموعة$unitLabel',
+    'أعلى عرض مجموعة$unitLabel',
+    'اقل طول مرجعي$unitLabel',
+    'اكبر طول مرجعي$unitLabel',
   ];
 
   for (int i = 0; i < headers.length; i++) {
@@ -52,27 +65,30 @@ void createRemainingSuggestionSheet(
     int h = int.parse(parts[2]);
     int co = int.parse(parts[3]);
 
+    double displayWidth = convert(w);
+    double displayHeight = convert(h);
+    double displayMissingMinWidth = convert(minWidth - w);
+    double displayMissingMaxWidth = convert(maxWidth - w);
+    double displayMinHeightRef = convert(h * qty - tolerance);
+    double displayMaxHeightRef = convert(h * qty + tolerance);
+
     sheet.getRangeByIndex(rowIndex, 1).setNumber(rid.toDouble());
     sheet.getRangeByIndex(rowIndex, 2).setNumber(co.toDouble());
-    sheet.getRangeByIndex(rowIndex, 3).setNumber(w.toDouble());
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(h.toDouble());
+    sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWidth);
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayHeight);
     sheet.getRangeByIndex(rowIndex, 5).setNumber(qty.toDouble());
-    sheet.getRangeByIndex(rowIndex, 6).setNumber((minWidth - w).toDouble());
-    sheet.getRangeByIndex(rowIndex, 7).setNumber((maxWidth - w).toDouble());
-    sheet
-        .getRangeByIndex(rowIndex, 8)
-        .setNumber((h * qty - tolerance).toDouble());
-    sheet
-        .getRangeByIndex(rowIndex, 9)
-        .setNumber((h * qty + tolerance).toDouble());
+    sheet.getRangeByIndex(rowIndex, 6).setNumber(displayMissingMinWidth);
+    sheet.getRangeByIndex(rowIndex, 7).setNumber(displayMissingMaxWidth);
+    sheet.getRangeByIndex(rowIndex, 8).setNumber(displayMinHeightRef);
+    sheet.getRangeByIndex(rowIndex, 9).setNumber(displayMaxHeightRef);
 
-    totalWidth += w;
-    totalHeight += h;
+    totalWidth += displayWidth;
+    totalHeight += displayHeight;
     totalRemQty += qty;
-    totalMissingMinWidth += minWidth - w;
-    totalMissingMaxWidth += maxWidth - w;
-    totalMinHeightRef += h * qty - tolerance;
-    totalMaxHeightRef += h * qty + tolerance;
+    totalMissingMinWidth += displayMissingMinWidth;
+    totalMissingMaxWidth += displayMissingMaxWidth;
+    totalMinHeightRef += displayMinHeightRef;
+    totalMaxHeightRef += displayMaxHeightRef;
 
     rowIndex++;
   });
@@ -95,23 +111,35 @@ void createEnhancedRemainingSuggestionSheet(
   int minWidth,
   int maxWidth,
   int tolerance,
+  MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName(
     'اقتراحات المتبقيات المحسنة',
   );
 
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
+
   List<String> headers = [
     'الاقتراح',
     'معرف السجادة',
     'أمر العميل',
-    'العرض',
-    'الطول',
+    'العرض$unitLabel',
+    'الطول$unitLabel',
     'الكمية المستخدمة',
     'الكمية المتبقية',
-    'اقل عرض مجموعة مسموح',
-    'أكبر عرض مجموعة مسموح',
-    'اقل طول مسار',
-    'اكبر طول مسار',
+    'اقل عرض مجموعة مسموح$unitLabel',
+    'أكبر عرض مجموعة مسموح$unitLabel',
+    'اقل طول مسار$unitLabel',
+    'اكبر طول مسار$unitLabel',
   ];
 
   for (int i = 0; i < headers.length; i++) {
@@ -147,14 +175,21 @@ void createEnhancedRemainingSuggestionSheet(
       double localMinTolerance = (maxLenRef - tolerance).toDouble();
       double localMaxTolerance = (maxLenRef + tolerance).toDouble();
 
-      totalWidth += group.totalWidth;
-      totalHeight += group.totalHeight;
+      double displayWidth = convert(group.totalWidth);
+      double displayHeight = convert(group.totalHeight);
+      double displayLocalMinWidth = convert(localMinWidth);
+      double displayLocalMaxWidth = convert(localMaxWidth);
+      double displayLocalMinTolerance = convert(localMinTolerance);
+      double displayLocalMaxTolerance = convert(localMaxTolerance);
+
+      totalWidth += displayWidth;
+      totalHeight += displayHeight;
       totalCarpetUsed += group.totalQty;
       totalCarpetRem += group.totalRemQty;
-      totalLocalMinWidth += localMinWidth;
-      totalLocalMaxWidth += localMaxWidth;
-      totalLocalMinTolerance += localMinTolerance;
-      totalLocalMaxTolerance += localMaxTolerance;
+      totalLocalMinWidth += displayLocalMinWidth;
+      totalLocalMaxWidth += displayLocalMaxWidth;
+      totalLocalMinTolerance += displayLocalMinTolerance;
+      totalLocalMaxTolerance += displayLocalMaxTolerance;
 
       for (var item in group.items) {
         if (item.repeated.isNotEmpty) {
@@ -166,20 +201,22 @@ void createEnhancedRemainingSuggestionSheet(
             sheet
                 .getRangeByIndex(rowIndex, 3)
                 .setNumber((rep['client_order'] as int).toDouble());
-            sheet.getRangeByIndex(rowIndex, 4).setNumber(item.width.toDouble());
-            sheet
-                .getRangeByIndex(rowIndex, 5)
-                .setNumber(item.height.toDouble());
+            sheet.getRangeByIndex(rowIndex, 4).setNumber(convert(item.width));
+            sheet.getRangeByIndex(rowIndex, 5).setNumber(convert(item.height));
             sheet
                 .getRangeByIndex(rowIndex, 6)
                 .setNumber((rep['qty'] as int).toDouble());
             sheet
                 .getRangeByIndex(rowIndex, 7)
                 .setNumber((rep['qty_rem'] as int).toDouble());
-            sheet.getRangeByIndex(rowIndex, 8).setNumber(localMinWidth);
-            sheet.getRangeByIndex(rowIndex, 9).setNumber(localMaxWidth);
-            sheet.getRangeByIndex(rowIndex, 10).setNumber(localMinTolerance);
-            sheet.getRangeByIndex(rowIndex, 11).setNumber(localMaxTolerance);
+            sheet.getRangeByIndex(rowIndex, 8).setNumber(displayLocalMinWidth);
+            sheet.getRangeByIndex(rowIndex, 9).setNumber(displayLocalMaxWidth);
+            sheet
+                .getRangeByIndex(rowIndex, 10)
+                .setNumber(displayLocalMinTolerance);
+            sheet
+                .getRangeByIndex(rowIndex, 11)
+                .setNumber(displayLocalMaxTolerance);
             rowIndex++;
           }
         } else {
@@ -190,14 +227,18 @@ void createEnhancedRemainingSuggestionSheet(
           sheet
               .getRangeByIndex(rowIndex, 3)
               .setNumber(item.clientOrder.toDouble());
-          sheet.getRangeByIndex(rowIndex, 4).setNumber(item.width.toDouble());
-          sheet.getRangeByIndex(rowIndex, 5).setNumber(item.height.toDouble());
+          sheet.getRangeByIndex(rowIndex, 4).setNumber(convert(item.width));
+          sheet.getRangeByIndex(rowIndex, 5).setNumber(convert(item.height));
           sheet.getRangeByIndex(rowIndex, 6).setNumber(item.qtyUsed.toDouble());
           sheet.getRangeByIndex(rowIndex, 7).setNumber(item.qtyRem.toDouble());
-          sheet.getRangeByIndex(rowIndex, 8).setNumber(localMinWidth);
-          sheet.getRangeByIndex(rowIndex, 9).setNumber(localMaxWidth);
-          sheet.getRangeByIndex(rowIndex, 10).setNumber(localMinTolerance);
-          sheet.getRangeByIndex(rowIndex, 11).setNumber(localMaxTolerance);
+          sheet.getRangeByIndex(rowIndex, 8).setNumber(displayLocalMinWidth);
+          sheet.getRangeByIndex(rowIndex, 9).setNumber(displayLocalMaxWidth);
+          sheet
+              .getRangeByIndex(rowIndex, 10)
+              .setNumber(displayLocalMinTolerance);
+          sheet
+              .getRangeByIndex(rowIndex, 11)
+              .setNumber(displayLocalMaxTolerance);
           rowIndex++;
         }
       }

@@ -1,4 +1,5 @@
 import '../models/carpet.dart';
+import '../models/config.dart';
 import '../models/group_carpet.dart';
 import 'excel_service.dart';
 import 'report_service.dart';
@@ -20,6 +21,7 @@ class DataService {
     int? toleranceLength,
     List<Carpet>? originals,
     List<List<GroupCarpet>>? suggestedGroups,
+    required MeasurementUnit measurementUnit,
   }) async {
     await _reportService.generateReport(
       groups: groups,
@@ -30,6 +32,7 @@ class DataService {
       outputPath: path,
       originalGroups: originals,
       suggestedGroups: suggestedGroups,
+      measurementUnit: measurementUnit,
     );
   }
 }

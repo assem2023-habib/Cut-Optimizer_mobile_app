@@ -51,8 +51,18 @@ class ResultsScreen extends StatelessWidget {
     );
     final totalArea = ResultsCalculator.calculateTotalArea(groups, remaining);
     final usedArea = ResultsCalculator.calculateUsedArea(groups);
-    final wasteArea = ResultsCalculator.calculateWasteArea(groups, remaining);
+    // This is actually remaining area (area of remaining pieces)
+    final remainingArea = ResultsCalculator.calculateWasteArea(
+      groups,
+      remaining,
+    );
     final uniqueCuts = ResultsCalculator.calculateUniqueCuts(groups);
+
+    // Calculate True Waste (matching Waste Sheet)
+    final trueWasteArea = ResultsCalculator.calculateTrueWasteArea(
+      groups,
+      maxWidth,
+    );
 
     return MainLayout(
       currentPage: 'results',
@@ -92,7 +102,8 @@ class ResultsScreen extends StatelessWidget {
             AreaInfo(
               totalArea: totalArea,
               usedArea: usedArea,
-              wasteArea: wasteArea,
+              remainingArea: remainingArea,
+              trueWasteArea: trueWasteArea,
             ),
 
             const SizedBox(height: 24),

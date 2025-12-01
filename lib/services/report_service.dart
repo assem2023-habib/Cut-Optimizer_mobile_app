@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import '../../models/config.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import 'reports/group_details_sheet.dart';
@@ -23,6 +24,7 @@ class ReportService {
     required String outputPath,
     List<Carpet>? originalGroups,
     List<List<GroupCarpet>>? suggestedGroups,
+    required MeasurementUnit measurementUnit,
   }) async {
     final Workbook workbook = Workbook();
 
@@ -32,22 +34,41 @@ class ReportService {
     // Let's just add our sheets.
 
     // 1. Group Details
-    createGroupDetailsSheet(workbook, groups);
+    // 1. Group Details
+    createGroupDetailsSheet(workbook, groups, measurementUnit);
 
     // 2. Group Summary
-    createGroupSummarySheet(workbook, groups);
+    createGroupSummarySheet(workbook, groups, measurementUnit);
 
     // 3. Remaining
-    createRemainingSheet(workbook, remaining);
+    createRemainingSheet(workbook, remaining, measurementUnit);
 
     // 4. Totals
-    createTotalsSheet(workbook, originalGroups, groups, remaining);
+    createTotalsSheet(
+      workbook,
+      originalGroups,
+      groups,
+      remaining,
+      measurementUnit,
+    );
 
     // 5. Audit
-    createAuditSheet(workbook, groups, remaining, originalGroups);
+    createAuditSheet(
+      workbook,
+      groups,
+      remaining,
+      originalGroups,
+      measurementUnit,
+    );
 
     // 6. Waste
-    createWasteSheet(workbook, groups, maxWidth, originalGroups);
+    createWasteSheet(
+      workbook,
+      groups,
+      maxWidth,
+      originalGroups,
+      measurementUnit,
+    );
 
     // 7. Remaining Suggestions
     createRemainingSuggestionSheet(
@@ -56,6 +77,7 @@ class ReportService {
       minWidth,
       maxWidth,
       tolerance,
+      measurementUnit,
     );
 
     // 8. Enhanced Suggestions
@@ -66,6 +88,7 @@ class ReportService {
         minWidth,
         maxWidth,
         tolerance,
+        measurementUnit,
       );
     }
 

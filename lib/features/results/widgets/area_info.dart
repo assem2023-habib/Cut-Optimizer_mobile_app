@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 class AreaInfo extends StatelessWidget {
   final double totalArea;
   final double usedArea;
-  final double wasteArea;
+  final double remainingArea; // Was wasteArea
+  final double trueWasteArea; // New field for actual waste
 
   const AreaInfo({
     super.key,
     required this.totalArea,
     required this.usedArea,
-    required this.wasteArea,
+    required this.remainingArea,
+    required this.trueWasteArea,
   });
 
   @override
@@ -53,8 +55,14 @@ class AreaInfo extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _AreaItem(
+            label: 'مساحة المتبقي',
+            value: '${remainingArea.toStringAsFixed(2)} م²',
+            highlight: false,
+          ),
+          const SizedBox(height: 8),
+          _AreaItem(
             label: 'الهادر',
-            value: '${wasteArea.toStringAsFixed(2)} م²',
+            value: '${trueWasteArea.toStringAsFixed(2)} م²',
             highlight: true,
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/group_carpet.dart';
 import '../../../utils/results_calculator.dart';
+import '../screens/all_cuts_screen.dart';
 
 /// Cuts Summary
 class CutsSummary extends StatelessWidget {
@@ -46,7 +47,14 @@ class CutsSummary extends StatelessWidget {
           if (groups.length > 5)
             Center(
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AllCutsScreen(groups: groups),
+                    ),
+                  );
+                },
                 child: const Text('عرض الكل'),
               ),
             ),

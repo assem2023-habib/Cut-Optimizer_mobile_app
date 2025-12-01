@@ -1,18 +1,35 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/group_carpet.dart';
+import '../../models/config.dart';
 
-void createGroupSummarySheet(Workbook workbook, List<GroupCarpet> groups) {
+void createGroupSummarySheet(
+  Workbook workbook,
+  List<GroupCarpet> groups,
+  MeasurementUnit unit,
+) {
   final Worksheet sheet = workbook.worksheets.addWithName('ملخص القصات');
+
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
+  String areaLabel = unit == MeasurementUnit.cm ? ' (سم²)' : ' (م²)';
 
   List<String> headers = [
     'رقم القصة',
-    'العرض الإجمالي',
+    'العرض الإجمالي$unitLabel',
     'عدد المسارات',
-    'أقصى ارتفاع',
-    'المساحة الإجمالية',
+    'أقصى ارتفاع$unitLabel',
+    'المساحة الإجمالية$areaLabel',
     'الكمية المستخدمة الكلية',
     'عدد أنواع السجاد',
-    'المساحة الإجمالية_2',
+    'المساحة الإجمالية (م²)', // Always keep m2 column as reference
   ];
 
   for (int i = 0; i < headers.length; i++) {
@@ -33,18 +50,28 @@ void createGroupSummarySheet(Workbook workbook, List<GroupCarpet> groups) {
     groupId++;
     int typesCount = g.items.length;
 
+    double displayWidth = convert(g.totalWidth);
+    double displayHeight = convert(g.maxHeight);
+
+    // Area calculation:
+    // If cm: g.totalArea is cm2.
+    // If m: we want m2. g.totalArea / 10000.
+    double displayArea = unit == MeasurementUnit.cm
+        ? g.totalArea.toDouble()
+        : (g.totalArea / 10000.0);
+
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
-    sheet.getRangeByIndex(rowIndex, 2).setNumber(g.totalWidth.toDouble());
+    sheet.getRangeByIndex(rowIndex, 2).setNumber(displayWidth);
     sheet.getRangeByIndex(rowIndex, 3).setNumber(g.items.length.toDouble());
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(g.maxHeight.toDouble());
-    sheet.getRangeByIndex(rowIndex, 5).setNumber(g.totalArea.toDouble());
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayHeight);
+    sheet.getRangeByIndex(rowIndex, 5).setNumber(displayArea);
     sheet.getRangeByIndex(rowIndex, 6).setNumber(g.totalQty.toDouble());
     sheet.getRangeByIndex(rowIndex, 7).setNumber(typesCount.toDouble());
     sheet.getRangeByIndex(rowIndex, 8).setNumber(g.totalArea / 10000);
 
-    totalWidth += g.totalWidth;
-    totalHeight += g.maxHeight;
-    totalArea += g.totalArea;
+    totalWidth += displayWidth;
+    totalHeight += displayHeight;
+    totalArea += displayArea;
     itemsCount += typesCount;
     totalQtyUsed += g.totalQty;
     totalAreaDiv += g.totalArea / 10000;

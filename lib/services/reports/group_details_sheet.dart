@@ -1,10 +1,26 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/group_carpet.dart';
+import '../../models/config.dart';
 import '../report_formatting.dart';
 
-void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
+void createGroupDetailsSheet(
+  Workbook workbook,
+  List<GroupCarpet> groups,
+  MeasurementUnit unit,
+) {
   final Worksheet sheet = workbook.worksheets.addWithName('تفاصيل القصات');
   sheet.isRightToLeft = true;
+
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
 
   // --- 1. Generate Styles & Colors ---
 
@@ -43,10 +59,10 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
     'امر العميل',
     'رقم القصة',
     'رقم المسار',
-    'العرض',
-    'الطول',
+    'العرض$unitLabel',
+    'الطول$unitLabel',
     'الكمية المستخدمة',
-    'طول المسار',
+    'طول المسار$unitLabel',
     'الكمية الاصلية',
     'الكمية المتبقية',
     'معرف السجاد',
@@ -65,7 +81,7 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
   double totalWidth = 0;
   double totalHeight = 0;
   int totalQtyUsed = 0;
-  int totalLengthRef = 0;
+  double totalLengthRef = 0;
   int totalQty = 0;
   int totalQtyRem = 0;
 
@@ -90,12 +106,12 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
               .setNumber((rep['client_order'] as int).toDouble());
           sheet.getRangeByIndex(rowIndex, 2).setText('القصة_$groupId');
           sheet.getRangeByIndex(rowIndex, 3).setText('المسار_$pathNum');
-          sheet.getRangeByIndex(rowIndex, 4).setNumber(item.width.toDouble());
-          sheet.getRangeByIndex(rowIndex, 5).setNumber(item.height.toDouble());
+          sheet.getRangeByIndex(rowIndex, 4).setNumber(convert(item.width));
+          sheet.getRangeByIndex(rowIndex, 5).setNumber(convert(item.height));
           sheet
               .getRangeByIndex(rowIndex, 6)
               .setNumber((rep['qty'] as int).toDouble());
-          sheet.getRangeByIndex(rowIndex, 7).setNumber(refLength.toDouble());
+          sheet.getRangeByIndex(rowIndex, 7).setNumber(convert(refLength));
           sheet
               .getRangeByIndex(rowIndex, 8)
               .setNumber((rep['qty_original'] as int).toDouble());
@@ -123,10 +139,10 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
             .setNumber(item.clientOrder.toDouble());
         sheet.getRangeByIndex(rowIndex, 2).setText('القصة_$groupId');
         sheet.getRangeByIndex(rowIndex, 3).setText('المسار_$pathNum');
-        sheet.getRangeByIndex(rowIndex, 4).setNumber(item.width.toDouble());
-        sheet.getRangeByIndex(rowIndex, 5).setNumber(item.height.toDouble());
+        sheet.getRangeByIndex(rowIndex, 4).setNumber(convert(item.width));
+        sheet.getRangeByIndex(rowIndex, 5).setNumber(convert(item.height));
         sheet.getRangeByIndex(rowIndex, 6).setNumber(item.qtyUsed.toDouble());
-        sheet.getRangeByIndex(rowIndex, 7).setNumber(item.lengthRef.toDouble());
+        sheet.getRangeByIndex(rowIndex, 7).setNumber(convert(item.lengthRef));
         sheet
             .getRangeByIndex(rowIndex, 8)
             .setNumber((item.qtyUsed + item.qtyRem).toDouble());
@@ -148,10 +164,10 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
       totalQtyRem += item.qtyRem;
     }
 
-    totalWidth += g.totalWidth;
-    totalHeight += g.totalHeight;
+    totalWidth += convert(g.totalWidth);
+    totalHeight += convert(g.totalHeight);
     totalQtyUsed += g.totalQty;
-    totalLengthRef += g.totalLengthRef;
+    totalLengthRef += convert(g.totalLengthRef);
 
     // Add empty row after each group?
     // The spec example says "Empty row: no color".
@@ -166,7 +182,7 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
   sheet.getRangeByIndex(rowIndex, 4).setNumber(totalWidth);
   sheet.getRangeByIndex(rowIndex, 5).setNumber(totalHeight);
   sheet.getRangeByIndex(rowIndex, 6).setNumber(totalQtyUsed.toDouble());
-  sheet.getRangeByIndex(rowIndex, 7).setNumber(totalLengthRef.toDouble());
+  sheet.getRangeByIndex(rowIndex, 7).setNumber(totalLengthRef);
   sheet.getRangeByIndex(rowIndex, 8).setNumber(totalQty.toDouble());
   sheet.getRangeByIndex(rowIndex, 9).setNumber(totalQtyRem.toDouble());
   sheet.getRangeByIndex(rowIndex, 10).setText('');

@@ -1,14 +1,30 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
+import '../../models/config.dart';
 
-void createRemainingSheet(Workbook workbook, List<Carpet> remaining) {
+void createRemainingSheet(
+  Workbook workbook,
+  List<Carpet> remaining,
+  MeasurementUnit unit,
+) {
   final Worksheet sheet = workbook.worksheets.addWithName('السجاد المتبقي');
+
+  // Helper for conversion
+  double convert(num value) {
+    if (unit == MeasurementUnit.cm) {
+      return value.toDouble();
+    } else {
+      return value / 100.0;
+    }
+  }
+
+  String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
 
   List<String> headers = [
     'معرف السجادة',
     'أمر العيل',
-    'العرض',
-    'الطول',
+    'العرض$unitLabel',
+    'الطول$unitLabel',
     'الكمية المتبقية',
   ];
 
@@ -49,14 +65,17 @@ void createRemainingSheet(Workbook workbook, List<Carpet> remaining) {
     int h = int.parse(parts[2]);
     int co = int.parse(parts[3]);
 
+    double displayWidth = convert(w);
+    double displayHeight = convert(h);
+
     sheet.getRangeByIndex(rowIndex, 1).setNumber(rid.toDouble());
     sheet.getRangeByIndex(rowIndex, 2).setNumber(co.toDouble());
-    sheet.getRangeByIndex(rowIndex, 3).setNumber(w.toDouble());
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(h.toDouble());
+    sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWidth);
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayHeight);
     sheet.getRangeByIndex(rowIndex, 5).setNumber(qty.toDouble());
 
-    totalWidth += w;
-    totalHeight += h;
+    totalWidth += displayWidth;
+    totalHeight += displayHeight;
     totalRemQty += qty;
 
     rowIndex++;
