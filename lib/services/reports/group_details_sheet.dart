@@ -13,6 +13,7 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
 
   // Create styles for each group
   Map<int, Style> groupStyles = {};
+  Map<int, Style> groupFirstColStyles = {};
   for (int i = 0; i < groups.length; i++) {
     // Group ID is 1-based usually in display
     groupStyles[i + 1] = ReportFormatting.createCutStyle(
@@ -20,11 +21,21 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
       'القصة_${i + 1}',
       colors[i],
     );
+    groupFirstColStyles[i + 1] = ReportFormatting.createCutStyle(
+      workbook,
+      'القصة_${i + 1}',
+      colors[i],
+      isFirstColumn: true,
+    );
   }
 
   // Create basic styles
   Style headerStyle = ReportFormatting.createHeaderStyle(workbook);
   Style summaryStyle = ReportFormatting.createSummaryStyle(workbook);
+  Style summaryFirstColStyle = ReportFormatting.createSummaryStyle(
+    workbook,
+    isFirstColumn: true,
+  );
   // Note: FirstColBorderStyle is applied via logic, not as a base style to avoid overwriting background
 
   // --- 2. Headers ---
@@ -96,7 +107,10 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
               .setNumber(item.carpetId.toDouble());
 
           // Apply Cut Style to the whole row
-          for (int c = 1; c <= headers.length; c++) {
+          // Apply Cut Style to the whole row
+          sheet.getRangeByIndex(rowIndex, 1).cellStyle =
+              groupFirstColStyles[groupId]!;
+          for (int c = 2; c <= headers.length; c++) {
             sheet.getRangeByIndex(rowIndex, c).cellStyle = currentStyle;
           }
 
@@ -120,7 +134,10 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
         sheet.getRangeByIndex(rowIndex, 10).setNumber(item.carpetId.toDouble());
 
         // Apply Cut Style to the whole row
-        for (int c = 1; c <= headers.length; c++) {
+        // Apply Cut Style to the whole row
+        sheet.getRangeByIndex(rowIndex, 1).cellStyle =
+            groupFirstColStyles[groupId]!;
+        for (int c = 2; c <= headers.length; c++) {
           sheet.getRangeByIndex(rowIndex, c).cellStyle = currentStyle;
         }
 
@@ -155,28 +172,15 @@ void createGroupDetailsSheet(Workbook workbook, List<GroupCarpet> groups) {
   sheet.getRangeByIndex(rowIndex, 10).setText('');
 
   // Apply Summary Style
-  for (int c = 1; c <= headers.length; c++) {
+  sheet.getRangeByIndex(rowIndex, 1).cellStyle = summaryFirstColStyle;
+  for (int c = 2; c <= headers.length; c++) {
     sheet.getRangeByIndex(rowIndex, c).cellStyle = summaryStyle;
   }
 
   // --- 5. Post-Processing ---
 
   // Apply First Column Border (Stage 7)
-  // We apply this to all data rows (excluding header)
-  // Logic: Iterate from row 2 to rowIndex (inclusive of Total row)
-  for (int r = 2; r <= rowIndex; r++) {
-    // Skip empty rows if any (we have empty rows between groups)
-    // Check if cell has value or if it's a valid row range
-    // Actually, simply applying to all rows in range is fine, or check if row is not empty.
-    // The empty row between groups has no data.
-    // Let's just apply to all for simplicity or check if first col has text?
-    // The empty row has no text in first col.
-    var cell = sheet.getRangeByIndex(r, 1);
-    if (cell.text != null && cell.text!.isNotEmpty) {
-      cell.cellStyle.borders.all.lineStyle = LineStyle.thick;
-      cell.cellStyle.borders.all.color = '#006400';
-    }
-  }
+  // Already handled by groupFirstColStyles
 
   // Auto-fit columns (Stage 6)
   ReportFormatting.applyAutoFit(sheet);

@@ -66,8 +66,11 @@ class ReportFormatting {
   }
 
   /// 4. Summary Row Format
-  static Style createSummaryStyle(Workbook workbook) {
-    final String styleName = 'SummaryStyle';
+  static Style createSummaryStyle(
+    Workbook workbook, {
+    bool isFirstColumn = false,
+  }) {
+    final String styleName = 'SummaryStyle${isFirstColumn ? '_FirstCol' : ''}';
     if (workbook.styles.contains(styleName)) {
       return workbook.styles[styleName]!;
     }
@@ -83,6 +86,12 @@ class ReportFormatting {
     style.hAlign = HAlignType.center;
     // Valign not specified in python spec but usually center is good
     style.vAlign = VAlignType.center;
+
+    if (isFirstColumn) {
+      style.borders.all.lineStyle = LineStyle.thick;
+      style.borders.all.color = '#006400';
+    }
+
     return style;
   }
 
@@ -104,9 +113,11 @@ class ReportFormatting {
   static Style createCutStyle(
     Workbook workbook,
     String cutName,
-    String colorHex,
-  ) {
-    final String styleName = 'CutStyle_${cutName.replaceAll(' ', '_')}';
+    String colorHex, {
+    bool isFirstColumn = false,
+  }) {
+    final String styleName =
+        'CutStyle_${cutName.replaceAll(' ', '_')}${isFirstColumn ? '_FirstCol' : ''}';
     if (workbook.styles.contains(styleName)) {
       return workbook.styles[styleName]!;
     }
@@ -121,6 +132,12 @@ class ReportFormatting {
     style.fontColor = '#2C3E50'; // Dark Grey
     style.hAlign = HAlignType.center;
     style.vAlign = VAlignType.center;
+
+    if (isFirstColumn) {
+      style.borders.all.lineStyle = LineStyle.thick;
+      style.borders.all.color = '#006400';
+    }
+
     return style;
   }
 
@@ -131,25 +148,25 @@ class ReportFormatting {
   }
 
   /// Generate readable colors using precise HSL algorithm
-  /// Following the specification:
-  /// - Hue: distributed evenly (i/numColors)
-  /// - Saturation: 0.35 + (i % 3) * 0.1 (range: 0.35 to 0.55)
-  /// - Lightness: 0.85 + (i % 2) * 0.05 (range: 0.85 to 0.90)
+  /// Uses Golden Ratio for hue distribution to ensure distinct, beautiful colors
   static List<String> generateReadableColors(int numColors) {
     List<String> colors = [];
+    double goldenRatioConjugate = 0.618033988749895;
+    double currentHue = 0.0;
 
     for (int i = 0; i < numColors; i++) {
-      // Hue: even distribution across color wheel (0.0 to 1.0)
-      double hue = i / numColors;
+      // Use Golden Ratio to generate well-distributed hues
+      currentHue += goldenRatioConjugate;
+      currentHue %= 1.0;
 
-      // Saturation: alternating pattern for variety (0.35, 0.45, 0.55, 0.35, ...)
-      double saturation = 0.35 + (i % 3) * 0.1;
+      // Saturation: 0.6 to 0.75 (Vibrant but comfortable)
+      double saturation = 0.6 + (i % 2) * 0.15;
 
-      // Lightness: slight variation for depth (0.85, 0.90, 0.85, 0.90, ...)
-      double lightness = 0.85 + (i % 2) * 0.05;
+      // Lightness: 0.85 to 0.92 (Very light background)
+      double lightness = 0.85 + (i % 2) * 0.07;
 
       // Convert to hex (hue needs to be in degrees 0-360)
-      colors.add(_hslToHex(hue * 360, saturation, lightness));
+      colors.add(_hslToHex(currentHue * 360, saturation, lightness));
     }
 
     return colors;

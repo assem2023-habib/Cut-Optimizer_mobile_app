@@ -72,9 +72,9 @@ class ReportService {
     // Apply Formatting to all sheets
     for (int i = 0; i < workbook.worksheets.count; i++) {
       Worksheet sheet = workbook.worksheets[i];
-      // Skip default sheet if it's empty/unused and we plan to remove it,
-      // but since we might not remove it successfully, let's format it if it has data?
-      // Actually, applyFormatting checks for usedRange.
+      // Skip 'تفاصيل القصات' as it has custom formatting
+      if (sheet.name == 'تفاصيل القصات') continue;
+
       ReportFormatting.applyFormatting(sheet);
     }
 
