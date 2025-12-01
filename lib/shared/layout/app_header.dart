@@ -16,17 +16,34 @@ class AppHeader extends StatelessWidget {
       decoration: const BoxDecoration(gradient: AppColors.headerGradient),
       child: SafeArea(
         bottom: false, // نحتاج SafeArea فقط للأعلى
-        child: Center(
-          child: Text(
-            '',
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: AppDimensions.headerFontSize,
-              fontWeight: FontWeight.bold,
-              height: 1.2, // Line height
+        child: Stack(
+          children: [
+            Center(
+              child: Text(
+                '',
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: AppDimensions.headerFontSize,
+                  fontWeight: FontWeight.bold,
+                  height: 1.2, // Line height
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
+            Positioned(
+              left: 16, // RTL: Left is the trailing side
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/settings');
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

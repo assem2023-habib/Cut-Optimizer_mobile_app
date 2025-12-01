@@ -64,13 +64,13 @@ class BottomNavBar extends StatelessWidget {
                 onTap: () => _navigate(context, AppRoutes.upload),
               ),
               _NavButton(
-                icon: Icons.settings,
-                label: 'إعدادات',
-                page: AppRoutes.getPageName(AppRoutes.settings),
+                icon: Icons.fact_check, // Icon for Results
+                label: 'النتائج',
+                page: AppRoutes.getPageName(AppRoutes.results),
                 isActive:
-                    currentPage == AppRoutes.getPageName(AppRoutes.settings),
-                enabled: true,
-                onTap: () => _navigate(context, AppRoutes.settings),
+                    currentPage == AppRoutes.getPageName(AppRoutes.results),
+                enabled: hasProcessedData,
+                onTap: () => _navigate(context, AppRoutes.results),
               ),
               _NavButton(
                 icon: Icons.description,
@@ -121,6 +121,20 @@ class BottomNavBar extends StatelessWidget {
           'originalGroups': originalGroups,
         },
       );
+    } else if (route == AppRoutes.results) {
+      // Results screen retrieves data from AppState directly in main.dart
+      // So we don't need to pass arguments here, just ensure we have data
+      if (!hasProcessedData) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('يرجى تنفيذ عملية معالجة أولاً'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      Navigator.of(context).pushReplacementNamed(route);
     } else {
       Navigator.of(context).pushReplacementNamed(route);
     }

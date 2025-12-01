@@ -11,6 +11,7 @@ import 'features/processing/screens/processing_options_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
 import 'features/statistics/screens/statistics_screen.dart';
+import 'features/results/screens/results_screen.dart';
 import 'models/group_carpet.dart';
 import 'models/carpet.dart';
 
@@ -83,6 +84,35 @@ class MyApp extends StatelessWidget {
                     originalGroups: (args['originalGroups'] as List?)
                         ?.cast<Carpet>(),
                     maxWidth: (args['maxWidth'] as int?) ?? 400,
+                  );
+                },
+                AppRoutes.results: (context) {
+                  final appState = AppStateProvider.of(context);
+                  final config = ConfigProvider.of(context);
+
+                  // Ensure we have data before showing results
+                  if (!appState.hasProcessedData) {
+                    // Redirect to home if no data
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Navigator.of(
+                        context,
+                      ).pushReplacementNamed(AppRoutes.home);
+                    });
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return ResultsScreen(
+                    groups: appState.groups!,
+                    remaining: appState.remaining!,
+                    originalGroups: appState.originalGroups,
+                    suggestedGroups: appState.suggestedGroups,
+                    outputFilePath: appState.outputFilePath ?? '',
+                    minWidth: appState.minWidth ?? 0,
+                    maxWidth: appState.maxWidth ?? 0,
+                    tolerance: appState.tolerance ?? 0,
+                    config: config!,
                   );
                 },
               },
