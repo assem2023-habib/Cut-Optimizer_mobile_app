@@ -2,6 +2,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import '../../models/config.dart';
+import '../report_formatting.dart';
 import 'dart:math';
 
 void createRemainingSuggestionSheet(
@@ -13,6 +14,7 @@ void createRemainingSuggestionSheet(
   MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('اقتراحات المتبقيات');
+  sheet.isRightToLeft = true;
 
   // Helper for conversion
   double convert(num value) {
@@ -72,6 +74,18 @@ void createRemainingSuggestionSheet(
     double displayMinHeightRef = convert(h * qty - tolerance);
     double displayMaxHeightRef = convert(h * qty + tolerance);
 
+    // Round values to 2 decimal places
+    displayWidth = double.parse(displayWidth.toStringAsFixed(2));
+    displayHeight = double.parse(displayHeight.toStringAsFixed(2));
+    displayMissingMinWidth = double.parse(
+      displayMissingMinWidth.toStringAsFixed(2),
+    );
+    displayMissingMaxWidth = double.parse(
+      displayMissingMaxWidth.toStringAsFixed(2),
+    );
+    displayMinHeightRef = double.parse(displayMinHeightRef.toStringAsFixed(2));
+    displayMaxHeightRef = double.parse(displayMaxHeightRef.toStringAsFixed(2));
+
     sheet.getRangeByIndex(rowIndex, 1).setNumber(rid.toDouble());
     sheet.getRangeByIndex(rowIndex, 2).setNumber(co.toDouble());
     sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWidth);
@@ -94,6 +108,15 @@ void createRemainingSuggestionSheet(
   });
 
   rowIndex++;
+
+  // Round totals to 2 decimal places
+  totalWidth = double.parse(totalWidth.toStringAsFixed(2));
+  totalHeight = double.parse(totalHeight.toStringAsFixed(2));
+  totalMissingMinWidth = double.parse(totalMissingMinWidth.toStringAsFixed(2));
+  totalMissingMaxWidth = double.parse(totalMissingMaxWidth.toStringAsFixed(2));
+  totalMinHeightRef = double.parse(totalMinHeightRef.toStringAsFixed(2));
+  totalMaxHeightRef = double.parse(totalMaxHeightRef.toStringAsFixed(2));
+
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setText('');
   sheet.getRangeByIndex(rowIndex, 3).setNumber(totalWidth);
@@ -103,6 +126,9 @@ void createRemainingSuggestionSheet(
   sheet.getRangeByIndex(rowIndex, 7).setNumber(totalMissingMaxWidth);
   sheet.getRangeByIndex(rowIndex, 8).setNumber(totalMinHeightRef);
   sheet.getRangeByIndex(rowIndex, 9).setNumber(totalMaxHeightRef);
+
+  // Apply borders to all cells
+  ReportFormatting.applyBordersToAllCells(sheet);
 }
 
 void createEnhancedRemainingSuggestionSheet(
@@ -116,6 +142,7 @@ void createEnhancedRemainingSuggestionSheet(
   final Worksheet sheet = workbook.worksheets.addWithName(
     'اقتراحات المتبقيات المحسنة',
   );
+  sheet.isRightToLeft = true;
 
   // Helper for conversion
   double convert(num value) {
@@ -182,6 +209,22 @@ void createEnhancedRemainingSuggestionSheet(
       double displayLocalMinTolerance = convert(localMinTolerance);
       double displayLocalMaxTolerance = convert(localMaxTolerance);
 
+      // Round values to 2 decimal places
+      displayWidth = double.parse(displayWidth.toStringAsFixed(2));
+      displayHeight = double.parse(displayHeight.toStringAsFixed(2));
+      displayLocalMinWidth = double.parse(
+        displayLocalMinWidth.toStringAsFixed(2),
+      );
+      displayLocalMaxWidth = double.parse(
+        displayLocalMaxWidth.toStringAsFixed(2),
+      );
+      displayLocalMinTolerance = double.parse(
+        displayLocalMinTolerance.toStringAsFixed(2),
+      );
+      displayLocalMaxTolerance = double.parse(
+        displayLocalMaxTolerance.toStringAsFixed(2),
+      );
+
       totalWidth += displayWidth;
       totalHeight += displayHeight;
       totalCarpetUsed += group.totalQty;
@@ -246,6 +289,18 @@ void createEnhancedRemainingSuggestionSheet(
     rowIndex++; // Empty row separator
   }
 
+  // Round totals to 2 decimal places
+  totalWidth = double.parse(totalWidth.toStringAsFixed(2));
+  totalHeight = double.parse(totalHeight.toStringAsFixed(2));
+  totalLocalMinWidth = double.parse(totalLocalMinWidth.toStringAsFixed(2));
+  totalLocalMaxWidth = double.parse(totalLocalMaxWidth.toStringAsFixed(2));
+  totalLocalMinTolerance = double.parse(
+    totalLocalMinTolerance.toStringAsFixed(2),
+  );
+  totalLocalMaxTolerance = double.parse(
+    totalLocalMaxTolerance.toStringAsFixed(2),
+  );
+
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setText('');
   sheet.getRangeByIndex(rowIndex, 3).setText('');
@@ -257,4 +312,7 @@ void createEnhancedRemainingSuggestionSheet(
   sheet.getRangeByIndex(rowIndex, 9).setNumber(totalLocalMaxWidth);
   sheet.getRangeByIndex(rowIndex, 10).setNumber(totalLocalMinTolerance);
   sheet.getRangeByIndex(rowIndex, 11).setNumber(totalLocalMaxTolerance);
+
+  // Apply borders to all cells
+  ReportFormatting.applyBordersToAllCells(sheet);
 }

@@ -11,6 +11,7 @@ void createWasteSheet(
   MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('الهادر');
+  sheet.isRightToLeft = true;
 
   // Helper for conversion
   double convert(num value) {
@@ -33,8 +34,19 @@ void createWasteSheet(
     'نسبة الهدر',
   ];
 
+  // Apply header style with borders
   for (int i = 0; i < headers.length; i++) {
-    sheet.getRangeByIndex(1, i + 1).setText(headers[i]);
+    Range headerCell = sheet.getRangeByIndex(1, i + 1);
+    headerCell.setText(headers[i]);
+    headerCell.cellStyle.fontName = 'Arial';
+    headerCell.cellStyle.fontSize = 12;
+    headerCell.cellStyle.bold = true;
+    headerCell.cellStyle.backColor = '#4F81BD';
+    headerCell.cellStyle.fontColor = '#FFFFFF';
+    headerCell.cellStyle.borders.all.lineStyle = LineStyle.medium;
+    headerCell.cellStyle.borders.all.color = '#000000';
+    headerCell.cellStyle.hAlign = HAlignType.center;
+    headerCell.cellStyle.vAlign = VAlignType.center;
   }
 
   // Calculate total original area
@@ -96,12 +108,31 @@ void createWasteSheet(
         ? pathWaste
         : pathWaste / 10000.0;
 
+    // Round values to 2 decimal places
+    displayWidth = double.parse(displayWidth.toStringAsFixed(2));
+    displayWasteWidth = double.parse(displayWasteWidth.toStringAsFixed(2));
+    displayMaxPath = double.parse(displayMaxPath.toStringAsFixed(2));
+    displayPathWaste = double.parse(displayPathWaste.toStringAsFixed(2));
+    wastePercentage = double.parse(wastePercentage.toStringAsFixed(2));
+
+    // Set values
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
     sheet.getRangeByIndex(rowIndex, 2).setNumber(displayWidth);
     sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWasteWidth);
     sheet.getRangeByIndex(rowIndex, 4).setNumber(displayMaxPath);
     sheet.getRangeByIndex(rowIndex, 5).setNumber(displayPathWaste);
-    sheet.getRangeByIndex(rowIndex, 6).setNumber(wastePercentage);
+
+    // Set percentage with % symbol
+    sheet.getRangeByIndex(rowIndex, 6).setText('$wastePercentage%');
+
+    // Apply borders to data rows
+    for (int c = 1; c <= headers.length; c++) {
+      Range cell = sheet.getRangeByIndex(rowIndex, c);
+      cell.cellStyle.borders.all.lineStyle = LineStyle.medium;
+      cell.cellStyle.borders.all.color = '#000000';
+      cell.cellStyle.hAlign = HAlignType.center;
+      cell.cellStyle.vAlign = VAlignType.center;
+    }
 
     totalWidth += displayWidth;
     totalWasteWidth += displayWasteWidth;
@@ -114,10 +145,37 @@ void createWasteSheet(
 
   rowIndex++;
 
+  // Round total values to 2 decimal places
+  totalWidth = double.parse(totalWidth.toStringAsFixed(2));
+  totalWasteWidth = double.parse(totalWasteWidth.toStringAsFixed(2));
+  totalMaxPath = double.parse(totalMaxPath.toStringAsFixed(2));
+  totalPathWaste = double.parse(totalPathWaste.toStringAsFixed(2));
+  totalWastePercentage = double.parse(totalWastePercentage.toStringAsFixed(2));
+
+  // Set total row values
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setNumber(totalWidth);
   sheet.getRangeByIndex(rowIndex, 3).setNumber(totalWasteWidth);
   sheet.getRangeByIndex(rowIndex, 4).setNumber(totalMaxPath);
   sheet.getRangeByIndex(rowIndex, 5).setNumber(totalPathWaste);
-  sheet.getRangeByIndex(rowIndex, 6).setNumber(totalWastePercentage);
+
+  // Set total percentage with % symbol
+  sheet.getRangeByIndex(rowIndex, 6).setText('$totalWastePercentage%');
+
+  // Apply borders and bold style to total row
+  for (int c = 1; c <= headers.length; c++) {
+    Range cell = sheet.getRangeByIndex(rowIndex, c);
+    cell.cellStyle.bold = true;
+    cell.cellStyle.borders.all.lineStyle = LineStyle.medium;
+    cell.cellStyle.borders.all.color = '#000000';
+    cell.cellStyle.backColor = '#C6EFCE';
+    cell.cellStyle.fontColor = '#006100';
+    cell.cellStyle.hAlign = HAlignType.center;
+    cell.cellStyle.vAlign = VAlignType.center;
+  }
+
+  // Auto-fit columns
+  for (int c = 1; c <= headers.length; c++) {
+    sheet.autoFitColumn(c);
+  }
 }

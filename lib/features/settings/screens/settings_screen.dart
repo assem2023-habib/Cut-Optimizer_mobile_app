@@ -127,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
 
-            // const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // 1. إعدادات النول
             LoomSettings(

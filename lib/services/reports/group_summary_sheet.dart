@@ -1,6 +1,7 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/group_carpet.dart';
 import '../../models/config.dart';
+import '../report_formatting.dart';
 
 void createGroupSummarySheet(
   Workbook workbook,
@@ -8,6 +9,7 @@ void createGroupSummarySheet(
   MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('ملخص القصات');
+  sheet.isRightToLeft = true;
 
   // Helper for conversion
   double convert(num value) {
@@ -60,6 +62,12 @@ void createGroupSummarySheet(
         ? g.totalArea.toDouble()
         : (g.totalArea / 10000.0);
 
+    // Round values to 2 decimal places
+    displayWidth = double.parse(displayWidth.toStringAsFixed(2));
+    displayHeight = double.parse(displayHeight.toStringAsFixed(2));
+    displayArea = double.parse(displayArea.toStringAsFixed(2));
+    double areaDiv = double.parse((g.totalArea / 10000).toStringAsFixed(2));
+
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
     sheet.getRangeByIndex(rowIndex, 2).setNumber(displayWidth);
     sheet.getRangeByIndex(rowIndex, 3).setNumber(g.items.length.toDouble());
@@ -67,19 +75,25 @@ void createGroupSummarySheet(
     sheet.getRangeByIndex(rowIndex, 5).setNumber(displayArea);
     sheet.getRangeByIndex(rowIndex, 6).setNumber(g.totalQty.toDouble());
     sheet.getRangeByIndex(rowIndex, 7).setNumber(typesCount.toDouble());
-    sheet.getRangeByIndex(rowIndex, 8).setNumber(g.totalArea / 10000);
+    sheet.getRangeByIndex(rowIndex, 8).setNumber(areaDiv);
 
     totalWidth += displayWidth;
     totalHeight += displayHeight;
     totalArea += displayArea;
     itemsCount += typesCount;
     totalQtyUsed += g.totalQty;
-    totalAreaDiv += g.totalArea / 10000;
+    totalAreaDiv += areaDiv;
 
     rowIndex++;
   }
 
   rowIndex++;
+
+  // Round totals to 2 decimal places
+  totalWidth = double.parse(totalWidth.toStringAsFixed(2));
+  totalHeight = double.parse(totalHeight.toStringAsFixed(2));
+  totalArea = double.parse(totalArea.toStringAsFixed(2));
+  totalAreaDiv = double.parse(totalAreaDiv.toStringAsFixed(2));
 
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setNumber(totalWidth);
@@ -89,4 +103,7 @@ void createGroupSummarySheet(
   sheet.getRangeByIndex(rowIndex, 6).setNumber(totalQtyUsed.toDouble());
   sheet.getRangeByIndex(rowIndex, 7).setNumber(itemsCount.toDouble());
   sheet.getRangeByIndex(rowIndex, 8).setNumber(totalAreaDiv);
+
+  // Apply borders to all cells
+  ReportFormatting.applyBordersToAllCells(sheet);
 }

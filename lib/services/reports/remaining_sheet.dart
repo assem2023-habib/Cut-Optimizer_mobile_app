@@ -1,6 +1,7 @@
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/config.dart';
+import '../report_formatting.dart';
 
 void createRemainingSheet(
   Workbook workbook,
@@ -8,6 +9,7 @@ void createRemainingSheet(
   MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('السجاد المتبقي');
+  sheet.isRightToLeft = true;
 
   // Helper for conversion
   double convert(num value) {
@@ -68,6 +70,10 @@ void createRemainingSheet(
     double displayWidth = convert(w);
     double displayHeight = convert(h);
 
+    // Round values to 2 decimal places
+    displayWidth = double.parse(displayWidth.toStringAsFixed(2));
+    displayHeight = double.parse(displayHeight.toStringAsFixed(2));
+
     sheet.getRangeByIndex(rowIndex, 1).setNumber(rid.toDouble());
     sheet.getRangeByIndex(rowIndex, 2).setNumber(co.toDouble());
     sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWidth);
@@ -83,9 +89,16 @@ void createRemainingSheet(
 
   rowIndex++;
 
+  // Round totals to 2 decimal places
+  totalWidth = double.parse(totalWidth.toStringAsFixed(2));
+  totalHeight = double.parse(totalHeight.toStringAsFixed(2));
+
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setText('');
   sheet.getRangeByIndex(rowIndex, 3).setNumber(totalWidth);
   sheet.getRangeByIndex(rowIndex, 4).setNumber(totalHeight);
   sheet.getRangeByIndex(rowIndex, 5).setNumber(totalRemQty.toDouble());
+
+  // Apply borders to all cells
+  ReportFormatting.applyBordersToAllCells(sheet);
 }

@@ -402,4 +402,20 @@ class ReportFormatting {
       // Ignore
     }
   }
+
+  /// Apply medium borders to all cells in the sheet
+  static void applyBordersToAllCells(Worksheet sheet) {
+    int maxRow = sheet.getLastRow();
+    int maxCol = sheet.getLastColumn();
+
+    if (maxRow == 0 || maxCol == 0) return;
+
+    for (int r = 1; r <= maxRow; r++) {
+      for (int c = 1; c <= maxCol; c++) {
+        Range cell = sheet.getRangeByIndex(r, c);
+        cell.cellStyle.borders.all.lineStyle = LineStyle.medium;
+        cell.cellStyle.borders.all.color = '#000000';
+      }
+    }
+  }
 }

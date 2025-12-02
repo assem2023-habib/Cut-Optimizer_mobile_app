@@ -2,6 +2,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import '../../models/config.dart';
+import '../report_formatting.dart';
 
 void createTotalsSheet(
   Workbook workbook,
@@ -11,6 +12,7 @@ void createTotalsSheet(
   MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('الإجماليات');
+  sheet.isRightToLeft = true;
 
   String areaLabel = unit == MeasurementUnit.cm ? ' (سم²)' : ' (م²)';
 
@@ -61,9 +63,18 @@ void createTotalsSheet(
     totalUsed /= 10000.0;
   }
 
+  // Round values to 2 decimal places
+  totalOriginal = double.parse(totalOriginal.toStringAsFixed(2));
+  totalRemaining = double.parse(totalRemaining.toStringAsFixed(2));
+  totalUsed = double.parse(totalUsed.toStringAsFixed(2));
+  consumptionRatio = double.parse(consumptionRatio.toStringAsFixed(2));
+
   sheet.getRangeByIndex(2, 1).setText('');
   sheet.getRangeByIndex(2, 2).setNumber(totalOriginal);
   sheet.getRangeByIndex(2, 3).setNumber(totalUsed);
   sheet.getRangeByIndex(2, 4).setNumber(totalRemaining);
   sheet.getRangeByIndex(2, 5).setNumber(consumptionRatio);
+
+  // Apply borders to all cells
+  ReportFormatting.applyBordersToAllCells(sheet);
 }

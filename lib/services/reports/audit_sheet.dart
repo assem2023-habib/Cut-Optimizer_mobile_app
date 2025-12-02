@@ -2,6 +2,7 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import '../../models/config.dart';
+import '../report_formatting.dart';
 
 void createAuditSheet(
   Workbook workbook,
@@ -11,6 +12,7 @@ void createAuditSheet(
   MeasurementUnit unit,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('تدقيق الكميات');
+  sheet.isRightToLeft = true;
 
   // Helper for conversion
   double convert(num value) {
@@ -135,6 +137,10 @@ void createAuditSheet(
     double displayWidth = convert(w);
     double displayHeight = convert(h);
 
+    // Round values to 2 decimal places
+    displayWidth = double.parse(displayWidth.toStringAsFixed(2));
+    displayHeight = double.parse(displayHeight.toStringAsFixed(2));
+
     totalWidth += displayWidth;
     totalHeight += displayHeight;
     totalOriginalQty += orig;
@@ -156,6 +162,11 @@ void createAuditSheet(
   }
 
   rowIndex++;
+
+  // Round totals to 2 decimal places
+  totalWidth = double.parse(totalWidth.toStringAsFixed(2));
+  totalHeight = double.parse(totalHeight.toStringAsFixed(2));
+
   String isSame = totalOriginalQty == totalUsedQty + totalRemQty
       ? '✅ نعم'
       : '❌ لا';
@@ -169,4 +180,7 @@ void createAuditSheet(
   sheet.getRangeByIndex(rowIndex, 7).setNumber(totalRemQty.toDouble());
   sheet.getRangeByIndex(rowIndex, 8).setNumber(totalDiffQty.toDouble());
   sheet.getRangeByIndex(rowIndex, 9).setText(isSame);
+
+  // Apply borders to all cells
+  ReportFormatting.applyBordersToAllCells(sheet);
 }
