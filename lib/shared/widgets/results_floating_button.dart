@@ -29,8 +29,9 @@ class ResultsFloatingButton extends StatelessWidget {
                 backgroundType: BackgroundType.gradient, // قيمة افتراضية
                 machineSizes: [], // قيمة افتراضية
                 selectedMode: GroupingMode.allCombinations, // قيمة افتراضية
-                selectedSortType: SortType.sortByQuantity, // قيمة افتراضية
-                measurementUnit: MeasurementUnit.cm, // قيمة افتراضية
+                selectedSortType: SortType.sortByWidth, // قيمة افتراضية
+                measurementUnit: MeasurementUnit.m2, // قيمة افتراضية
+                pairOddMode: PairOddMode.disabled, // قيمة افتراضية
               );
 
               Navigator.push(

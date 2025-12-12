@@ -52,9 +52,26 @@ void createSimpleSuggestionSheet(
     suggestionId++;
     
     for (var group in suggestionGroups) {
-      if (group.carpets.length >= 2) {
-        var original = group.carpets[0];
-        var complementary = group.carpets[1];
+      if (group.items.length >= 2) {
+        var originalItem = group.items[0];
+        var complementaryItem = group.items[1];
+        
+        // Convert CarpetUsed to Carpet for display
+        var original = Carpet(
+          id: originalItem.carpetId,
+          width: originalItem.width,
+          height: originalItem.height,
+          qty: originalItem.qtyUsed + originalItem.qtyRem,
+          clientOrder: originalItem.clientOrder,
+        );
+        
+        var complementary = Carpet(
+          id: complementaryItem.carpetId,
+          width: complementaryItem.width,
+          height: complementaryItem.height,
+          qty: complementaryItem.qtyUsed + complementaryItem.qtyRem,
+          clientOrder: complementaryItem.clientOrder,
+        );
         
         double displayOriginalWidth = convert(original.width);
         double displayOriginalHeight = convert(original.height);

@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
+import '../../models/carpet_used.dart';
 import 'group_builder.dart';
 
 class SuggestionsGenerator {
@@ -38,11 +39,27 @@ class SuggestionsGenerator {
         );
         
         // Create a group with both items
+        var originalUsed = CarpetUsed(
+          carpetId: originalCarpet.id,
+          width: originalCarpet.width,
+          height: originalCarpet.height,
+          qtyUsed: originalCarpet.qty,
+          qtyRem: 0,
+          clientOrder: originalCarpet.clientOrder,
+        );
+        
+        var complementaryUsed = CarpetUsed(
+          carpetId: complementaryCarpet.id,
+          width: complementaryCarpet.width,
+          height: complementaryCarpet.height,
+          qtyUsed: complementaryCarpet.qty,
+          qtyRem: 0,
+          clientOrder: complementaryCarpet.clientOrder,
+        );
+        
         var group = GroupCarpet(
-          carpets: [originalCarpet, complementaryCarpet],
-          maxWidth: maxWidth,
-          tolerance: tolerance,
-          pathLength: pathLength,
+          groupId: DateTime.now().millisecondsSinceEpoch % 10000,
+          items: [originalUsed, complementaryUsed],
         );
         
         suggestionGroups.add(group);
