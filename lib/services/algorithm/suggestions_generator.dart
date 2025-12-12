@@ -29,7 +29,9 @@ class SuggestionsGenerator {
       
       // Create complementary item with same length and quantity, but width = maxWidth - originalWidth
       int complementaryWidth = maxWidth - originalCarpet.width;
-      if (complementaryWidth >= minWidth) {
+      
+      // Create suggestion even if complementary width is small, but still positive
+      if (complementaryWidth > 0) {
         var complementaryCarpet = Carpet(
           id: originalCarpet.id + 10000, // Different ID to avoid conflicts
           width: complementaryWidth,

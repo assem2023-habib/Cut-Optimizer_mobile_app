@@ -12,6 +12,7 @@ void createSimpleSuggestionSheet(
   int maxWidth,
   MeasurementUnit unit,
 ) {
+  // Always create the sheet, even if no suggestions
   final Worksheet sheet = workbook.worksheets.addWithName('اقتراحات المتبقيات');
   sheet.isRightToLeft = true;
 
@@ -27,12 +28,12 @@ void createSimpleSuggestionSheet(
   String unitLabel = unit == MeasurementUnit.cm ? ' (سم)' : ' (م)';
 
   List<String> headers = [
-    'الاقتراح',
-    'معرف السجادة الأصلي',
-    'أمر العميل',
+    '',
+    'رقم الاقتراح',
+    'الطلبية الأصلية',
     'العرض الأصلي$unitLabel',
-    'الطول$unitLabel',
-    'الكمية',
+    'الطول الأصلي$unitLabel',
+    'الكمية الأصلية',
     'العرض المقترح$unitLabel',
     'الطول المقترح$unitLabel',
     'الكمية المقترحة',
@@ -43,7 +44,12 @@ void createSimpleSuggestionSheet(
     sheet.getRangeByIndex(1, i + 1).setText(headers[i]);
   }
 
-  if (suggestedGroups == null || suggestedGroups.isEmpty) return;
+  if (suggestedGroups == null || suggestedGroups.isEmpty) {
+    // Add a "No suggestions" message
+    sheet.getRangeByIndex(2, 1).setText('لا توجد اقتراحات متاحة');
+    sheet.getRangeByIndex(2, 2).setText('جميع القطع متوافقة مع العرض الأقصى');
+    return;
+  }
 
   int rowIndex = 2;
   int suggestionId = 0;
