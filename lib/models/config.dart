@@ -220,7 +220,7 @@ class Config {
       startWithLargest: true,
       allowSplitRows: true,
       theme: "dark",
-      backgroundImage: "gradient_blue_purple",
+      backgroundImage: "gradient_clean_white",
       backgroundType: BackgroundType.gradient,
       machineSizes: [
         MachineSize(name: 'Small', minWidth: 50, maxWidth: 200, tolerance: 10),

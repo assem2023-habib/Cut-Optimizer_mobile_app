@@ -1,10 +1,12 @@
-import '../models/carpet.dart';
-import '../models/group_carpet.dart';
-import '../core/enums.dart';
-import 'algorithm/algorithm_service_refactored.dart';
+import '../../models/carpet.dart';
+import '../../models/group_carpet.dart';
+import '../../core/enums.dart';
+import 'group_builder.dart';
+import 'suggestions_generator.dart';
 
-class AlgorithmService {
-  final AlgorithmServiceRefactored _refactored = AlgorithmServiceRefactored();
+class AlgorithmServiceRefactored {
+  final GroupBuilder _groupBuilder = GroupBuilder();
+  final SuggestionsGenerator _suggestionsGenerator = SuggestionsGenerator();
 
   List<GroupCarpet> buildGroups({
     required List<Carpet> carpets,
@@ -16,7 +18,7 @@ class AlgorithmService {
     SortType selectedSortType = SortType.sortByWidth,
     required int pathLength,
   }) {
-    return _refactored.buildGroups(
+    return _groupBuilder.buildGroups(
       carpets: carpets,
       minWidth: minWidth,
       maxWidth: maxWidth,
@@ -36,7 +38,7 @@ class AlgorithmService {
     int pathLength = 0,
     int step = 10,
   }) {
-    return _refactored.generateSuggestions(
+    return _suggestionsGenerator.generateSuggestions(
       remaining: remaining,
       minWidth: minWidth,
       maxWidth: maxWidth,

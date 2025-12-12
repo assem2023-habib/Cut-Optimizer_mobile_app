@@ -63,8 +63,6 @@ class _FirstLoginChecker extends StatefulWidget {
 }
 
 class _FirstLoginCheckerState extends State<_FirstLoginChecker> {
-  bool _checkComplete = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,22 +92,13 @@ class _FirstLoginCheckerState extends State<_FirstLoginChecker> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              // System checker embedded
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: const CheckerScreen(),
-              ),
-              const SizedBox(height: 24),
-              // Continue button
-              ElevatedButton.icon(
-                onPressed: _checkComplete
-                    ? widget.onCheckComplete
-                    : null,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text("متابعة"),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
+              // System checker embedded with continue button
+              CheckerScreen(
+                showContinueButton: true,
+                onContinue: () {
+                  FirstLoginService.markFirstLoginCompleted();
+                  widget.onCheckComplete();
+                },
               ),
               const SizedBox(height: 16),
             ],

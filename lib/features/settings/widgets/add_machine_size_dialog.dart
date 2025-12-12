@@ -17,6 +17,7 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
   final _minWidthController = TextEditingController();
   final _maxWidthController = TextEditingController();
   final _toleranceController = TextEditingController();
+  final _pathLengthController = TextEditingController();
 
   @override
   void dispose() {
@@ -24,6 +25,7 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
     _minWidthController.dispose();
     _maxWidthController.dispose();
     _toleranceController.dispose();
+    _pathLengthController.dispose();
     super.dispose();
   }
 
@@ -34,6 +36,7 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
         minWidth: int.parse(_minWidthController.text),
         maxWidth: int.parse(_maxWidthController.text),
         tolerance: int.parse(_toleranceController.text),
+        pathLength: int.parse(_pathLengthController.text),
       );
       Navigator.of(context).pop(machineSize);
     }
@@ -139,6 +142,25 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
                       final num = int.tryParse(value);
                       if (num == null || num <= 0) {
                         return 'Tolerance must be > 0';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  // Path Length field
+                  _buildTextField(
+                    controller: _pathLengthController,
+                    label: 'Path Length (cm)',
+                    hint: 'e.g., 100',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter path length';
+                      }
+                      final num = int.tryParse(value);
+                      if (num == null || num <= 0) {
+                        return 'Path length must be > 0';
                       }
                       return null;
                     },

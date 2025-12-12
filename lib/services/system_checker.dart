@@ -1,5 +1,4 @@
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SystemChecker {
@@ -8,22 +7,13 @@ class SystemChecker {
       final deviceInfo = DeviceInfoPlugin();
       final android = await deviceInfo.androidInfo;
 
-      // فحص الإنترنت
-      final connectivity = await Connectivity().checkConnectivity();
-      final hasInternet = connectivity != ConnectivityResult.none;
-
-      // فحص الصلاحيات
-      final cameraPermission = await Permission.camera.status;
+      // فحص صلاحية التخزين فقط
       final storagePermission = await Permission.storage.status;
-      final locationPermission = await Permission.location.status;
 
       return {
-        "device": android.model,
-        "androidVersion": android.version.release,
-        "internet": hasInternet ? "Available" : "Not Connected",
-        "cameraPermission": cameraPermission.isGranted,
+        "device": android.model ?? "Unknown",
+        "androidVersion": android.version.release ?? "Unknown",
         "storagePermission": storagePermission.isGranted,
-        "locationPermission": locationPermission.isGranted,
       };
     } catch (e) {
       return {

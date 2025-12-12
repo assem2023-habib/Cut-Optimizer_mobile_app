@@ -9,7 +9,7 @@ void createWasteSheet(
   int maxWidth,
   List<Carpet>? originals,
   MeasurementUnit unit,
-  int pathLength = 0,
+  int pathLength,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('الهادر');
   sheet.isRightToLeft = true;

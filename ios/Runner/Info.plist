@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Permission descriptions for iOS -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى مكتبة الصور لحفظ واستخدام الصور</string>
 </dict>
 </plist>

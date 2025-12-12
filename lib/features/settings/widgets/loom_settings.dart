@@ -25,6 +25,7 @@ class _LoomSettingsState extends State<LoomSettings> {
   final _minController = TextEditingController();
   final _maxController = TextEditingController();
   final _toleranceController = TextEditingController();
+  final _pathLengthController = TextEditingController();
 
   @override
   void dispose() {
@@ -32,6 +33,7 @@ class _LoomSettingsState extends State<LoomSettings> {
     _minController.dispose();
     _maxController.dispose();
     _toleranceController.dispose();
+    _pathLengthController.dispose();
     super.dispose();
   }
 
@@ -49,12 +51,14 @@ class _LoomSettingsState extends State<LoomSettings> {
     _minController.clear();
     _maxController.clear();
     _toleranceController.clear();
+    _pathLengthController.clear();
   }
 
   void _addLoom() {
     if (_nameController.text.isEmpty ||
         _minController.text.isEmpty ||
-        _maxController.text.isEmpty) {
+        _maxController.text.isEmpty ||
+        _pathLengthController.text.isEmpty) {
       return;
     }
 
@@ -63,6 +67,7 @@ class _LoomSettingsState extends State<LoomSettings> {
       minWidth: int.tryParse(_minController.text) ?? 0,
       maxWidth: int.tryParse(_maxController.text) ?? 0,
       tolerance: int.tryParse(_toleranceController.text) ?? 0,
+      pathLength: int.tryParse(_pathLengthController.text) ?? 0,
     );
 
     final updated = List<MachineSize>.from(widget.machineSizes)..add(newLoom);
@@ -80,6 +85,7 @@ class _LoomSettingsState extends State<LoomSettings> {
     _minController.text = loom.minWidth.toString();
     _maxController.text = loom.maxWidth.toString();
     _toleranceController.text = loom.tolerance.toString();
+    _pathLengthController.text = loom.pathLength.toString();
 
     setState(() {
       _editingIndex = index;
@@ -94,6 +100,7 @@ class _LoomSettingsState extends State<LoomSettings> {
       minWidth: int.tryParse(_minController.text) ?? 0,
       maxWidth: int.tryParse(_maxController.text) ?? 0,
       tolerance: int.tryParse(_toleranceController.text) ?? 0,
+      pathLength: int.tryParse(_pathLengthController.text) ?? 0,
     );
 
     final updated = List<MachineSize>.from(widget.machineSizes);
@@ -195,6 +202,7 @@ class _LoomSettingsState extends State<LoomSettings> {
               minController: _minController,
               maxController: _maxController,
               toleranceController: _toleranceController,
+              pathLengthController: _pathLengthController,
               onAdd: _addLoom,
               onCancel: _toggleAddForm,
             ),
@@ -237,6 +245,7 @@ class AddLoomForm extends StatelessWidget {
   final TextEditingController minController;
   final TextEditingController maxController;
   final TextEditingController toleranceController;
+  final TextEditingController pathLengthController;
   final VoidCallback onAdd;
   final VoidCallback onCancel;
 
@@ -246,6 +255,7 @@ class AddLoomForm extends StatelessWidget {
     required this.minController,
     required this.maxController,
     required this.toleranceController,
+    required this.pathLengthController,
     required this.onAdd,
     required this.onCancel,
   });
@@ -298,6 +308,9 @@ class AddLoomForm extends StatelessWidget {
 
           const SizedBox(height: 12),
           _buildTextField('السماحية', toleranceController, isNumber: true),
+
+          const SizedBox(height: 12),
+          _buildTextField('طول المسار', pathLengthController, isNumber: true),
 
           const SizedBox(height: 16),
 

@@ -137,15 +137,6 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
           .split('.')[0];
       String outputPath = '${appDir.path}/cut_optimizer_result_$timestamp.xlsx';
 
-      // Get pathLength from the selected machine size
-      int pathLength = 0;
-      for (var size in widget.config.machineSizes) {
-        if (size.maxWidth == widget.maxWidth) {
-          pathLength = size.pathLength;
-          break;
-        }
-      }
-
       await _dataService.writeOutputExcel(
         path: outputPath,
         groups: groups,
