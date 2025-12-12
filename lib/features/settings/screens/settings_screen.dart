@@ -7,10 +7,11 @@ import '../widgets/measurement_unit.dart';
 import '../widgets/prep_codes.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/info_box.dart';
+import '../widgets/pair_odd_settings.dart';
 import '../../../core/services/config_service.dart';
 
 /// شاشة الإعدادات (Settings Screen) - التصميم الجديد
-/// 4 أقسام: إعدادات النول + وحدة القياس + أكواد التحضير + أزرار الإجراءات
+/// 5 أقسام: إعدادات النول + وحدة القياس + زوجي/فردي + أكواد التحضير + أزرار الإجراءات
 class SettingsScreen extends StatefulWidget {
   final Config config;
 
@@ -153,12 +154,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 24),
 
-            // 3. أكواد التحضير
+            // 3. إعدادات زوجي/فردي
+            PairOddSettings(
+              selectedMode: _config.pairOddMode,
+              onModeChanged: (mode) {
+                setState(() {
+                  _config.pairOddMode = mode;
+                });
+              },
+            ),
+
+            const SizedBox(height: 24),
+
+            // 4. أكواد التحضير
             const PrepCodes(),
 
             const SizedBox(height: 24),
 
-            // 4. أزرار الإجراءات
+            // 5. أزرار الإجراءات
             ActionButtons(
               isSaved: _isSaved,
               onReset: _resetSettings,

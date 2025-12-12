@@ -8,8 +8,8 @@ class DataService {
   final ExcelService _excelService = ExcelService();
   final ReportService _reportService = ReportService();
 
-  Future<List<Carpet>> readInputExcel(String path) async {
-    return await _excelService.readInputExcel(path);
+  Future<List<Carpet>> readInputExcel(String path, {PairOddMode? pairOddMode}) async {
+    return await _excelService.readInputExcel(path, pairOddMode: pairOddMode);
   }
 
   Future<void> writeOutputExcel({

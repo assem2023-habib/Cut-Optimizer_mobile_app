@@ -72,24 +72,13 @@ class ReportService {
       pathLength,
     );
 
-    // 7. Remaining Suggestions
-    createRemainingSuggestionSheet(
-      workbook,
-      remaining,
-      minWidth,
-      maxWidth,
-      tolerance,
-      measurementUnit,
-    );
-
-    // 8. Enhanced Suggestions
+    // 7. Simple Suggestions
     if (suggestedGroups != null && suggestedGroups.isNotEmpty) {
-      createEnhancedRemainingSuggestionSheet(
+      createSimpleSuggestionSheet(
         workbook,
         suggestedGroups,
         minWidth,
         maxWidth,
-        tolerance,
         measurementUnit,
       );
     }

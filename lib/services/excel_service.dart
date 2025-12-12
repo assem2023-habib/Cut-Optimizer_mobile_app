@@ -4,9 +4,10 @@ import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'file_store_service.dart';
 import '../models/carpet.dart';
+import '../models/config.dart';
 
 class ExcelService {
-  Future<List<Carpet>> readInputExcel(String path) async {
+  Future<List<Carpet>> readInputExcel(String path, {PairOddMode? pairOddMode}) async {
     List<int> bytes;
 
     // 1. Try to get bytes from memory (FileStoreService) - Works for Web & Android 13+
@@ -53,9 +54,8 @@ class ExcelService {
         var col1 = getValue(1); // Width
         var col2 = getValue(2); // Height
         var col3 = getValue(3); // Qty
-        var col4 = getValue(4); // Single/Pair
-        var col5 = getValue(5); // Texture Type
-        var col6 = getValue(6); // Prep Code
+        var col4 = getValue(4); // Texture Type
+        var col5 = getValue(5); // Prep Code
 
         if (col0 == null || col1 == null || col2 == null || col3 == null) {
           // Skip empty or incomplete rows
@@ -65,16 +65,25 @@ class ExcelService {
         int clientOrder = int.parse(col0.toString());
         int width = int.parse(col1.toString().trim());
         int height = int.parse(col2.toString().trim());
-        int qtyRaw = int.parse(col3.toString());
+        int qty = int.parse(col3.toString());
 
-        String singlePair = col4?.toString().trim().toUpperCase() ?? "";
-        String textureType = col5?.toString().trim().toUpperCase() ?? "";
-        String prepCode = col6?.toString().trim().toUpperCase() ?? "";
-
-        int qty = qtyRaw;
-        if (singlePair == "A") {
-          qty = max(1, qtyRaw ~/ 2);
+        // Apply pair/odd logic based on setting
+        if (pairOddMode != null) {
+          switch (pairOddMode) {
+            case PairOddMode.pair:
+              qty = max(1, qty ~/ 2);
+              break;
+            case PairOddMode.odd:
+              // Keep qty as is
+              break;
+            case PairOddMode.disabled:
+              // Keep qty as is
+              break;
+          }
         }
+
+        String textureType = col4?.toString().trim().toUpperCase() ?? "";
+        String prepCode = col5?.toString().trim().toUpperCase() ?? "";
 
         if (prepOffset.containsKey(prepCode)) {
           height += prepOffset[prepCode]!;

@@ -19,43 +19,37 @@ class SuggestionsGenerator {
     var availableCarpets = remaining.where((c) => c.remQty > 0).toList();
     if (availableCarpets.isEmpty) return suggestions;
 
-    int minRemainingWidth = availableCarpets.map((c) => c.width).reduce(min);
-
-    List<Carpet> workCopy = remaining.map((c) => c.clone()).toList();
-
-    int currentMin = minWidth;
-    int currentMax = maxWidth;
-
-    while (currentMax > minRemainingWidth) {
-      List<Carpet> carpetsForRun = workCopy.map((c) => c.clone()).toList();
-
-      List<GroupCarpet> groups = _groupBuilder.buildGroups(
-        carpets: carpetsForRun,
-        minWidth: currentMin,
-        maxWidth: currentMax,
-        maxPartner: 9,
-        tolerance: tolerance,
-        pathLength: pathLength,
-      );
-
-      if (groups.isNotEmpty) {
-        String currentSummary = groups.map((g) => g.summary()).join("|");
-        bool exists = suggestions.any(
-          (s) => s.map((g) => g.summary()).join("|") == currentSummary,
+    // Generate simple suggestions: for each remaining item, create a complementary item
+    for (var carpet in availableCarpets) {
+      List<GroupCarpet> suggestionGroups = [];
+      
+      // Create the original item
+      var originalCarpet = carpet.clone();
+      
+      // Create complementary item with same length and quantity, but width = maxWidth - originalWidth
+      int complementaryWidth = maxWidth - originalCarpet.width;
+      if (complementaryWidth >= minWidth) {
+        var complementaryCarpet = Carpet(
+          id: originalCarpet.id + 10000, // Different ID to avoid conflicts
+          width: complementaryWidth,
+          height: originalCarpet.height,
+          qty: originalCarpet.qty,
+          clientOrder: originalCarpet.clientOrder,
         );
-
-        if (!exists) {
-          suggestions.add(groups);
-        }
-      }
-
-      currentMin -= step;
-      currentMax -= step;
-
-      if (currentMin < 0) {
-        currentMin = 0;
+        
+        // Create a group with both items
+        var group = GroupCarpet(
+          carpets: [originalCarpet, complementaryCarpet],
+          maxWidth: maxWidth,
+          tolerance: tolerance,
+          pathLength: pathLength,
+        );
+        
+        suggestionGroups.add(group);
+        suggestions.add(suggestionGroups);
       }
     }
+
     return suggestions;
   }
 }

@@ -18,10 +18,12 @@ void createTotalsSheet(
 
   List<String> headers = [
     '',
-    'الإجمالي الأصلي$areaLabel',
-    'المستهلك$areaLabel',
-    'المتبقي$areaLabel',
-    'نسبة الاستهلاك (%)',
+    'كمية الطلبية',
+    'الكمية المنتجة',
+    'الكمية المتبقية',
+    'كمية الهادر',
+    'نسبة الكمية المنتجة',
+    'نسبة الهادر',
   ];
 
   for (int i = 0; i < headers.length; i++) {
@@ -38,52 +40,49 @@ void createTotalsSheet(
     headerCell.cellStyle.vAlign = VAlignType.center;
   }
 
-  double totalOriginal = 0;
-  if (originalGroups != null && originalGroups.isNotEmpty) {
-    for (var carpet in originalGroups) {
-      totalOriginal += carpet.area * carpet.qty;
-    }
-  } else {
-    for (var group in groups) {
-      for (var carpet in group.items) {
-        totalOriginal += carpet.area * (carpet.qtyUsed + carpet.qtyRem);
-      }
-    }
-  }
+  // Calculate totals using Python logic
+  int totalOrderQuantity = _calculateTotalOrderQuantity(originalGroups, groups);
+  int totalRemainingQuantity = _calculateTotalRemainingQuantity(remaining);
+  int totalProducedQuantity = _calculateTotalProducedQuantity(groups);
+  int totalWasteQuantity = _calculateTotalWasteQuantity(groups);
 
-  double totalRemaining = 0;
-  for (var carpet in remaining) {
-    // Note: Python code iterates remaining list and calculates area * rem_qty.
-    // However, if carpet has 'repeated', does it matter?
-    // Python code: total_remaining += carpet.area() * carpet.rem_qty
-    // `carpet.rem_qty` should be the sum of repeated rem_qtys if it's a parent, or just rem_qty.
-    // In our model `remQty` is tracked on the main carpet object.
-    totalRemaining += carpet.area * carpet.remQty;
-  }
+  // Calculate percentages
+  String producedPercentage = totalOrderQuantity > 0
+      ? "${(totalProducedQuantity / totalOrderQuantity * 100).toStringAsFixed(2)}%"
+      : "0.00%";
 
-  double totalUsed = totalOriginal - totalRemaining;
-  double consumptionRatio = totalOriginal > 0
-      ? (totalUsed / totalOriginal * 100)
-      : 0;
+  String wastePercentage = totalOrderQuantity > 0 && totalWasteQuantity > 0
+      ? "${(totalWasteQuantity / totalOrderQuantity * 100).toStringAsFixed(2)}%"
+      : "0.00%";
 
-  // Convert if needed
-  if (unit != MeasurementUnit.cm) {
-    totalOriginal /= 10000.0;
-    totalRemaining /= 10000.0;
-    totalUsed /= 10000.0;
-  }
+  // Convert to display units
+  double displayOrderQuantity = unit == MeasurementUnit.cm 
+      ? totalOrderQuantity.toDouble() 
+      : totalOrderQuantity / 10000.0;
+  double displayProducedQuantity = unit == MeasurementUnit.cm 
+      ? totalProducedQuantity.toDouble() 
+      : totalProducedQuantity / 10000.0;
+  double displayRemainingQuantity = unit == MeasurementUnit.cm 
+      ? totalRemainingQuantity.toDouble() 
+      : totalRemainingQuantity / 10000.0;
+  double displayWasteQuantity = unit == MeasurementUnit.cm 
+      ? totalWasteQuantity.toDouble() 
+      : totalWasteQuantity / 10000.0;
 
   // Round values to 2 decimal places
-  totalOriginal = double.parse(totalOriginal.toStringAsFixed(2));
-  totalRemaining = double.parse(totalRemaining.toStringAsFixed(2));
-  totalUsed = double.parse(totalUsed.toStringAsFixed(2));
-  consumptionRatio = double.parse(consumptionRatio.toStringAsFixed(2));
+  displayOrderQuantity = double.parse(displayOrderQuantity.toStringAsFixed(2));
+  displayProducedQuantity = double.parse(displayProducedQuantity.toStringAsFixed(2));
+  displayRemainingQuantity = double.parse(displayRemainingQuantity.toStringAsFixed(2));
+  displayWasteQuantity = double.parse(displayWasteQuantity.toStringAsFixed(2));
 
+  // Write data
   sheet.getRangeByIndex(2, 1).setText('');
-  sheet.getRangeByIndex(2, 2).setNumber(totalOriginal);
-  sheet.getRangeByIndex(2, 3).setNumber(totalUsed);
-  sheet.getRangeByIndex(2, 4).setNumber(totalRemaining);
-  sheet.getRangeByIndex(2, 5).setNumber(consumptionRatio);
+  sheet.getRangeByIndex(2, 2).setNumber(displayOrderQuantity);
+  sheet.getRangeByIndex(2, 3).setNumber(displayProducedQuantity);
+  sheet.getRangeByIndex(2, 4).setNumber(displayRemainingQuantity);
+  sheet.getRangeByIndex(2, 5).setNumber(displayWasteQuantity);
+  sheet.getRangeByIndex(2, 6).setText(producedPercentage);
+  sheet.getRangeByIndex(2, 7).setText(wastePercentage);
 
   // Apply borders and formatting to data rows
   for (int c = 1; c <= headers.length; c++) {
@@ -100,4 +99,86 @@ void createTotalsSheet(
   for (int c = 1; c <= headers.length; c++) {
     sheet.autoFitColumn(c);
   }
+}
+
+int _calculateTotalOrderQuantity(
+  List<Carpet>? originalGroups,
+  List<GroupCarpet> groups,
+) {
+  int total = 0;
+  
+  if (originalGroups != null && originalGroups.isNotEmpty) {
+    for (var carpet in originalGroups) {
+      total += carpet.area * carpet.qty;
+    }
+    return total;
+  }
+
+  for (var group in groups) {
+    for (var item in group.items) {
+      int units = item.qtyUsed + item.qtyRem;
+      total += (item.width * item.height) * units;
+    }
+  }
+
+  return total;
+}
+
+int _calculateTotalRemainingQuantity(List<Carpet> remaining) {
+  int total = 0;
+  
+  for (var carpet in remaining) {
+    if (carpet.repeated.isNotEmpty) {
+      for (var rep in carpet.repeated) {
+        int qty = (rep['qty_rem'] as int? ?? 0);
+        if (qty > 0) {
+          total += carpet.area * qty;
+        }
+      }
+    } else {
+      if (carpet.remQty > 0) {
+        total += carpet.area * carpet.remQty;
+      }
+    }
+  }
+  
+  return total;
+}
+
+int _calculateTotalProducedQuantity(List<GroupCarpet> groups) {
+  int total = 0;
+  
+  for (var group in groups) {
+    for (var item in group.items) {
+      total += item.area;
+    }
+  }
+  
+  return total;
+}
+
+int _calculateTotalWasteQuantity(List<GroupCarpet> groups) {
+  if (groups.isEmpty) {
+    return 0;
+  }
+
+  int totalWaste = 0;
+
+  for (var group in groups) {
+    if (group.items.isEmpty) {
+      continue;
+    }
+
+    int groupMaxLength = group.maxLengthRef;
+    int sumPathLoss = 0;
+
+    for (var item in group.items) {
+      sumPathLoss += (groupMaxLength - item.lengthRef) * item.width;
+    }
+
+    sumPathLoss += (group.maxWidth - group.totalWidth) * groupMaxLength;
+    totalWaste += sumPathLoss;
+  }
+
+  return totalWaste;
 }

@@ -62,7 +62,10 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
       });
       await Future.delayed(const Duration(milliseconds: 500));
 
-      List<Carpet> carpets = await _dataService.readInputExcel(widget.filePath);
+      List<Carpet> carpets = await _dataService.readInputExcel(
+        widget.filePath,
+        pairOddMode: widget.config.pairOddMode,
+      );
 
       // Free up memory after reading
       FileStoreService().clear();

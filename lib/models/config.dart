@@ -4,6 +4,8 @@ enum BackgroundType { gradient, image }
 
 enum MeasurementUnit { m2, m, cm }
 
+enum PairOddMode { disabled, pair, odd }
+
 class MachineSize {
   final String name;
   final int minWidth;
@@ -56,6 +58,7 @@ class Config {
   GroupingMode selectedMode;
   SortType selectedSortType;
   MeasurementUnit measurementUnit;
+  PairOddMode pairOddMode;
 
   Config({
     required this.minWidth,
@@ -73,6 +76,7 @@ class Config {
     required this.selectedMode,
     required this.selectedSortType,
     required this.measurementUnit,
+    required this.pairOddMode,
   });
 
   factory Config.fromJson(Map<String, dynamic> json) {
@@ -98,6 +102,7 @@ class Config {
       measurementUnit: _parseMeasurementUnit(
         json['measurement_unit'] as String? ?? 'm2',
       ),
+      pairOddMode: _parsePairOddMode(json['pair_odd_mode'] as String? ?? 'disabled'),
     );
   }
 
@@ -118,6 +123,7 @@ class Config {
       'selected_mode': _groupingModeToString(selectedMode),
       'selected_sort_type': _sortTypeToString(selectedSortType),
       'measurement_unit': _measurementUnitToString(measurementUnit),
+      'pair_odd_mode': _pairOddModeToString(pairOddMode),
     };
   }
 
@@ -209,6 +215,28 @@ class Config {
     }
   }
 
+  static PairOddMode _parsePairOddMode(String value) {
+    switch (value) {
+      case 'pair':
+        return PairOddMode.pair;
+      case 'odd':
+        return PairOddMode.odd;
+      default:
+        return PairOddMode.disabled;
+    }
+  }
+
+  static String _pairOddModeToString(PairOddMode mode) {
+    switch (mode) {
+      case PairOddMode.disabled:
+        return 'disabled';
+      case PairOddMode.pair:
+        return 'pair';
+      case PairOddMode.odd:
+        return 'odd';
+    }
+  }
+
   static Config defaultConfig() {
     return Config(
       minWidth: 370,
@@ -235,6 +263,7 @@ class Config {
       selectedMode: GroupingMode.allCombinations,
       selectedSortType: SortType.sortByWidth,
       measurementUnit: MeasurementUnit.m2,
+      pairOddMode: PairOddMode.disabled,
     );
   }
 }
