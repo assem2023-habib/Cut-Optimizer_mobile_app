@@ -139,11 +139,18 @@ class ResultsCalculator {
     // Path waste = sum of (maxPath - itemPath) * itemWidth for all items
     double pathWaste = 0;
     for (var item in group.items) {
-      pathWaste += (maxPath - item.lengthRef) * item.width;
+      double itemPathLoss = (maxPath - item.lengthRef) * item.width;
+      // Only add positive waste (when maxPath > item.lengthRef)
+      if (itemPathLoss > 0) {
+        pathWaste += itemPathLoss;
+      }
     }
 
-    // Add width waste area to path waste
-    pathWaste += wasteWidth * maxPath;
+    // Add width waste area to path waste (only positive waste)
+    double widthWasteArea = wasteWidth * maxPath;
+    if (widthWasteArea > 0) {
+      pathWaste += widthWasteArea;
+    }
 
     return pathWaste;
   }

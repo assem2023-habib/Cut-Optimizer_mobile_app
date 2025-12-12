@@ -172,11 +172,21 @@ int _calculateTotalWasteQuantity(List<GroupCarpet> groups) {
     int groupMaxLength = group.maxLengthRef;
     int sumPathLoss = 0;
 
+    // Calculate path loss for each item (only positive waste)
     for (var item in group.items) {
-      sumPathLoss += (groupMaxLength - item.lengthRef) * item.width;
+      int pathLoss = (groupMaxLength - item.lengthRef) * item.width;
+      // Only add positive waste (when maxLengthRef > item.lengthRef)
+      if (pathLoss > 0) {
+        sumPathLoss += pathLoss;
+      }
     }
 
-    sumPathLoss += (group.maxWidth - group.totalWidth) * groupMaxLength;
+    // Calculate width waste (only positive waste)
+    int widthWaste = (group.maxWidth - group.totalWidth) * groupMaxLength;
+    if (widthWaste > 0) {
+      sumPathLoss += widthWaste;
+    }
+
     totalWaste += sumPathLoss;
   }
 
