@@ -5,13 +5,14 @@ import 'core/state/app_state_provider.dart';
 import 'core/providers/config_provider.dart';
 
 // Screens
-import 'features/home/screens/home_screen.dart';
+import 'features/home/screens/home_screen_wrapper.dart';
 import 'features/upload/screens/upload_screen.dart';
 import 'features/processing/screens/processing_options_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
 import 'features/statistics/screens/statistics_screen.dart';
 import 'features/results/screens/results_screen.dart';
+import 'features/checker/screens/checker_screen.dart';
 import 'models/group_carpet.dart';
 import 'models/carpet.dart';
 
@@ -53,8 +54,9 @@ class MyApp extends StatelessWidget {
               theme: AppTheme.lightTheme,
 
               routes: {
-                AppRoutes.home: (context) => const HomeScreen(),
+                AppRoutes.home: (context) => const HomeScreenWrapper(),
                 AppRoutes.upload: (context) => const UploadScreen(),
+                AppRoutes.checker: (context) => const CheckerScreen(),
                 '/processing-options': (context) {
                   final args =
                       ModalRoute.of(context)!.settings.arguments

@@ -41,6 +41,10 @@ class AppRoutes {
   /// صفحة جديدة
   static const String statistics = '/statistics';
 
+  /// صفحة فحص النظام (System Checker)
+  /// المسار: '/checker'
+  static const String checker = '/checker';
+
   // ========== Helper Methods ==========
 
   /// قائمة بجميع المسارات الرئيسية
@@ -53,6 +57,7 @@ class AppRoutes {
     results,
     reports,
     statistics,
+    checker,
   ];
 
   /// المسارات التي تحتاج بيانات معالجة (disabled حتى تتم المعالجة)
@@ -82,6 +87,8 @@ class AppRoutes {
         return 'reports';
       case statistics:
         return 'statistics';
+      case checker:
+        return 'checker';
       default:
         return 'home';
     }

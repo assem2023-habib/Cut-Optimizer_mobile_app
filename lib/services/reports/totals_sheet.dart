@@ -25,7 +25,17 @@ void createTotalsSheet(
   ];
 
   for (int i = 0; i < headers.length; i++) {
-    sheet.getRangeByIndex(1, i + 1).setText(headers[i]);
+    Range headerCell = sheet.getRangeByIndex(1, i + 1);
+    headerCell.setText(headers[i]);
+    headerCell.cellStyle.fontName = 'Arial';
+    headerCell.cellStyle.fontSize = 12;
+    headerCell.cellStyle.bold = true;
+    headerCell.cellStyle.backColor = '#4F81BD';
+    headerCell.cellStyle.fontColor = '#FFFFFF';
+    headerCell.cellStyle.borders.all.lineStyle = LineStyle.medium;
+    headerCell.cellStyle.borders.all.color = '#000000';
+    headerCell.cellStyle.hAlign = HAlignType.center;
+    headerCell.cellStyle.vAlign = VAlignType.center;
   }
 
   double totalOriginal = 0;
@@ -75,6 +85,19 @@ void createTotalsSheet(
   sheet.getRangeByIndex(2, 4).setNumber(totalRemaining);
   sheet.getRangeByIndex(2, 5).setNumber(consumptionRatio);
 
-  // Apply borders to all cells
-  ReportFormatting.applyBordersToAllCells(sheet);
+  // Apply borders and formatting to data rows
+  for (int c = 1; c <= headers.length; c++) {
+    Range cell = sheet.getRangeByIndex(2, c);
+    cell.cellStyle.borders.all.lineStyle = LineStyle.medium;
+    cell.cellStyle.borders.all.color = '#000000';
+    cell.cellStyle.hAlign = HAlignType.center;
+    cell.cellStyle.vAlign = VAlignType.center;
+    cell.cellStyle.fontName = 'Arial';
+    cell.cellStyle.fontSize = 11;
+  }
+
+  // Auto-fit columns
+  for (int c = 1; c <= headers.length; c++) {
+    sheet.autoFitColumn(c);
+  }
 }

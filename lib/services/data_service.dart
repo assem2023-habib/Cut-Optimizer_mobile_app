@@ -22,6 +22,7 @@ class DataService {
     List<Carpet>? originals,
     List<List<GroupCarpet>>? suggestedGroups,
     required MeasurementUnit measurementUnit,
+    int pathLength = 0,
   }) async {
     await _reportService.generateReport(
       groups: groups,
@@ -33,6 +34,7 @@ class DataService {
       originalGroups: originals,
       suggestedGroups: suggestedGroups,
       measurementUnit: measurementUnit,
+      pathLength: pathLength,
     );
   }
 }

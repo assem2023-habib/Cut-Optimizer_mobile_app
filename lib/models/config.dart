@@ -9,12 +9,14 @@ class MachineSize {
   final int minWidth;
   final int maxWidth;
   final int tolerance;
+  final int pathLength;
 
   MachineSize({
     required this.name,
     required this.minWidth,
     required this.maxWidth,
     this.tolerance = 0,
+    this.pathLength = 0,
   });
 
   factory MachineSize.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class MachineSize {
       minWidth: json['min_width'] as int,
       maxWidth: json['max_width'] as int,
       tolerance: json['tolerance'] as int? ?? 0,
+      pathLength: json['path_length'] as int? ?? 0,
     );
   }
 
@@ -32,6 +35,7 @@ class MachineSize {
       'min_width': minWidth,
       'max_width': maxWidth,
       'tolerance': tolerance,
+      'path_length': pathLength,
     };
   }
 }

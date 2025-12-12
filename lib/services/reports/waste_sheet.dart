@@ -9,6 +9,7 @@ void createWasteSheet(
   int maxWidth,
   List<Carpet>? originals,
   MeasurementUnit unit,
+  int pathLength = 0,
 ) {
   final Worksheet sheet = workbook.worksheets.addWithName('الهادر');
   sheet.isRightToLeft = true;
@@ -29,6 +30,7 @@ void createWasteSheet(
     'رقم القصة',
     'العرض الإجمالي$unitLabel',
     'الهادر في العرض$unitLabel',
+    'هادر العرض * الطول المرجعي$areaLabel',
     'المسار المرجعي$unitLabel',
     'هادر المسارات$areaLabel',
     'نسبة الهدر',
@@ -71,6 +73,7 @@ void createWasteSheet(
   double totalWasteWidth = 0;
   double totalMaxPath = 0;
   double totalPathWaste = 0;
+  double totalWasteWidthWithRefLength = 0;
   double totalWastePercentage = 0;
 
   for (var g in groups) {
@@ -82,6 +85,9 @@ void createWasteSheet(
     // Max path (reference path) = longest path in the group
     int maxPath = g.maxLengthRef;
 
+    // Waste width with reference length = wasteWidth * maxPath
+    double wasteWidthWithRefLength = wasteWidth * maxPath;
+
     // Path waste = sum of (maxPath - itemPath) * itemWidth for all items
     double pathWaste = 0;
     for (var item in g.items) {
@@ -89,7 +95,7 @@ void createWasteSheet(
     }
 
     // Add width waste area to path waste
-    pathWaste += wasteWidth * maxPath;
+    pathWaste += wasteWidthWithRefLength;
 
     // Waste percentage for this group = (pathWaste / totalOriginal) * 100
     double wastePercentage = totalOriginal > 0
@@ -104,6 +110,10 @@ void createWasteSheet(
     // If cm: cm * cm = cm2.
     // If m: m * m = m2.
     // So we need to convert pathWaste area.
+    double displayWasteWidthWithRefLength = unit == MeasurementUnit.cm
+        ? wasteWidthWithRefLength
+        : wasteWidthWithRefLength / 10000.0;
+
     double displayPathWaste = unit == MeasurementUnit.cm
         ? pathWaste
         : pathWaste / 10000.0;
@@ -112,6 +122,7 @@ void createWasteSheet(
     displayWidth = double.parse(displayWidth.toStringAsFixed(2));
     displayWasteWidth = double.parse(displayWasteWidth.toStringAsFixed(2));
     displayMaxPath = double.parse(displayMaxPath.toStringAsFixed(2));
+    displayWasteWidthWithRefLength = double.parse(displayWasteWidthWithRefLength.toStringAsFixed(2));
     displayPathWaste = double.parse(displayPathWaste.toStringAsFixed(2));
     wastePercentage = double.parse(wastePercentage.toStringAsFixed(2));
 
@@ -119,11 +130,12 @@ void createWasteSheet(
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
     sheet.getRangeByIndex(rowIndex, 2).setNumber(displayWidth);
     sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWasteWidth);
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayMaxPath);
-    sheet.getRangeByIndex(rowIndex, 5).setNumber(displayPathWaste);
+    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayWasteWidthWithRefLength);
+    sheet.getRangeByIndex(rowIndex, 5).setNumber(displayMaxPath);
+    sheet.getRangeByIndex(rowIndex, 6).setNumber(displayPathWaste);
 
     // Set percentage with % symbol
-    sheet.getRangeByIndex(rowIndex, 6).setText('$wastePercentage%');
+    sheet.getRangeByIndex(rowIndex, 7).setText('$wastePercentage%');
 
     // Apply borders to data rows
     for (int c = 1; c <= headers.length; c++) {
@@ -137,6 +149,7 @@ void createWasteSheet(
     totalWidth += displayWidth;
     totalWasteWidth += displayWasteWidth;
     totalMaxPath += displayMaxPath;
+    totalWasteWidthWithRefLength += displayWasteWidthWithRefLength;
     totalPathWaste += displayPathWaste;
     totalWastePercentage += wastePercentage;
 
@@ -149,6 +162,7 @@ void createWasteSheet(
   totalWidth = double.parse(totalWidth.toStringAsFixed(2));
   totalWasteWidth = double.parse(totalWasteWidth.toStringAsFixed(2));
   totalMaxPath = double.parse(totalMaxPath.toStringAsFixed(2));
+  totalWasteWidthWithRefLength = double.parse(totalWasteWidthWithRefLength.toStringAsFixed(2));
   totalPathWaste = double.parse(totalPathWaste.toStringAsFixed(2));
   totalWastePercentage = double.parse(totalWastePercentage.toStringAsFixed(2));
 
@@ -156,11 +170,12 @@ void createWasteSheet(
   sheet.getRangeByIndex(rowIndex, 1).setText('المجموع');
   sheet.getRangeByIndex(rowIndex, 2).setNumber(totalWidth);
   sheet.getRangeByIndex(rowIndex, 3).setNumber(totalWasteWidth);
-  sheet.getRangeByIndex(rowIndex, 4).setNumber(totalMaxPath);
-  sheet.getRangeByIndex(rowIndex, 5).setNumber(totalPathWaste);
+  sheet.getRangeByIndex(rowIndex, 4).setNumber(totalWasteWidthWithRefLength);
+  sheet.getRangeByIndex(rowIndex, 5).setNumber(totalMaxPath);
+  sheet.getRangeByIndex(rowIndex, 6).setNumber(totalPathWaste);
 
   // Set total percentage with % symbol
-  sheet.getRangeByIndex(rowIndex, 6).setText('$totalWastePercentage%');
+  sheet.getRangeByIndex(rowIndex, 7).setText('$totalWastePercentage%');
 
   // Apply borders and bold style to total row
   for (int c = 1; c <= headers.length; c++) {

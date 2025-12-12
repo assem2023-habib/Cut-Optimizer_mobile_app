@@ -25,6 +25,7 @@ class ReportService {
     List<Carpet>? originalGroups,
     List<List<GroupCarpet>>? suggestedGroups,
     required MeasurementUnit measurementUnit,
+    int pathLength = 0,
   }) async {
     final Workbook workbook = Workbook();
 
@@ -68,6 +69,7 @@ class ReportService {
       maxWidth,
       originalGroups,
       measurementUnit,
+      pathLength,
     );
 
     // 7. Remaining Suggestions

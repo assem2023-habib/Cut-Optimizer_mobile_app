@@ -15,6 +15,7 @@ class AlgorithmService {
     int tolerance = 0,
     GroupingMode selectedMode = GroupingMode.allCombinations,
     SortType selectedSortType = SortType.sortByWidth,
+    int pathLength = 0,
   }) {
     // Sort carpets based on selected type
     if (selectedSortType == SortType.sortByWidth) {
@@ -115,6 +116,7 @@ class AlgorithmService {
           groupId: groupId,
           selectedMode: selectedMode,
           startIndex: startIndex,
+          pathLength: pathLength,
         );
 
         List<GroupCarpet> newGroups = result.groups;
@@ -158,6 +160,7 @@ class AlgorithmService {
             selectedMode: GroupingMode
                 .allCombinations, // Force all combinations here as per python logic
             startIndex: startIndex,
+            pathLength: pathLength,
           );
           group.addAll(result.groups);
           groupId = result.nextGroupId;
@@ -194,6 +197,7 @@ class AlgorithmService {
     required int groupId,
     required GroupingMode selectedMode,
     required int startIndex,
+    int pathLength = 0,
   }) {
     List<GroupCarpet> groups = [];
     int currentGroupId = groupId;
@@ -265,6 +269,7 @@ class AlgorithmService {
         currentGroupId,
         minWidth,
         maxWidth,
+        pathLength,
       );
       if (result != null) {
         groups.add(result.group);
@@ -282,6 +287,7 @@ class AlgorithmService {
     int currentGroupId,
     int minWidth,
     int maxWidth,
+    int pathLength = 0,
   ) {
     List<Carpet> elements = [main, ...partners];
     Map<int, int> elementsCounts = {};
@@ -387,7 +393,14 @@ class AlgorithmService {
       groupId: currentGroupId,
       items: usedItems,
     );
+    
+    // Validate group width and path length constraints
     if (newGroup.isValid(minWidth, maxWidth)) {
+      // Check pathLength constraint if specified (pathLength > 0)
+      if (pathLength > 0 && newGroup.maxLengthRef > pathLength) {
+        rollbackConsumption(rollbackData);
+        return null;
+      }
       return ProcessResult(newGroup, currentGroupId + 1);
     }
 

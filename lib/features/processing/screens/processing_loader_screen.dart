@@ -83,6 +83,15 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
 
       List<Carpet> originalCarpets = carpets.map((c) => c.clone()).toList();
 
+      // Get pathLength from the selected machine size
+      int pathLength = 0;
+      for (var size in widget.config.machineSizes) {
+        if (size.maxWidth == widget.maxWidth) {
+          pathLength = size.pathLength;
+          break;
+        }
+      }
+
       List<GroupCarpet> groups = _algorithmService.buildGroups(
         carpets: carpets,
         minWidth: widget.minWidth,
@@ -90,6 +99,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
         tolerance: widget.tolerance,
         selectedMode: widget.groupingMode,
         selectedSortType: widget.sortType,
+        pathLength: pathLength,
       );
 
       setState(() {
@@ -127,6 +137,15 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
           .split('.')[0];
       String outputPath = '${appDir.path}/cut_optimizer_result_$timestamp.xlsx';
 
+      // Get pathLength from the selected machine size
+      int pathLength = 0;
+      for (var size in widget.config.machineSizes) {
+        if (size.maxWidth == widget.maxWidth) {
+          pathLength = size.pathLength;
+          break;
+        }
+      }
+
       await _dataService.writeOutputExcel(
         path: outputPath,
         groups: groups,
@@ -137,6 +156,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
         originals: originalCarpets,
         suggestedGroups: suggestedGroups,
         measurementUnit: widget.config.measurementUnit,
+        pathLength: pathLength,
       );
 
       setState(() {
