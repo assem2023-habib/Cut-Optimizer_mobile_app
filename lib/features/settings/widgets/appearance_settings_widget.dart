@@ -92,53 +92,98 @@ class AppearanceSettingsWidget extends StatelessWidget {
               ),
             )
           else
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1,
-              ),
-              itemCount: BackgroundService.presetGradients.length,
-              itemBuilder: (context, index) {
-                final gradient = BackgroundService.presetGradients[index];
-                final isSelected = config.backgroundImage == gradient.id;
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: BackgroundService.presetGradients.length,
+                itemBuilder: (context, index) {
+                  final gradient = BackgroundService.presetGradients[index];
+                  final isSelected = config.backgroundImage == gradient.id;
 
-                return GestureDetector(
-                  onTap: () => onGradientChanged(gradient.id),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: gradient.colors,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      border: isSelected
-                          ? Border.all(color: Colors.white, width: 3)
-                          : Border.all(color: Colors.white.withOpacity(0.2)),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: gradient.colors.first.withOpacity(0.5),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                              ),
-                            ]
-                          : null,
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: 12,
+                      left: index == 0 ? 0 : 0,
                     ),
-                    child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 20)
-                        : null,
-                  ),
-                );
-              },
+                    child: GestureDetector(
+                      onTap: () => onGradientChanged(gradient.id),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        width: isSelected ? 110 : 90,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: gradient.colors,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: isSelected
+                              ? Border.all(color: Colors.white, width: 3)
+                              : Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 2,
+                                ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: gradient.colors.first.withOpacity(
+                                      0.6,
+                                    ),
+                                    blurRadius: 12,
+                                    spreadRadius: 2,
+                                  ),
+                                ]
+                              : [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                        ),
+                        child: Center(
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.white,
+                                  size: 28,
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
 
-          const SizedBox(height: 12),
-          // Hint
+          const SizedBox(height: 8),
+          // Scrolling hint for gradients
+          if (config.backgroundType == BackgroundType.gradient)
+            Row(
+              children: [
+                Icon(
+                  Icons.swipe,
+                  size: 16,
+                  color: SettingsTheme.cardSubtext.color,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Swipe left or right to explore more gradients',
+                    style: SettingsTheme.cardSubtext.copyWith(
+                      fontStyle: FontStyle.italic,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          const SizedBox(height: 4),
+          // General hint
           Row(
             children: [
               const Text('💡 ', style: TextStyle(fontSize: 14)),
