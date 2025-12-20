@@ -2,7 +2,6 @@ import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import '../../models/config.dart';
-import '../report_formatting.dart';
 
 void createTotalsSheet({
   required Workbook workbook,
@@ -12,6 +11,7 @@ void createTotalsSheet({
   required MeasurementUnit unit,
   required int maxWidth,
   required int pathLength,
+  required PairOddMode pairOddMode,
 }) {
   final Worksheet sheet = workbook.worksheets.addWithName('الإجماليات');
   sheet.isRightToLeft = true;
@@ -48,14 +48,33 @@ void createTotalsSheet({
   int totalProducedQuantity = _calculateTotalProducedQuantity(groups);
   int totalWasteQuantity = _calculateTotalWasteQuantity(groups, maxWidth);
 
-  // Calculate percentages
-  String producedPercentage = totalOrderQuantity > 0
-      ? "${(totalProducedQuantity / totalOrderQuantity * 100).toStringAsFixed(2)}%"
-      : "0.00%";
+  // Apply multiplier for Pair Mode (x2)
+  int multiplier = (pairOddMode == PairOddMode.pair) ? 2 : 1;
 
-  String wastePercentage = totalOrderQuantity > 0 && totalWasteQuantity > 0
-      ? "${(totalWasteQuantity / totalOrderQuantity * 100).toStringAsFixed(2)}%"
-      : "0.00%";
+  if (multiplier > 1) {
+    totalOrderQuantity *= multiplier;
+    totalRemainingQuantity *= multiplier;
+    totalProducedQuantity *= multiplier;
+    totalWasteQuantity *= multiplier;
+  }
+
+  // Calculate percentages
+  double rawProducedPercentage = totalOrderQuantity > 0
+      ? (totalProducedQuantity / totalOrderQuantity * 100)
+      : 0.0;
+
+  double rawWastePercentage = totalOrderQuantity > 0 && totalWasteQuantity > 0
+      ? (totalWasteQuantity / totalOrderQuantity * 100)
+      : 0.0;
+
+  // Apply multiplier to percentages as requested
+  if (multiplier > 1) {
+    rawProducedPercentage *= multiplier;
+    rawWastePercentage *= multiplier;
+  }
+
+  String producedPercentage = "${rawProducedPercentage.toStringAsFixed(2)}%";
+  String wastePercentage = "${rawWastePercentage.toStringAsFixed(2)}%";
 
   // Convert to display units
   double displayOrderQuantity = unit == MeasurementUnit.cm

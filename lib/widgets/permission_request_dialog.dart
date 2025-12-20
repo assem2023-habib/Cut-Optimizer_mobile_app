@@ -5,10 +5,8 @@ import '../services/permission_service.dart';
 class PermissionRequestDialog extends StatefulWidget {
   final VoidCallback onPermissionsGranted;
 
-  const PermissionRequestDialog({
-    Key? key,
-    required this.onPermissionsGranted,
-  }) : super(key: key);
+  const PermissionRequestDialog({Key? key, required this.onPermissionsGranted})
+    : super(key: key);
 
   @override
   State<PermissionRequestDialog> createState() =>
@@ -27,10 +25,11 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
 
   Future<void> _initializePermissions() async {
     setState(() => _isLoading = true);
-    
+
     final statuses = await Future.wait([
       Permission.camera.status,
       Permission.storage.status,
+      Permission.manageExternalStorage.status,
       Permission.location.status,
     ]);
 
@@ -38,7 +37,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
       _permissionStatuses = {
         'camera': statuses[0],
         'storage': statuses[1],
-        'location': statuses[2],
+        'manageExternalStorage': statuses[2],
+        'location': statuses[3],
       };
       _isLoading = false;
     });
@@ -53,6 +53,9 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
       _permissionStatuses = {
         'camera': statuses[Permission.camera] ?? PermissionStatus.denied,
         'storage': statuses[Permission.storage] ?? PermissionStatus.denied,
+        'manageExternalStorage':
+            statuses[Permission.manageExternalStorage] ??
+            PermissionStatus.denied,
         'location': statuses[Permission.location] ?? PermissionStatus.denied,
       };
       _isLoading = false;
@@ -79,18 +82,11 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.lock_outline,
-              size: 48,
-              color: Colors.blue,
-            ),
+            const Icon(Icons.lock_outline, size: 48, color: Colors.blue),
             const SizedBox(height: 16),
             const Text(
               'طلب الصلاحيات المطلوبة',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -109,21 +105,36 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                     icon: Icons.camera_alt,
                     title: 'الكاميرا',
                     description: 'لالتقاط صور السجاد',
-                    status: _permissionStatuses['camera'] ?? PermissionStatus.denied,
+                    status:
+                        _permissionStatuses['camera'] ??
+                        PermissionStatus.denied,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildPermissionItem(
+                    icon: Icons.folder_open,
+                    title: 'الوصول الكامل للملفات',
+                    description: 'مطلوب في أندرويد 11+ لإدارة ملفات Excel',
+                    status:
+                        _permissionStatuses['manageExternalStorage'] ??
+                        PermissionStatus.denied,
                   ),
                   const SizedBox(height: 12),
                   _buildPermissionItem(
                     icon: Icons.storage,
                     title: 'التخزين',
                     description: 'لحفظ الملفات والتقارير',
-                    status: _permissionStatuses['storage'] ?? PermissionStatus.denied,
+                    status:
+                        _permissionStatuses['storage'] ??
+                        PermissionStatus.denied,
                   ),
                   const SizedBox(height: 12),
                   _buildPermissionItem(
                     icon: Icons.location_on,
                     title: 'الموقع',
                     description: 'لتحديد موقع المستخدم',
-                    status: _permissionStatuses['location'] ?? PermissionStatus.denied,
+                    status:
+                        _permissionStatuses['location'] ??
+                        PermissionStatus.denied,
                   ),
                 ],
               ),
@@ -132,7 +143,9 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                  onPressed: _isLoading
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300],
                     padding: const EdgeInsets.symmetric(
@@ -160,8 +173,9 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(
@@ -210,10 +224,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                 ),
                 Text(
                   description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),

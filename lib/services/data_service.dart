@@ -8,7 +8,10 @@ class DataService {
   final ExcelService _excelService = ExcelService();
   final ReportService _reportService = ReportService();
 
-  Future<List<Carpet>> readInputExcel(String path, {PairOddMode? pairOddMode}) async {
+  Future<List<Carpet>> readInputExcel(
+    String path, {
+    PairOddMode? pairOddMode,
+  }) async {
     return await _excelService.readInputExcel(path, pairOddMode: pairOddMode);
   }
 
@@ -23,6 +26,7 @@ class DataService {
     List<List<GroupCarpet>>? suggestedGroups,
     required MeasurementUnit measurementUnit,
     int pathLength = 0,
+    PairOddMode pairOddMode = PairOddMode.disabled,
   }) async {
     await _reportService.generateReport(
       groups: groups,
@@ -35,6 +39,7 @@ class DataService {
       suggestedGroups: suggestedGroups,
       measurementUnit: measurementUnit,
       pathLength: pathLength,
+      pairOddMode: pairOddMode,
     );
   }
 }

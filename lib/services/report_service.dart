@@ -26,6 +26,7 @@ class ReportService {
     List<List<GroupCarpet>>? suggestedGroups,
     required MeasurementUnit measurementUnit,
     int pathLength = 0,
+    PairOddMode pairOddMode = PairOddMode.disabled,
   }) async {
     final Workbook workbook = Workbook();
 
@@ -53,6 +54,7 @@ class ReportService {
       unit: measurementUnit,
       maxWidth: maxWidth,
       pathLength: pathLength,
+      pairOddMode: pairOddMode,
     );
 
     // 5. Audit

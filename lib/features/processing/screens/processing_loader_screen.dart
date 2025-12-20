@@ -153,6 +153,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
         suggestedGroups: suggestedGroups,
         measurementUnit: widget.config.measurementUnit,
         pathLength: pathLength,
+        pairOddMode: pairOddMode,
       );
 
       setState(() {

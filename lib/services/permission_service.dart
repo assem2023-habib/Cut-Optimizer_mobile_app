@@ -11,6 +11,7 @@ class PermissionService {
     final permissions = [
       Permission.camera,
       Permission.storage,
+      Permission.manageExternalStorage, // Added for Android 11+
       Permission.location,
     ];
 
@@ -25,6 +26,11 @@ class PermissionService {
 
   /// Request storage permission
   static Future<PermissionStatus> requestStoragePermission() async {
+    // Try requesting Manage External Storage for Android 11+
+    final manageStatus = await Permission.manageExternalStorage.request();
+    if (manageStatus.isGranted) return manageStatus;
+
+    // Fallback for older versions or if denied
     return await Permission.storage.request();
   }
 
@@ -41,6 +47,7 @@ class PermissionService {
 
   /// Check if storage permission is granted
   static Future<bool> isStoragePermissionGranted() async {
+    if (await Permission.manageExternalStorage.isGranted) return true;
     final status = await Permission.storage.status;
     return status.isGranted;
   }
