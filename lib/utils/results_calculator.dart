@@ -139,7 +139,7 @@ class ResultsCalculator {
     // Path waste = sum of (maxPath - itemPath) * itemWidth for all items
     double pathWaste = 0;
     for (var item in group.items) {
-      double itemPathLoss = (maxPath - item.lengthRef) * item.width;
+      double itemPathLoss = (maxPath - item.lengthRef) * item.width.toDouble();
       // Only add positive waste (when maxPath > item.lengthRef)
       if (itemPathLoss > 0) {
         pathWaste += itemPathLoss;
