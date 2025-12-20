@@ -39,7 +39,11 @@ class EqualProductResult {
   EqualProductResult(this.xList, this.kMax);
 }
 
-EqualProductResult equalProductsSolution(List<int> a, List<int> xMax) {
+EqualProductResult equalProductsSolution(
+  List<int> a,
+  List<int> xMax, {
+  int? maxProduct,
+}) {
   int n = a.length;
   if (n == 0 || n != xMax.length) {
     return EqualProductResult(null, 0);
@@ -64,8 +68,14 @@ EqualProductResult equalProductsSolution(List<int> a, List<int> xMax) {
       limits.add(limit);
     }
   }
-  
+
   int kMax = limits.isEmpty ? 0 : limits.reduce(min).floor();
+
+  // Apply maxProduct constraint if provided
+  if (maxProduct != null && maxProduct > 0) {
+    int kFromMaxProduct = maxProduct ~/ (l * g);
+    kMax = min(kMax, kFromMaxProduct);
+  }
 
   if (kMax <= 0) {
     return EqualProductResult(null, 0);
@@ -81,7 +91,11 @@ EqualProductResult equalProductsSolution(List<int> a, List<int> xMax) {
 }
 
 EqualProductResult equalProductsSolutionWithTolerance(
-    List<int> a, List<int> xMax, int delta) {
+  List<int> a,
+  List<int> xMax,
+  int delta, {
+  int? maxProduct,
+}) {
   int n = a.length;
   if (n == 0 || n != xMax.length) {
     return EqualProductResult(null, 0);
@@ -93,11 +107,21 @@ EqualProductResult equalProductsSolutionWithTolerance(
     return EqualProductResult(null, 0);
   }
   if (n == 1) {
-    return EqualProductResult([xMax[0]], xMax[0]);
+    int xi = xMax[0];
+    if (maxProduct != null && maxProduct > 0) {
+      xi = min(xi, maxProduct ~/ a[0]);
+    }
+    return EqualProductResult([xi], xi);
   }
 
   int aRef = a[0];
   int x0Max = xMax[0];
+
+  // Apply maxProduct constraint to x0Max
+  if (maxProduct != null && maxProduct > 0) {
+    int x0FromMaxProduct = maxProduct ~/ aRef;
+    x0Max = min(x0Max, x0FromMaxProduct);
+  }
 
   for (int i = 1; i < n; i++) {
     int limit = ((a[i] * xMax[i] + delta) / aRef).floor();

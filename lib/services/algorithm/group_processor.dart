@@ -44,9 +44,14 @@ class GroupProcessor {
 
     EqualProductResult eqResult;
     if (tolerance == 0) {
-      eqResult = equalProductsSolution(a, xMax);
+      eqResult = equalProductsSolution(a, xMax, maxProduct: pathLength);
     } else {
-      eqResult = equalProductsSolutionWithTolerance(a, xMax, tolerance);
+      eqResult = equalProductsSolutionWithTolerance(
+        a,
+        xMax,
+        tolerance,
+        maxProduct: pathLength,
+      );
     }
 
     if (eqResult.xList == null || eqResult.kMax <= 0) {

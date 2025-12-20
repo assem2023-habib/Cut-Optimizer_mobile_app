@@ -31,7 +31,6 @@ class ResultsFloatingButton extends StatelessWidget {
                 selectedMode: GroupingMode.allCombinations, // قيمة افتراضية
                 selectedSortType: SortType.sortByWidth, // قيمة افتراضية
                 measurementUnit: MeasurementUnit.m2, // قيمة افتراضية
-                pairOddMode: PairOddMode.disabled, // قيمة افتراضية
               );
 
               Navigator.push(

@@ -18,6 +18,7 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
   final _maxWidthController = TextEditingController();
   final _toleranceController = TextEditingController();
   final _pathLengthController = TextEditingController();
+  PairOddMode _selectedPairOddMode = PairOddMode.disabled;
 
   @override
   void dispose() {
@@ -37,6 +38,7 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
         maxWidth: int.parse(_maxWidthController.text),
         tolerance: int.parse(_toleranceController.text),
         pathLength: int.parse(_pathLengthController.text),
+        pairOddMode: _selectedPairOddMode,
       );
       Navigator.of(context).pop(machineSize);
     }
@@ -165,6 +167,8 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
                       return null;
                     },
                   ),
+                  SizedBox(height: 12),
+                  _buildPairOddDropdown(),
                   SizedBox(height: 20),
                   // Buttons
                   Row(
@@ -258,6 +262,54 @@ class _AddMachineSizeDialogState extends State<AddMachineSizeDialog> {
               borderSide: BorderSide(color: SettingsTheme.neonGreen, width: 2),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPairOddDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pair/Odd Mode',
+          style: SettingsTheme.cardText.copyWith(fontSize: 14),
+        ),
+        SizedBox(height: 8),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: SettingsTheme.lightGlass,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<PairOddMode>(
+              value: _selectedPairOddMode,
+              dropdownColor: SettingsTheme.darkGlass,
+              isExpanded: true,
+              style: SettingsTheme.cardText,
+              onChanged: (mode) {
+                if (mode != null) {
+                  setState(() => _selectedPairOddMode = mode);
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                  value: PairOddMode.disabled,
+                  child: Text('Disabled'),
+                ),
+                DropdownMenuItem(
+                  value: PairOddMode.pair,
+                  child: Text('Pair (Qty / 2)'),
+                ),
+                DropdownMenuItem(
+                  value: PairOddMode.odd,
+                  child: Text('Odd (As is)'),
+                ),
+              ],
+            ),
           ),
         ),
       ],

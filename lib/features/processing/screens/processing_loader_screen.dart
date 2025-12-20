@@ -56,6 +56,17 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
 
   Future<void> _startProcessing() async {
     try {
+      // Get loom details
+      int pathLength = 0;
+      PairOddMode pairOddMode = PairOddMode.disabled;
+      for (var size in widget.config.machineSizes) {
+        if (size.maxWidth == widget.maxWidth) {
+          pathLength = size.pathLength;
+          pairOddMode = size.pairOddMode;
+          break;
+        }
+      }
+
       // Step 1: Read input Excel file
       setState(() {
         _statusMessage = 'قراءة ملف Excel...';
@@ -64,7 +75,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
 
       List<Carpet> carpets = await _dataService.readInputExcel(
         widget.filePath,
-        pairOddMode: widget.config.pairOddMode,
+        pairOddMode: pairOddMode,
       );
 
       // Free up memory after reading
@@ -85,15 +96,6 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
       });
 
       List<Carpet> originalCarpets = carpets.map((c) => c.clone()).toList();
-
-      // Get pathLength from the selected machine size
-      int pathLength = 0;
-      for (var size in widget.config.machineSizes) {
-        if (size.maxWidth == widget.maxWidth) {
-          pathLength = size.pathLength;
-          break;
-        }
-      }
 
       List<GroupCarpet> groups = _algorithmService.buildGroups(
         carpets: carpets,

@@ -4,13 +4,15 @@ import '../../models/group_carpet.dart';
 import '../../models/config.dart';
 import '../report_formatting.dart';
 
-void createTotalsSheet(
-  Workbook workbook,
-  List<Carpet>? originalGroups,
-  List<GroupCarpet> groups,
-  List<Carpet> remaining,
-  MeasurementUnit unit,
-) {
+void createTotalsSheet({
+  required Workbook workbook,
+  required List<Carpet>? originalGroups,
+  required List<GroupCarpet> groups,
+  required List<Carpet> remaining,
+  required MeasurementUnit unit,
+  required int maxWidth,
+  required int pathLength,
+}) {
   final Worksheet sheet = workbook.worksheets.addWithName('الإجماليات');
   sheet.isRightToLeft = true;
 
@@ -44,7 +46,7 @@ void createTotalsSheet(
   int totalOrderQuantity = _calculateTotalOrderQuantity(originalGroups, groups);
   int totalRemainingQuantity = _calculateTotalRemainingQuantity(remaining);
   int totalProducedQuantity = _calculateTotalProducedQuantity(groups);
-  int totalWasteQuantity = _calculateTotalWasteQuantity(groups);
+  int totalWasteQuantity = _calculateTotalWasteQuantity(groups, maxWidth);
 
   // Calculate percentages
   String producedPercentage = totalOrderQuantity > 0
@@ -56,31 +58,47 @@ void createTotalsSheet(
       : "0.00%";
 
   // Convert to display units
-  double displayOrderQuantity = unit == MeasurementUnit.cm 
-      ? totalOrderQuantity.toDouble() 
+  double displayOrderQuantity = unit == MeasurementUnit.cm
+      ? totalOrderQuantity.toDouble()
       : totalOrderQuantity / 10000.0;
-  double displayProducedQuantity = unit == MeasurementUnit.cm 
-      ? totalProducedQuantity.toDouble() 
+  double displayProducedQuantity = unit == MeasurementUnit.cm
+      ? totalProducedQuantity.toDouble()
       : totalProducedQuantity / 10000.0;
-  double displayRemainingQuantity = unit == MeasurementUnit.cm 
-      ? totalRemainingQuantity.toDouble() 
+  double displayRemainingQuantity = unit == MeasurementUnit.cm
+      ? totalRemainingQuantity.toDouble()
       : totalRemainingQuantity / 10000.0;
-  double displayWasteQuantity = unit == MeasurementUnit.cm 
-      ? totalWasteQuantity.toDouble() 
+  double displayWasteQuantity = unit == MeasurementUnit.cm
+      ? totalWasteQuantity.toDouble()
       : totalWasteQuantity / 10000.0;
 
   // Round values to 2 decimal places
   displayOrderQuantity = double.parse(displayOrderQuantity.toStringAsFixed(2));
-  displayProducedQuantity = double.parse(displayProducedQuantity.toStringAsFixed(2));
-  displayRemainingQuantity = double.parse(displayRemainingQuantity.toStringAsFixed(2));
+  displayProducedQuantity = double.parse(
+    displayProducedQuantity.toStringAsFixed(2),
+  );
+  displayRemainingQuantity = double.parse(
+    displayRemainingQuantity.toStringAsFixed(2),
+  );
   displayWasteQuantity = double.parse(displayWasteQuantity.toStringAsFixed(2));
 
   // Write data
   sheet.getRangeByIndex(2, 1).setText('');
-  sheet.getRangeByIndex(2, 2).setNumber(displayOrderQuantity);
-  sheet.getRangeByIndex(2, 3).setNumber(displayProducedQuantity);
-  sheet.getRangeByIndex(2, 4).setNumber(displayRemainingQuantity);
-  sheet.getRangeByIndex(2, 5).setNumber(displayWasteQuantity);
+
+  Range orderRange = sheet.getRangeByIndex(2, 2);
+  orderRange.setNumber(displayOrderQuantity);
+  orderRange.numberFormat = '#,##0.00';
+
+  Range producedRange = sheet.getRangeByIndex(2, 3);
+  producedRange.setNumber(displayProducedQuantity);
+  producedRange.numberFormat = '#,##0.00';
+
+  Range remainingRange = sheet.getRangeByIndex(2, 4);
+  remainingRange.setNumber(displayRemainingQuantity);
+  remainingRange.numberFormat = '#,##0.00';
+
+  Range wasteRange = sheet.getRangeByIndex(2, 5);
+  wasteRange.setNumber(displayWasteQuantity);
+  wasteRange.numberFormat = '#,##0.00';
   sheet.getRangeByIndex(2, 6).setText(producedPercentage);
   sheet.getRangeByIndex(2, 7).setText(wastePercentage);
 
@@ -106,7 +124,7 @@ int _calculateTotalOrderQuantity(
   List<GroupCarpet> groups,
 ) {
   int total = 0;
-  
+
   if (originalGroups != null && originalGroups.isNotEmpty) {
     for (var carpet in originalGroups) {
       total += carpet.area * carpet.qty;
@@ -126,7 +144,7 @@ int _calculateTotalOrderQuantity(
 
 int _calculateTotalRemainingQuantity(List<Carpet> remaining) {
   int total = 0;
-  
+
   for (var carpet in remaining) {
     if (carpet.repeated.isNotEmpty) {
       for (var rep in carpet.repeated) {
@@ -141,23 +159,23 @@ int _calculateTotalRemainingQuantity(List<Carpet> remaining) {
       }
     }
   }
-  
+
   return total;
 }
 
 int _calculateTotalProducedQuantity(List<GroupCarpet> groups) {
   int total = 0;
-  
+
   for (var group in groups) {
     for (var item in group.items) {
       total += item.area;
     }
   }
-  
+
   return total;
 }
 
-int _calculateTotalWasteQuantity(List<GroupCarpet> groups) {
+int _calculateTotalWasteQuantity(List<GroupCarpet> groups, int loomWidth) {
   if (groups.isEmpty) {
     return 0;
   }
@@ -182,7 +200,7 @@ int _calculateTotalWasteQuantity(List<GroupCarpet> groups) {
     }
 
     // Calculate width waste (only positive waste)
-    int widthWaste = (group.maxWidth - group.totalWidth) * groupMaxLength;
+    int widthWaste = (loomWidth - group.totalWidth) * groupMaxLength;
     if (widthWaste > 0) {
       sumPathLoss += widthWaste;
     }

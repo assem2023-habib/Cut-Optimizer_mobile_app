@@ -7,7 +7,6 @@ import '../widgets/measurement_unit.dart';
 import '../widgets/prep_codes.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/info_box.dart';
-import '../widgets/pair_odd_settings.dart';
 import '../../../core/services/config_service.dart';
 
 /// شاشة الإعدادات (Settings Screen) - التصميم الجديد
@@ -148,18 +147,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onUnitChanged: (unit) {
                 setState(() {
                   _config.measurementUnit = unit;
-                });
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            // 3. إعدادات زوجي/فردي
-            PairOddSettings(
-              selectedMode: _config.pairOddMode,
-              onModeChanged: (mode) {
-                setState(() {
-                  _config.pairOddMode = mode;
                 });
               },
             ),

@@ -46,11 +46,13 @@ class ReportService {
 
     // 4. Totals
     createTotalsSheet(
-      workbook,
-      originalGroups,
-      groups,
-      remaining,
-      measurementUnit,
+      workbook: workbook,
+      originalGroups: originalGroups,
+      groups: groups,
+      remaining: remaining,
+      unit: measurementUnit,
+      maxWidth: maxWidth,
+      pathLength: pathLength,
     );
 
     // 5. Audit

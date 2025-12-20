@@ -12,6 +12,7 @@ class MachineSize {
   final int maxWidth;
   final int tolerance;
   final int pathLength;
+  final PairOddMode pairOddMode;
 
   MachineSize({
     required this.name,
@@ -19,6 +20,7 @@ class MachineSize {
     required this.maxWidth,
     this.tolerance = 0,
     this.pathLength = 0,
+    this.pairOddMode = PairOddMode.disabled,
   });
 
   factory MachineSize.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,9 @@ class MachineSize {
       maxWidth: json['max_width'] as int,
       tolerance: json['tolerance'] as int? ?? 0,
       pathLength: json['path_length'] as int? ?? 0,
+      pairOddMode: Config.parsePairOddMode(
+        json['pair_odd_mode'] as String? ?? 'disabled',
+      ),
     );
   }
 
@@ -38,6 +43,7 @@ class MachineSize {
       'max_width': maxWidth,
       'tolerance': tolerance,
       'path_length': pathLength,
+      'pair_odd_mode': Config.pairOddModeToString(pairOddMode),
     };
   }
 }
@@ -58,7 +64,6 @@ class Config {
   GroupingMode selectedMode;
   SortType selectedSortType;
   MeasurementUnit measurementUnit;
-  PairOddMode pairOddMode;
 
   Config({
     required this.minWidth,
@@ -76,7 +81,6 @@ class Config {
     required this.selectedMode,
     required this.selectedSortType,
     required this.measurementUnit,
-    required this.pairOddMode,
   });
 
   factory Config.fromJson(Map<String, dynamic> json) {
@@ -102,7 +106,6 @@ class Config {
       measurementUnit: _parseMeasurementUnit(
         json['measurement_unit'] as String? ?? 'm2',
       ),
-      pairOddMode: _parsePairOddMode(json['pair_odd_mode'] as String? ?? 'disabled'),
     );
   }
 
@@ -123,7 +126,6 @@ class Config {
       'selected_mode': _groupingModeToString(selectedMode),
       'selected_sort_type': _sortTypeToString(selectedSortType),
       'measurement_unit': _measurementUnitToString(measurementUnit),
-      'pair_odd_mode': _pairOddModeToString(pairOddMode),
     };
   }
 
@@ -215,7 +217,7 @@ class Config {
     }
   }
 
-  static PairOddMode _parsePairOddMode(String value) {
+  static PairOddMode parsePairOddMode(String value) {
     switch (value) {
       case 'pair':
         return PairOddMode.pair;
@@ -226,7 +228,7 @@ class Config {
     }
   }
 
-  static String _pairOddModeToString(PairOddMode mode) {
+  static String pairOddModeToString(PairOddMode mode) {
     switch (mode) {
       case PairOddMode.disabled:
         return 'disabled';
@@ -263,7 +265,6 @@ class Config {
       selectedMode: GroupingMode.allCombinations,
       selectedSortType: SortType.sortByWidth,
       measurementUnit: MeasurementUnit.m2,
-      pairOddMode: PairOddMode.disabled,
     );
   }
 }

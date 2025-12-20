@@ -26,6 +26,7 @@ class _LoomSettingsState extends State<LoomSettings> {
   final _maxController = TextEditingController();
   final _toleranceController = TextEditingController();
   final _pathLengthController = TextEditingController();
+  PairOddMode _selectedPairOddMode = PairOddMode.disabled;
 
   @override
   void dispose() {
@@ -52,6 +53,7 @@ class _LoomSettingsState extends State<LoomSettings> {
     _maxController.clear();
     _toleranceController.clear();
     _pathLengthController.clear();
+    _selectedPairOddMode = PairOddMode.disabled;
   }
 
   void _addLoom() {
@@ -89,6 +91,7 @@ class _LoomSettingsState extends State<LoomSettings> {
 
     setState(() {
       _editingIndex = index;
+      _selectedPairOddMode = loom.pairOddMode;
     });
   }
 
@@ -203,6 +206,12 @@ class _LoomSettingsState extends State<LoomSettings> {
               maxController: _maxController,
               toleranceController: _toleranceController,
               pathLengthController: _pathLengthController,
+              selectedPairOddMode: _selectedPairOddMode,
+              onPairOddChanged: (mode) {
+                setState(() {
+                  _selectedPairOddMode = mode;
+                });
+              },
               onAdd: _addLoom,
               onCancel: _toggleAddForm,
             ),
@@ -223,6 +232,12 @@ class _LoomSettingsState extends State<LoomSettings> {
                       minController: _minController,
                       maxController: _maxController,
                       toleranceController: _toleranceController,
+                      selectedPairOddMode: _selectedPairOddMode,
+                      onPairOddChanged: (mode) {
+                        setState(() {
+                          _selectedPairOddMode = mode;
+                        });
+                      },
                       onSave: _saveEdit,
                       onCancel: _cancelEdit,
                     )
@@ -246,6 +261,8 @@ class AddLoomForm extends StatelessWidget {
   final TextEditingController maxController;
   final TextEditingController toleranceController;
   final TextEditingController pathLengthController;
+  final PairOddMode selectedPairOddMode;
+  final Function(PairOddMode) onPairOddChanged;
   final VoidCallback onAdd;
   final VoidCallback onCancel;
 
@@ -256,6 +273,8 @@ class AddLoomForm extends StatelessWidget {
     required this.maxController,
     required this.toleranceController,
     required this.pathLengthController,
+    required this.selectedPairOddMode,
+    required this.onPairOddChanged,
     required this.onAdd,
     required this.onCancel,
   });
@@ -311,6 +330,9 @@ class AddLoomForm extends StatelessWidget {
 
           const SizedBox(height: 12),
           _buildTextField('طول المسار', pathLengthController, isNumber: true),
+
+          const SizedBox(height: 16),
+          _buildPairOddDropdown(selectedPairOddMode, onPairOddChanged),
 
           const SizedBox(height: 16),
 
@@ -393,6 +415,61 @@ class AddLoomForm extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildPairOddDropdown(
+    PairOddMode selected,
+    Function(PairOddMode) onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'نظام الأزواج (زوجي/فردي)',
+          style: TextStyle(
+            color: Color(0xFF374151),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFD1D5DB)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<PairOddMode>(
+              value: selected,
+              isExpanded: true,
+              icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+              onChanged: (mode) {
+                if (mode != null) onChanged(mode);
+              },
+              items: [
+                DropdownMenuItem(
+                  value: PairOddMode.disabled,
+                  child: Text('معطل', style: TextStyle(fontSize: 14)),
+                ),
+                DropdownMenuItem(
+                  value: PairOddMode.pair,
+                  child: Text(
+                    'زوجي (الكمية / 2)',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: PairOddMode.odd,
+                  child: Text('فردي (كما هي)', style: TextStyle(fontSize: 14)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 /// نموذج تعديل نول
@@ -401,6 +478,8 @@ class EditLoomForm extends StatelessWidget {
   final TextEditingController minController;
   final TextEditingController maxController;
   final TextEditingController toleranceController;
+  final PairOddMode selectedPairOddMode;
+  final Function(PairOddMode) onPairOddChanged;
   final VoidCallback onSave;
   final VoidCallback onCancel;
 
@@ -410,6 +489,8 @@ class EditLoomForm extends StatelessWidget {
     required this.minController,
     required this.maxController,
     required this.toleranceController,
+    required this.selectedPairOddMode,
+    required this.onPairOddChanged,
     required this.onSave,
     required this.onCancel,
   });
@@ -448,6 +529,8 @@ class EditLoomForm extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          _buildPairOddDropdown(selectedPairOddMode, onPairOddChanged),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -503,6 +586,61 @@ class EditLoomForm extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
       style: const TextStyle(fontSize: 13),
+    );
+  }
+
+  Widget _buildPairOddDropdown(
+    PairOddMode selected,
+    Function(PairOddMode) onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'نظام الأزواج (زوجي/فردي)',
+          style: TextStyle(
+            color: Color(0xFF374151),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFD1D5DB)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<PairOddMode>(
+              value: selected,
+              isExpanded: true,
+              icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+              onChanged: (mode) {
+                if (mode != null) onChanged(mode);
+              },
+              items: [
+                DropdownMenuItem(
+                  value: PairOddMode.disabled,
+                  child: Text('معطل', style: TextStyle(fontSize: 14)),
+                ),
+                DropdownMenuItem(
+                  value: PairOddMode.pair,
+                  child: Text(
+                    'زوجي (الكمية / 2)',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: PairOddMode.odd,
+                  child: Text('فردي (كما هي)', style: TextStyle(fontSize: 14)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -595,11 +733,29 @@ class LoomCard extends StatelessWidget {
                   value: loom.tolerance.toString(),
                 ),
               ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _InfoCell(
+                  label: 'زوجي/فردي',
+                  value: _getPairOddLabel(loom.pairOddMode),
+                ),
+              ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  String _getPairOddLabel(PairOddMode mode) {
+    switch (mode) {
+      case PairOddMode.disabled:
+        return 'معطل';
+      case PairOddMode.pair:
+        return 'زوجي';
+      case PairOddMode.odd:
+        return 'فردي';
+    }
   }
 }
 
