@@ -11,6 +11,7 @@ void createWasteSheet(
   MeasurementUnit unit,
   int pathLength,
 ) {
+  final multiplier = 1;
   final Worksheet sheet = workbook.worksheets.addWithName('الهادر');
   sheet.isRightToLeft = true;
 
@@ -55,13 +56,14 @@ void createWasteSheet(
   double totalOriginal = 0;
   if (originals != null && originals.isNotEmpty) {
     for (var carpet in originals) {
-      totalOriginal += carpet.area * carpet.qty;
+      totalOriginal += carpet.area * carpet.qty * multiplier;
     }
   } else {
     // Fallback: calculate from groups if originals not available
     for (var group in groups) {
       for (var carpet in group.items) {
-        totalOriginal += carpet.area * (carpet.qtyUsed + carpet.qtyRem);
+        totalOriginal +=
+            carpet.area * (carpet.qtyUsed + carpet.qtyRem) * multiplier;
       }
     }
   }
@@ -86,12 +88,12 @@ void createWasteSheet(
     int maxPath = g.maxLengthRef;
 
     // Waste width with reference length = wasteWidth * maxPath
-    double wasteWidthWithRefLength = wasteWidth * maxPath;
+    double wasteWidthWithRefLength = wasteWidth * maxPath * multiplier;
 
     // Path waste = sum of (maxPath - itemPath) * itemWidth for all items
     double pathWaste = 0;
     for (var item in g.items) {
-      pathWaste += (maxPath - item.lengthRef) * item.width;
+      pathWaste += (maxPath - item.lengthRef) * item.width * multiplier;
     }
 
     // Add width waste area to path waste
@@ -122,7 +124,9 @@ void createWasteSheet(
     displayWidth = double.parse(displayWidth.toStringAsFixed(2));
     displayWasteWidth = double.parse(displayWasteWidth.toStringAsFixed(2));
     displayMaxPath = double.parse(displayMaxPath.toStringAsFixed(2));
-    displayWasteWidthWithRefLength = double.parse(displayWasteWidthWithRefLength.toStringAsFixed(2));
+    displayWasteWidthWithRefLength = double.parse(
+      displayWasteWidthWithRefLength.toStringAsFixed(2),
+    );
     displayPathWaste = double.parse(displayPathWaste.toStringAsFixed(2));
     wastePercentage = double.parse(wastePercentage.toStringAsFixed(2));
 
@@ -130,7 +134,9 @@ void createWasteSheet(
     sheet.getRangeByIndex(rowIndex, 1).setText('القصة_$groupId');
     sheet.getRangeByIndex(rowIndex, 2).setNumber(displayWidth);
     sheet.getRangeByIndex(rowIndex, 3).setNumber(displayWasteWidth);
-    sheet.getRangeByIndex(rowIndex, 4).setNumber(displayWasteWidthWithRefLength);
+    sheet
+        .getRangeByIndex(rowIndex, 4)
+        .setNumber(displayWasteWidthWithRefLength);
     sheet.getRangeByIndex(rowIndex, 5).setNumber(displayMaxPath);
     sheet.getRangeByIndex(rowIndex, 6).setNumber(displayPathWaste);
 
@@ -162,7 +168,9 @@ void createWasteSheet(
   totalWidth = double.parse(totalWidth.toStringAsFixed(2));
   totalWasteWidth = double.parse(totalWasteWidth.toStringAsFixed(2));
   totalMaxPath = double.parse(totalMaxPath.toStringAsFixed(2));
-  totalWasteWidthWithRefLength = double.parse(totalWasteWidthWithRefLength.toStringAsFixed(2));
+  totalWasteWidthWithRefLength = double.parse(
+    totalWasteWidthWithRefLength.toStringAsFixed(2),
+  );
   totalPathWaste = double.parse(totalPathWaste.toStringAsFixed(2));
   totalWastePercentage = double.parse(totalWastePercentage.toStringAsFixed(2));
 
