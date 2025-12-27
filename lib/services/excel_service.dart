@@ -7,7 +7,10 @@ import '../models/carpet.dart';
 import '../models/config.dart';
 
 class ExcelService {
-  Future<List<Carpet>> readInputExcel(String path, {PairOddMode? pairOddMode}) async {
+  Future<List<Carpet>> readInputExcel(
+    String path, {
+    PairOddMode? pairOddMode,
+  }) async {
     List<int> bytes;
 
     // 1. Try to get bytes from memory (FileStoreService) - Works for Web & Android 13+
@@ -116,5 +119,65 @@ class ExcelService {
     }
 
     return carpets;
+  }
+
+  /// Read data purely for "Total Order Quantity" calculation.
+  /// No prepOffset, no texture swap, no pair/odd logic.
+  /// Just raw: Width * Height * Qty.
+  Future<List<Carpet>> readRawInputExcel(String path) async {
+    List<int> bytes;
+
+    if (FileStoreService().inputBytes != null) {
+      bytes = FileStoreService().inputBytes!;
+    } else if (!kIsWeb && File(path).existsSync()) {
+      bytes = File(path).readAsBytesSync();
+    } else {
+      return [];
+    }
+
+    var excel = Excel.decodeBytes(bytes);
+    if (excel.tables.isEmpty) return [];
+
+    var table = excel.tables[excel.tables.keys.first]!;
+    List<Carpet> rawCarpets = [];
+
+    for (var row in table.rows) {
+      if (row.isEmpty) continue;
+      try {
+        dynamic getValue(int index) {
+          if (index >= row.length) return null;
+          return row[index]?.value;
+        }
+
+        var col0 = getValue(0); // Client Order
+        var col1 = getValue(1); // Width
+        var col2 = getValue(2); // Height
+        var col3 = getValue(3); // Qty
+
+        if (col0 == null || col1 == null || col2 == null || col3 == null) {
+          continue;
+        }
+
+        int clientOrder = int.tryParse(col0.toString()) ?? 0;
+        int width = int.tryParse(col1.toString().trim()) ?? 0;
+        int height = int.tryParse(col2.toString().trim()) ?? 0;
+        int qty = int.tryParse(col3.toString()) ?? 0;
+
+        if (width <= 0 || height <= 0 || qty <= 0) continue;
+
+        rawCarpets.add(
+          Carpet(
+            id: 0, // ID doesn't matter for total calc
+            width: width,
+            height: height, // Raw height, no prepOffset
+            qty: qty, // Raw qty, no pair/odd
+            clientOrder: clientOrder,
+          ),
+        );
+      } catch (e) {
+        continue;
+      }
+    }
+    return rawCarpets;
   }
 }

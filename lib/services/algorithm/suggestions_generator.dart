@@ -1,11 +1,8 @@
-import 'dart:math';
 import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import '../../models/carpet_used.dart';
-import 'group_builder.dart';
 
 class SuggestionsGenerator {
-  final GroupBuilder _groupBuilder = GroupBuilder();
 
   List<List<GroupCarpet>> generateSuggestions({
     required List<Carpet> remaining,

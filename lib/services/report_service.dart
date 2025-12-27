@@ -96,22 +96,6 @@ class ReportService {
       ReportFormatting.applyFormatting(sheet);
     }
 
-    // Remove default Sheet1 if it exists and is empty/unused
-    // Note: Syncfusion XlsIO might not expose a direct remove method on the collection in this version
-    // or it might be named differently. For now, we skip removing it to avoid compilation errors.
-    /*
-    try {
-        if (workbook.worksheets.count > 0) {
-            var sheet1 = workbook.worksheets['Sheet1'];
-            if (sheet1 != null) {
-                // workbook.worksheets.remove(sheet1); // Not available
-            }
-        }
-    } catch (e) {
-        // Ignore
-    }
-    */
-
     final List<int> bytes = workbook.saveAsStream();
     workbook.dispose();
 

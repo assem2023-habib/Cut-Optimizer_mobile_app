@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'permission_service.dart';
 
 class FirstLoginService {
   static const String _firstLoginKey = 'app_first_login_completed';
@@ -54,10 +54,6 @@ class FirstLoginService {
 
   /// Check all required permissions status
   static Future<Map<String, bool>> checkAllPermissionsStatus() async {
-    return {
-      'camera': (await Permission.camera.status).isGranted,
-      'storage': (await Permission.storage.status).isGranted,
-      'location': (await Permission.location.status).isGranted,
-    };
+    return {'storage': await PermissionService.isStoragePermissionGranted()};
   }
 }

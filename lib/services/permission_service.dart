@@ -1,74 +1,50 @@
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/material.dart';
 
 class PermissionService {
-  static const String _permissionsGrantedKey = 'app_permissions_granted';
+  /// Request storage permissions based on Android version
+  static Future<bool> requestStoragePermission() async {
+    // For Android 11+ (API 30+), try manageExternalStorage first
+    if (await Permission.manageExternalStorage.status.isDenied) {
+      final status = await Permission.manageExternalStorage.request();
+      if (status.isGranted) return true;
+    } else if (await Permission.manageExternalStorage.isGranted) {
+      return true;
+    }
 
-  /// Request all required permissions
-  static Future<Map<Permission, PermissionStatus>> requestAllPermissions(
-    BuildContext context,
-  ) async {
-    final permissions = [
-      Permission.camera,
-      Permission.storage,
-      Permission.manageExternalStorage, // Added for Android 11+
-      Permission.location,
-    ];
+    // For Android 13+ (API 33+), try media permissions
+    final mediaStatus = await [
+      Permission.photos,
+      Permission.videos,
+      Permission.audio,
+    ].request();
 
-    final statuses = await permissions.request();
-    return statuses;
-  }
+    if (mediaStatus.values.any((s) => s.isGranted)) {
+      return true;
+    }
 
-  /// Request camera permission
-  static Future<PermissionStatus> requestCameraPermission() async {
-    return await Permission.camera.request();
-  }
-
-  /// Request storage permission
-  static Future<PermissionStatus> requestStoragePermission() async {
-    // Try requesting Manage External Storage for Android 11+
-    final manageStatus = await Permission.manageExternalStorage.request();
-    if (manageStatus.isGranted) return manageStatus;
-
-    // Fallback for older versions or if denied
-    return await Permission.storage.request();
-  }
-
-  /// Request location permission
-  static Future<PermissionStatus> requestLocationPermission() async {
-    return await Permission.location.request();
-  }
-
-  /// Check if camera permission is granted
-  static Future<bool> isCameraPermissionGranted() async {
-    final status = await Permission.camera.status;
+    // Fallback: try regular storage permission
+    final status = await Permission.storage.request();
     return status.isGranted;
   }
 
   /// Check if storage permission is granted
   static Future<bool> isStoragePermissionGranted() async {
+    // Check manageExternalStorage first (Android 11+)
     if (await Permission.manageExternalStorage.isGranted) return true;
-    final status = await Permission.storage.status;
-    return status.isGranted;
-  }
 
-  /// Check if location permission is granted
-  static Future<bool> isLocationPermissionGranted() async {
-    final status = await Permission.location.status;
-    return status.isGranted;
-  }
+    // Check media permissions (Android 13+)
+    if (await Permission.photos.isGranted ||
+        await Permission.videos.isGranted ||
+        await Permission.audio.isGranted) {
+      return true;
+    }
 
-  /// Check all permissions status
-  static Future<Map<String, bool>> checkAllPermissions() async {
-    return {
-      'camera': await isCameraPermissionGranted(),
-      'storage': await isStoragePermissionGranted(),
-      'location': await isLocationPermissionGranted(),
-    };
+    // Check legacy storage permission
+    return await Permission.storage.isGranted;
   }
 
   /// Open app settings to manually grant permissions
-  static Future<void> openAppSettings() async {
+  static Future<void> openSettings() async {
     await openAppSettings();
   }
 

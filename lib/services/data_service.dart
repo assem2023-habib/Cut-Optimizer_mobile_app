@@ -15,6 +15,10 @@ class DataService {
     return await _excelService.readInputExcel(path, pairOddMode: pairOddMode);
   }
 
+  Future<List<Carpet>> readRawInputExcel(String path) async {
+    return await _excelService.readRawInputExcel(path);
+  }
+
   Future<void> writeOutputExcel({
     required String path,
     required List<GroupCarpet> groups,

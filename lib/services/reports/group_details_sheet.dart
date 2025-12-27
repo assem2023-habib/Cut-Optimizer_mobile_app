@@ -8,7 +8,14 @@ void createGroupDetailsSheet(
   List<GroupCarpet> groups,
   MeasurementUnit unit,
 ) {
-  final Worksheet sheet = workbook.worksheets.addWithName('تفاصيل القصات');
+  Worksheet sheet;
+  if (workbook.worksheets.count > 0 &&
+      workbook.worksheets[0].name == 'Sheet1') {
+    sheet = workbook.worksheets[0];
+    sheet.name = 'تفاصيل القصات';
+  } else {
+    sheet = workbook.worksheets.addWithName('تفاصيل القصات');
+  }
   sheet.isRightToLeft = true;
 
   // Helper for conversion

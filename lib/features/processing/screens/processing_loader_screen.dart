@@ -67,12 +67,18 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
         }
       }
 
-      // Step 1: Read input Excel file
+      // Step 1: Read input Excel file (Raw & Processed)
       setState(() {
         _statusMessage = 'قراءة ملف Excel...';
       });
       await Future.delayed(const Duration(milliseconds: 500));
 
+      // Read RAW data first (for reports)
+      List<Carpet> rawCarpets = await _dataService.readRawInputExcel(
+        widget.filePath,
+      );
+
+      // Read Processed data (for algorithm)
       List<Carpet> carpets = await _dataService.readInputExcel(
         widget.filePath,
         pairOddMode: pairOddMode,
@@ -95,7 +101,7 @@ class _ProcessingLoaderScreenState extends State<ProcessingLoaderScreen> {
         _statusMessage = 'بناء المجموعات...';
       });
 
-      List<Carpet> originalCarpets = carpets.map((c) => c.clone()).toList();
+      List<Carpet> originalCarpets = rawCarpets; // Use raw data here
 
       List<GroupCarpet> groups = _algorithmService.buildGroups(
         carpets: carpets,

@@ -16,7 +16,6 @@ void createTotalsSheet({
   final Worksheet sheet = workbook.worksheets.addWithName('الإجماليات');
   sheet.isRightToLeft = true;
 
-  String areaLabel = unit == MeasurementUnit.cm ? ' (سم²)' : ' (م²)';
 
   List<String> headers = [
     '',
@@ -49,10 +48,18 @@ void createTotalsSheet({
   int totalWasteQuantity = _calculateTotalWasteQuantity(groups, maxWidth);
 
   // Apply multiplier for Pair Mode (x2)
+  // Note: totalOrderQuantity calculated from originalGroups (raw) is already full quantity.
+  // Unless we fell back to 'groups' calculation.
+
+  // Flag to know if we used originals
+  bool usedOriginals = (originalGroups != null && originalGroups.isNotEmpty);
+
   int multiplier = (pairOddMode == PairOddMode.pair) ? 2 : 1;
 
   if (multiplier > 1) {
-    totalOrderQuantity *= multiplier;
+    if (!usedOriginals) {
+      totalOrderQuantity *= multiplier;
+    }
     totalRemainingQuantity *= multiplier;
     totalProducedQuantity *= multiplier;
     totalWasteQuantity *= multiplier;

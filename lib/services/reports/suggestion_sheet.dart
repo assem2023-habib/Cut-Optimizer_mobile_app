@@ -3,7 +3,6 @@ import '../../models/carpet.dart';
 import '../../models/group_carpet.dart';
 import '../../models/config.dart';
 import '../report_formatting.dart';
-import 'dart:math';
 
 void createSimpleSuggestionSheet(
   Workbook workbook,
