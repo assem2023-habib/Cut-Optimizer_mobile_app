@@ -161,7 +161,6 @@ class BackgroundService {
                   fileName.endsWith('.png')) &&
               file.path != currentImagePath) {
             await file.delete();
-            print('Deleted old background: ${file.path}');
           }
         }
       }
